@@ -1,0 +1,6 @@
+CREATE TABLE user (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `cliente_id` INT NOT NULL,
+  `senha` VARCHAR(225) NOT NULL,
+  PRIMARY KEY (`id`)
+);
