@@ -1,0 +1,86 @@
+body {
+  margin: 0;
+  padding: 0;
+  height: 100vh
+}
+
+/* Navbar */
+.navbar-aloha {
+  position: fixed;
+  top: 0;
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 15px;
+  color: #fff;
+}
+.navbar-aloha-disabled {
+  padding: 30px;
+}
+
+.navbar-aloha-brand img {
+  width: 50%;
+  max-width: 300px;
+}
+
+.navbar-aloha-profile {
+  font-size: 1.7rem;
+  color: #1E1E1E;
+}
+
+/* Footer */
+.aloha-footer {
+  position: fixed;
+  bottom: 0;
+  background-color: #f1f1f1;
+  left: 0;
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+  border-radius: 20px 20px 0 0;
+  border-top: 2px solid #c4c4c4;
+  border-right: 2px solid #c4c4c4;
+  border-left: 2px solid #c4c4c4;
+}
+
+.aloha-footer-disabled {
+  padding: 32px;
+}
+
+.aloha-footer .grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
+.aloha-footer .cell {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.icon-box {
+  font-size: 1.4rem;
+  color: #737373;
+}
+.circle {
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 6px;
+  width: 46px;
+}
+.icon-actived .circle {
+  background-color: #004aad;
+  color: #fff;
+}
+
+/* Main / iFrame */
+main {
+  height: calc(100vh - 124px);
+  padding: 0;
+}
+
+iframe {
+  width: 100%;
+  height: calc(100vh - 124px);
+  border: none;
+}

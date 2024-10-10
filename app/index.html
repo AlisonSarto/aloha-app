@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aloha App</title>
+  <link rel="stylesheet" href="/libs/bulma/bulma.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+</head>
+<body>
+
+  <nav class="navbar-aloha">
+    <div class="navbar-aloha-brand">
+      <img src="/assets/imgs/logo.png" alt="Aloha App">
+    </div>
+    <a class="navbar-aloha-profile" href="./?perfil">
+      <i class="far fa-circle-user"></i>
+    </a>
+  </nav>
+
+  <div class="navbar-aloha-disabled"></div>
+
+  <main>
+    <iframe id="iframe"></iframe>
+  </main>
+
+  <div class="aloha-footer-disabled"></div>
+
+  <footer class="aloha-footer">
+    <div class="fixed-grid has-3-cols m-0"></div>
+      <div class="grid">
+
+        <div class="cell">
+          <a class="icon-box" href="./?pedidos">
+            <div class="circle">
+              <i class="fas fa-basket-shopping"></i>
+            </div>
+          </a>
+        </div>
+
+        <div class="cell">
+          <a class="icon-box" href="./?inicio">
+            <div class="circle">
+              <i class="fas fa-house"></i>
+            </div>
+          </a>
+        </div>
+
+        <div class="cell">
+          <a class="icon-box" href="./?financeiro">
+            <div class="circle">
+              <i class="fas fa-dollar-sign"></i>
+            </div>
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </footer>
+
+  <script src="/libs/font-aweresome/font-aweresome.js"></script>
+  <script src="/libs/jquery/jquery.js"></script>
+  <script src="/assets/js/pages.js"></script>
+</body>
+</html>
