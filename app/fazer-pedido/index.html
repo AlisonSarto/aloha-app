@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fazer pedidos - Aloha App</title>
+  <link rel="stylesheet" href="/libs/bulma/bulma.css">
+  <link rel="stylesheet" href="./assets/css/produtos.css">
+</head>
+<body>
+
+  <main class="container is-fluid" class="">
+
+    <br>
+
+    <div id="page-1">
+      <h1 class="title is-4">Fazer pedido</h1>
+      <p class="subtitle is-6">Selecione os produtos que deseja pedir</p>
+
+      <div id="produtos"></div>
+    </div>
+
+    <div id="page-2" style="display: none;">
+      <h1 class="title is-4">Confirme o pedido</h1>
+      <p class="subtitle is-6">Confirme se a quantidade e sabor que você quer estão corretos</p>
+
+      <div id="pedido"></div>
+    </div>
+
+    <div id="page-3" style="display: none;">
+      <h1 class="title is-4">Forma de pagamento</h1>
+      <p class="subtitle is-6">Selecione a forma de pagamento</p>
+
+      <div id="pagamento"></div>
+
+    </div>
+
+    <br>
+    
+    <div id="btns">
+      <button class="button is-primary is-fullwidth" id="btn-continuar">Continuar</button>
+      <button class="button is-danger is-fullwidth" id="btn-voltar" style="margin-top: 10px; display: none;">Voltar</button>
+    </div>
+
+    <br>
+
+  </main>
+
+  <script src="/libs/jquery/jquery.js"></script>
+  <script src="/libs/font-aweresome/font-aweresome.js"></script>
+  <!---->
+  <script src="./assets/js/info.js"></script>
+</body>
+</html>

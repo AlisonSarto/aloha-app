@@ -4,12 +4,9 @@
   session_set_cookie_params($expireTime);
   session_start();
 
-  include $_SERVER['DOCUMENT_ROOT'] . '/funcs/env.php';
-  include $_SERVER['DOCUMENT_ROOT'] . '/funcs/curl.php';
+  // include $_SERVER['DOCUMENT_ROOT'] . '/funcs/env.php';
+  include $_SERVER['DOCUMENT_ROOT'] . '/funcs/gs_click.php';
   include $_SERVER['DOCUMENT_ROOT'] . '/funcs/send.php';
-
-  $gs_access_token = env('GS-ACCESS-TOKEN');
-  $gs_secret_token = env('GS-SECRET-TOKEN');
 
   date_default_timezone_set('Etc/GMT+3');
 

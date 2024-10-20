@@ -1,0 +1,65 @@
+.box {
+  padding: 10px;
+  line-height: 1;
+  font-weight: bolder;
+}
+
+.coco {
+  background-color: rgba(59, 235, 117, 0.5);
+  border-color: rgba(59, 235, 117, 1);
+}
+
+.morango {
+  background-color: rgba(255, 0, 0, 0.5);
+  border-color: rgba(255, 0, 0, 1);
+}
+
+.maracuja {
+  background-color: rgba(255, 153, 0, 0.5);
+  border-color: rgba(255, 153, 0, 1);
+}
+
+.melancia {
+  background-color: rgba(255, 0, 0, 0.5);
+  border-color: rgba(255, 0, 0, 1);
+}
+
+.maca {
+  background-color: rgba(0, 255, 106, 0.5);
+  border-color: rgba(0, 255, 106, 1);
+}
+
+.pessego {
+  background-color: rgba(255, 153, 0, 0.5);
+  border-color: rgba(255, 153, 0, 1);
+}
+
+.quantidade {
+  background-color: rgba(122, 122, 122, 0.2);
+  text-align: center;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 5px;
+  font-size: 1.2rem;
+  padding-right: 3px;
+  padding-left: 3px;
+  margin-left: 10px;
+}
+
+.quantidade .decrementar {
+  color: rgb(230, 48, 48);
+  font-size: 1.7rem;
+  padding-bottom: 7px;
+}
+
+.quantidade .incrementar {
+  font-size: 1.6rem;
+  color: rgb(230, 48, 48);
+  padding-bottom: 10px;
+}
+
+.qtd {
+  margin-left: 3px;
+  margin-right: 3px;
+}

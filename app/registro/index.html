@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aloha App</title>
+  <link rel="stylesheet" href="/libs/bulma/bulma.css">
+  <link rel="stylesheet" href="/assets/css/base.css">
+</head>
+<body>
+
+  <nav class="navbar-aloha">
+    <div class="navbar-aloha-brand">
+      <img src="/assets/imgs/logo.png" class="mgl-small" alt="Aloha App">
+    </div>
+    <a class="navbar-aloha-profile">
+      <i class="far fa-circle-user"></i>
+    </a>
+  </nav>
+
+  <div class="navbar-aloha-disabled"></div>
+
+  <br>
+
+  <!-- deixa o main do centro e no meio da tela toda -->
+  <main class="container is-fluid" style="display:none">
+
+    <br><br>
+
+    <div id="box-1">
+      <h4 class="is-size-4 has-text-centered">Olá <b id="nome-user"></b>,</h4>
+      <h4 class="is-size-4 has-text-centered">bem vindo ao <b>Aloha App</b>!</h4>
+    </div>
+
+    <div id="box-2" style="display:none">
+      Agora com o <b>Aloha App</b> você pode <b>fazer seu pedido</b> de forma rápida e prática, além de <b>acompanhar o status</b> do seu pedido em tempo real!
+    </div>
+
+    <div id="box-3" style="display:none">
+      <h4 class="is-size-4 has-text-centered">Para continuar, precisamos que você finalize seu cadastro</h4>
+    </div>
+
+    <!-- E-mail -->
+    <div id="box-4" style="display:none">
+
+      <div class="field">
+        <label class="label">Email</label>
+        <div class="control">
+          <input class="input" type="email" id="email" placeholder="Digite seu email">
+        </div>
+      </div>
+
+      <div class="content">
+        <p class="has-text-grey">Esse email será usado para você fazer login no <b>Aloha App</b></p>
+      </div>
+
+    </div>
+
+    <!-- Senha -->
+    <div id="box-5" style="display:none">
+
+      <div class="field">
+        <label class="label">Senha</label>
+        <div class="control">
+          <input class="input" type="password" id="senha" placeholder="Digite sua senha">
+        </div>
+      </div>
+
+      <div class="content">
+        <p class="has-text-grey">Essa senha será usada para você fazer login no <b>Aloha App</b></p>
+      </div>
+
+    </div>
+
+    <!-- Finaliza -->
+    <div id="box-6" style="display:none">
+      <h4 class="is-size-4 has-text-centered"><b>Pronto!</b></h4>
+      <h5 class="is-size-5 has-text-centered">Seu cadastro foi finalizado com sucesso!</h5>
+    </div>
+
+    <br><br><br>
+
+    <div id="btns">
+      <button class="button is-primary is-fullwidth" id="btn-continuar">Continuar</button>
+    </div>
+
+  </main>
+
+  <script src="/libs/jquery/jquery.js"></script>
+  <script src="/libs/font-aweresome/font-aweresome.js"></script>
+  <!---->
+  <script src="./assets/js/info.js"></script>
+</body>
+</html>

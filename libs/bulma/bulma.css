@@ -3171,15 +3171,15 @@ fieldset[disabled] .file-name, fieldset[disabled] .select select, .select fields
   --bulma-box-color: var(--bulma-text);
   --bulma-box-radius: var(--bulma-radius-large);
   --bulma-box-shadow: var(--bulma-shadow);
-  --bulma-box-padding: 1.25rem;
+  --bulma-box-padding: 1rem;
   --bulma-box-link-hover-shadow: 0 0.5em 1em -0.125em hsla(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-scheme-invert-l), 0.1), 0 0 0 1px var(--bulma-link);
   --bulma-box-link-active-shadow: inset 0 1px 2px hsla(var(--bulma-scheme-h), var(--bulma-scheme-s), var(--bulma-scheme-invert-l), 0.2), 0 0 0 1px var(--bulma-link);
 }
 
 .box {
-  background-color: var(--bulma-box-background-color);
+  background-color: #f1f1f1;
   border-radius: var(--bulma-box-radius);
-  box-shadow: var(--bulma-box-shadow);
+  border: 5px solid #c4c4c4;
   color: var(--bulma-box-color);
   display: block;
   padding: var(--bulma-box-padding);
@@ -5231,6 +5231,9 @@ button.tag:active,
   font-size: var(--bulma-title-size);
   font-weight: var(--bulma-title-weight);
   line-height: var(--bulma-title-line-height);
+}
+.box .title{
+  margin-bottom: 10px;
 }
 .title strong {
   color: var(--bulma-title-strong-color);
@@ -10237,6 +10240,7 @@ label.panel-block:hover {
   --bulma-grid-column-min: 9rem;
   --bulma-grid-cell-column-span: 1;
   --bulma-grid-cell-row-span: 1;
+  margin-bottom: 17px !important;
   display: grid;
   gap: var(--bulma-grid-gap);
   column-gap: var(--bulma-grid-column-gap, var(--bulma-grid-gap));
@@ -12974,8 +12978,8 @@ label.panel-block:hover {
 }
 .container.is-fluid {
   max-width: none !important;
-  padding-left: 32px;
-  padding-right: 32px;
+  padding-left: 20px;
+  padding-right: 20px;
   width: 100%;
 }
 .container.is-max-tablet {

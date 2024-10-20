@@ -2,16 +2,19 @@
 
   include $_SERVER['DOCUMENT_ROOT'] . '/funcs/config.php';
 
-  $cliente_id = $_GET['cliente_id'] ?? null;
+  $access = $_GET['access'] ?? null;
 
-  if ($cliente_id === null) {
+  if ($access === null) {
     send([
       'status' => 400,
-      'message' => 'Cliente ID não informado'
+      'message' => 'access não informado'
     ]);
   }
 
-  $sql = "SELECT * FROM users WHERE cliente_id = $cliente_id";
+  //? Decodifica
+  $cliente_id = base64_decode($access);
+
+  $sql = "SELECT * FROM usuarios WHERE cliente_id = $cliente_id";
   $res = $conn->query($sql);
 
   if ($res->num_rows > 0) {
@@ -19,32 +22,23 @@
   }
 
   //? Verifica se o cliente existe
-  $url = "https://api.beteltecnologia.com/clientes";
-  $header = [
-    "access-token: $gs_access_token",
-    "secret-access-token: $gs_secret_token"
-  ];
+  $url = "clientes";
   $method = 'GET';
   $data = [
     'id' => $cliente_id
   ];
 
-  $response = curl($url, $header, $method, $data);
+  $response = gs_click($url, $method, $data);
 
-  if ($response['data'] == 'Nenhum cliente foi encontrado!') {
+  if ($response == []) {
     send([
       'status' => 405,
       'message' => 'Acesso negado'
     ]);
   }
 
-  send([
-    'status' => 200,
-    'cliente' => $response['data']
-  ]);
-
-  session_destroy();
+  session_unset();
   $_SESSION['cliente_id'] = $cliente_id;
-  header('Location: /login');
+  header('Location: /app/registro');
 
 ?>

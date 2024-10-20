@@ -9,7 +9,7 @@ $(document).ready(function () {
 
   }else {
     //? Se não existir, leva o user para o inicio
-    iframe('/app/inicio');
+    iframe('/app/pedidos');
   }
 
 });
@@ -36,16 +36,31 @@ $('a').click(function (e) {
 
 });
 
+$('iframe').on('load', function() {
+  var iframeDocument = $(this).contents();
+  
+  iframeDocument.on('click', 'a', function(e) {
+    e.preventDefault();
+    
+    var url = $(this).attr('href');
+    url = url.split('/?')[1];
+    url = '/app/' + url;
+    
+    iframe(url);
+  });
+});
+
 function iframe(url) {
 
   $('iframe').hide();
 
   //? Verifica se a url existe no menu
   link = url.replace('/app/', './?');
+  link = './' + link.split('/')[1];
   if ($(`a[href='${link}']`).length == 0) {
 
     //? Se não existir, volta para o inicio
-    iframe('/app/inicio');
+    iframe('/app/pedidos');
 
     return;
   }

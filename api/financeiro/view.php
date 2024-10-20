@@ -4,9 +4,16 @@
 
   $id = $_GET['id'] ?? null;
 
-  $url = "clientes";
+  $data_inicio = '2020-01-01';
+
+  $url = "recebimentos";
   $method = 'GET';
-  $data = [];
+  $data = [
+    'cliente_id' => $_SESSION['cliente_id'],
+    'limit' => 9999,
+    'liquidado' => 'ab',
+    'data_inicio' => $data_inicio,
+  ];
   if ($id !== null) {
     $data = [
       'id' => $id
@@ -15,17 +22,9 @@
 
   $response = gs_click($url, $method, $data);
 
-  $clientes = [];
-  foreach ($response as $cliente) {
-    $clientes[] = [
-      'id' => $cliente['id'],
-      'nome' => $cliente['nome'],
-    ];
-  }
-
   send([
     'status' => 200,
-    'clientes' => $clientes
+    'financeiro' => $response
   ]);
 
 ?>
