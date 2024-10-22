@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Perfil - Aloha App</title>
+  <link rel="stylesheet" href="/libs/bulma/bulma.css">
+</head>
+<body>
+
+  <main class="container is-fluid" style="display: none;">
+    <br>
+    
+    <h1 class="title is-4">Seu perfil</h1>
+
+    <!-- logado como: -->
+    <div>
+      <p>Logado como: <b id="nome"></b></p>
+      <p>E-mail: <b id="email"></b></p>
+    </div>
+          
+    <br>
+
+    <!-- btn sair -->
+    <a href="/sair">
+      <button class="button is-danger">
+        <span class="icon">
+          <i class="fas fa-sign-out-alt"></i>
+        </span>
+        <span>Sair</span>
+      </button>
+    </a>
+
+    <br>
+  </main>
+
+  <script src="/libs/jquery/jquery.js"></script>
+  <script src="/libs/font-aweresome/font-aweresome.js"></script>
+  <script src="/assets/js/access.js"></script>
+  <!---->
+  <script src="./assets/js/info.js"></script>
+</body>
+</html>

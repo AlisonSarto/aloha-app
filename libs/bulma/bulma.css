@@ -5043,6 +5043,7 @@ div.icon-text {
   --bulma-tag-s: var(--bulma-dark-s);
   --bulma-tag-background-l: var(--bulma-dark-l);
   --bulma-tag-color-l: var(--bulma-dark-invert-l);
+  background-color: #8d8d8d !important;
 }
 .tag.is-dark.is-light {
   --bulma-tag-background-l: var(--bulma-light-l);
@@ -21417,6 +21418,10 @@ has-background-danger.is-hoverable:active {
 .is-clickable {
   cursor: pointer !important;
   pointer-events: all !important;
+}
+
+.has-text-nowrap {
+  white-space: nowrap !important;
 }
 
 /*# sourceMappingURL=bulma.css.map */

@@ -9,30 +9,117 @@
 </head>
 <body>
 
-  <main class="container is-fluid" class="">
+  <main class="container is-fluid" style="display: none;">
 
     <br>
 
+    <!-- Selecionar qtd -->
     <div id="page-1">
       <h1 class="title is-4">Fazer pedido</h1>
       <p class="subtitle is-6">Selecione os produtos que deseja pedir</p>
 
+      <div class="notification">
+        <strong>Valor de cada pacote: </strong><span id="vlr-cada-pacote"></span>
+      </div>
+
       <div id="produtos"></div>
     </div>
 
+    <!-- Resumo pedido -->
     <div id="page-2" style="display: none;">
       <h1 class="title is-4">Confirme o pedido</h1>
       <p class="subtitle is-6">Confirme se a quantidade e sabor que você quer estão corretos</p>
 
       <div id="pedido"></div>
+
+      <br>
+
+      <div class="notification">
+        <strong>Valor do pedido: </strong><span id="vlr-pedido"></span>
+      </div>
     </div>
 
+    <!-- Forma de entrega e pagamento -->
     <div id="page-3" style="display: none;">
+      <h1 class="title is-4">Forma de entrega</h1>
+      <p class="subtitle is-6">Selecione a forma de entrega</p>
+
+      <div class="field">
+        <div class="control">
+          <!-- deixa w 100% o select -->
+          <div class="select is-fullwidth">
+            <select id="tipo-entrega">
+              <option selected disabled>Escolha aqui...</option>
+              <option value="entrega">Entrega</option>
+              <option value="retirada">Retirada</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div id="notif-frete" style="display: none;">
+        <br>
+        <div class="notification">
+          <strong>Valor do frete: </strong><span id="vlr-frete"></span>
+        </div>
+      </div>
+      
+      <br>
+
       <h1 class="title is-4">Forma de pagamento</h1>
       <p class="subtitle is-6">Selecione a forma de pagamento</p>
 
-      <div id="pagamento"></div>
+      <div class="field">
+        <div class="control">
+          <div class="select is-fullwidth">
+            <select id="tipo-pagamento">
+              <option selected disabled>Escolha aqui...</option>
+              <option value="dinheiro">Dinheiro</option>
+              <option value="boleto">Boleto</option>
+            </select>
+          </div>
+        </div>
+      </div>
 
+    </div>
+
+    <!-- Resumo Geral -->
+    <div id="page-4" style="display: none;">
+      <h1 class="title is-4">Resumo do pedido</h1>
+      <p class="subtitle is-6">Confirme se todas as informações estão corretas</p>
+      
+      <div id="resumo-pacotes"></div>
+      <br>
+      <div class="notification if-frete" style="display: none;">
+        <strong>Valor pedido: </strong><span id="resumo-vlr-pedido"></span>
+      </div>
+      <div class="notification if-frete" style="display: none;">
+        <strong>Valor do frete: </strong><span id="resumo-frete"></span>
+      </div>
+      <div class="notification">
+        <strong>Valor total: </strong><span id="resumo-total"></span>
+      </div>
+
+      <hr>
+
+      <!-- forma de entraga e forma de pagamento -->
+      <div class="notification">
+        <strong>Forma de entrega: </strong><span id="resumo-entrega"></span>
+      </div>
+      <div class="notification">
+        <strong>Forma de pagamento: </strong><span id="resumo-pagamento"></span>
+      </div>
+
+    </div>
+
+    <!-- loanding page -->
+    <div id="page-5" style="display: none;">
+      <br><br><br>
+      <h3 class="title is-3 has-text-centered" id="loading-icon">
+        <i class="fas fa-spinner fa-spin"></i>
+      </h3>
+      <h1 class="title is-4 has-text-centered" id="loading-title">Aguarde...</h1>
+      <p class="subtitle is-6 has-text-centered" id="loading-subtitle">Estamos processando seu pedido</p>
     </div>
 
     <br>

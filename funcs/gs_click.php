@@ -115,7 +115,7 @@
     }
 
     //? Caso tenha mais de uma página
-    $n_paginas = $response['meta']['total_paginas'];
+    $n_paginas = $response['meta']['total_paginas'] ?? 1;
 
     $n_pagina = 2;
     $x = 1;

@@ -5,16 +5,138 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pedidos - Aloha App</title>
   <link rel="stylesheet" href="/libs/bulma/bulma.css">
+  <link rel="stylesheet" href="/libs/bulma/bulba-steps.css">
 </head>
 <body>
 
-  <main class="container is-fluid">
+  <main class="container is-fluid" style="display: none;">
 
     <br>
 
     <h1 class="title is-4" id="titulo">Pedido Nº 2203</h1>
 
-    
+    <div class="card">
+      <div class="card-content">
+
+        <p class="title is-5">Status do pedido</p>
+        
+        <ul class="steps is-medium is-centered has-content-centered" id="step">
+
+          <li class="steps-segment" id="em-analize">
+            <span class="steps-marker">
+              <span class="icon">
+                <i class="fa-solid fa-magnifying-glass"></i>
+              </span>
+            </span>
+            <div class="steps-content">
+              <p class="heading">Em análize</p>
+            </div>
+          </li>
+
+          <li class="steps-segment" id="preparando-envio">
+            <span class="steps-marker">
+              <span class="icon">
+                <i class="fa-solid fa-box"></i>
+              </span>
+            </span>
+            <div class="steps-content">
+              <p class="heading">Preparando envio</p>
+            </div>
+          </li>
+
+          <li class="steps-segment" id="em-rota">
+            <span class="steps-marker">
+              <span class="icon">
+                <i class="fa-solid fa-truck"></i>
+              </span>
+            </span>
+            <div class="steps-content">
+              <p class="heading">Em rota</p>
+            </div>
+          </li>
+
+          <li class="steps-segment" id="entregue">
+            <span class="steps-marker">
+              <span class="icon">
+                <i class="fa fa-check"></i>
+              </span>
+            </span>
+            <div class="steps-content">
+              <p class="heading">Entregue</p>
+            </div>
+          </li>
+
+        </ul>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+
+        <p class="title is-5">Informações do pedido</p>
+        <p class="subtitle is-6">Detalhes do pedido</p>
+
+        <div class="content">
+          <p><b>Data:</b> <span id="data"></span></p>
+          <p><b>Prazo de entrega:</b> <span id="prazo"></span></p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+
+        <p class="title is-5">Produtos</p>
+        <p class="subtitle is-6">Lista de produtos</p>
+
+        <div class="content">
+          <div class="table-container">
+            <table class="table is-bordered is-fullwidth" id="produtos">
+              <thead>
+                <tr>
+                  <th>Produto</th>
+                  <th>Quantidade</th>
+                  <th>Valor</th>
+                  <th>Subtotal</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+
+        <div class="content">
+          <p><b>Valor pedido:</b> R$ <span id="vlr-pedido"></span></p>
+          <p><b>Valor frete:</b> R$ <span id="vlr-frete"></span></p>
+          <p><b>Valor total:</b> R$ <span id="vlr-total"></span></p>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-content">
+
+        <p class="title is-5">Forma de pagamento</p>
+        <p class="subtitle is-6">Detalhes do pagamento</p>
+
+        <div class="content">
+          <div class="table-container">
+            <table class="table is-bordered is-fullwidth" id="pagamentos">
+              <thead>
+                <tr>
+                  <th>Vencimento</th>
+                  <th>Valor</th>
+                  <th class="has-text-nowrap">Forma de Pagamento</th>
+                </tr>
+              </thead>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
 
     <br>
 

@@ -41,6 +41,10 @@ $('iframe').on('load', function() {
   
   iframeDocument.on('click', 'a', function(e) {
     e.preventDefault();
+
+    if ($(this).attr('href') == '/sair') {
+      window.location.href = '/sair';
+    }
     
     var url = $(this).attr('href');
     url = url.split('/?')[1];
