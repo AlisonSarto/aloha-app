@@ -61,7 +61,7 @@
     $gs_access_token = env('GS_ACCESS_TOKEN');
     $gs_secret_token = env('GS_SECRET_TOKEN');
 
-    $url = "https://api.beteltecnologia.com/$url";
+    $url_base = "https://api.beteltecnologia.com/$url";
 
     $header[] = 'Content-Type: application/json; charset=UTF-8';
     $header[] = "access-token: $gs_access_token";
@@ -69,10 +69,11 @@
 
     if ($method === 'GET') {
 
-      $url = $url . '?' . http_build_query($data);
+      $url = $url_base . '?' . http_build_query($data);
 
     }else {
 
+      $url = $url_base;
       $data = json_encode($data);
 
     }
@@ -118,14 +119,13 @@
     $n_paginas = $response['meta']['total_paginas'] ?? 1;
 
     $n_pagina = 2;
-    $x = 1;
 
-    while ($x < $n_paginas) {
+    while ($n_pagina <= $n_paginas) {
       $data['pagina'] = $n_pagina;
 
       $curl = curl_init();
       curl_setopt_array($curl, [
-        CURLOPT_URL => $url,
+        CURLOPT_URL => $url_base . '?' . http_build_query($data),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_SSL_VERIFYPEER => false,
         CURLOPT_ENCODING => "",
@@ -133,7 +133,6 @@
         CURLOPT_TIMEOUT => 30,
         CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
         CURLOPT_CUSTOMREQUEST => $method,
-        CURLOPT_POSTFIELDS => $data,
         CURLOPT_HTTPHEADER => $header,
       ]);
 
@@ -148,7 +147,6 @@
       $result = array_merge($result, $response);
 
       $n_pagina++;
-      $x++;
     }
 
     return $result;

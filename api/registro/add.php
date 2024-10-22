@@ -16,6 +16,17 @@
   //? Criptografando a senha
   $senha = password_hash($senha, PASSWORD_DEFAULT);
 
+  //? Verifica se não existe um usuário com o mesmo email
+  $sql = "SELECT * FROM usuarios WHERE email = '$email'";
+  $res = $conn->query($sql);
+
+  if ($res->num_rows > 0) {
+    send([
+      'status' => 400,
+      'message' => 'Já existe um usuário com esse email'
+    ]);
+  }
+
   //? Cria o acesso
   $sql = "INSERT INTO usuarios (email, senha, cliente_id) VALUES ('$email', '$senha', $cliente_id)";
   $res = $conn->query($sql);
