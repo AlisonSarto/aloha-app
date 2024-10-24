@@ -18,29 +18,27 @@
       <h1 class="title is-4">Fazer pedido</h1>
       <p class="subtitle is-6">Selecione os produtos que deseja pedir</p>
 
+      <!-- Frete Grátis -->
+      <div class="notification is-success is-light" id="frete-gratis" style="display: none;">
+        <span class="icon has-text-success">
+          <i class="fas fa-truck"></i>
+        </span>
+        <strong style="margin-left: 10px;">Frete grátis no seu primeiro pedido pelo Aloha App!</strong>
+      </div>
+
+      <!-- Valor cada pacote -->
       <div class="notification">
-        <strong>Valor de cada pacote: </strong><span id="vlr-cada-pacote"></span>
+        <div class="icon">
+          <i class="fas fa-box"></i>
+        </div>
+        <strong style="margin-left: 10px;">Valor de cada pacote: </strong><span id="vlr-cada-pacote"></span>
       </div>
 
       <div id="produtos"></div>
     </div>
 
-    <!-- Resumo pedido -->
-    <div id="page-2" style="display: none;">
-      <h1 class="title is-4">Confirme o pedido</h1>
-      <p class="subtitle is-6">Confirme se a quantidade e sabor que você quer estão corretos</p>
-
-      <div id="pedido"></div>
-
-      <br>
-
-      <div class="notification">
-        <strong>Valor do pedido: </strong><span id="vlr-pedido"></span>
-      </div>
-    </div>
-
     <!-- Forma de entrega e pagamento -->
-    <div id="page-3" style="display: none;">
+    <div id="page-2" style="display: none;">
       <h1 class="title is-4">Forma de entrega</h1>
       <p class="subtitle is-6">Selecione a forma de entrega</p>
 
@@ -84,7 +82,7 @@
     </div>
 
     <!-- Resumo Geral -->
-    <div id="page-4" style="display: none;">
+    <div id="page-3" style="display: none;">
       <h1 class="title is-4">Resumo do pedido</h1>
       <p class="subtitle is-6">Confirme se todas as informações estão corretas</p>
       
@@ -113,7 +111,7 @@
     </div>
 
     <!-- loanding page -->
-    <div id="page-5" style="display: none;">
+    <div id="page-4" style="display: none;">
       <br><br><br>
       <h3 class="title is-3 has-text-centered" id="loading-icon">
         <i class="fas fa-spinner fa-spin"></i>

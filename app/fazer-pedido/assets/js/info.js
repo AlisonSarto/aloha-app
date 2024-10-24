@@ -4,12 +4,20 @@ $(document).ready(function() {
   var vlr_frete;
   var pedido;
   var produtos = [];
+  var n_pedido;
+
   $.ajax({
     url: '/api/login/profile',
     method: 'GET',
     success: function(data) {
       vlr_pacote = data.profile_interno[0].vlr_pacote;
       vlr_frete = data.profile_interno[0].vlr_frete;
+      n_pedido = data.profile_interno[0].n_pedidos;
+
+      if (n_pedido == 0) {
+        $('#frete-gratis').show();
+        vlr_frete = '0.00';
+      }
 
       $('#vlr-cada-pacote').text(`R$ ${vlr_pacote.replace('.', ',')}`);	
       $('#vlr-frete').text(`R$ ${vlr_frete.replace('.', ',')}`);
@@ -119,7 +127,7 @@ $(document).ready(function() {
       }
 
       //? Adiciona os produtos selecionados na próxima página
-      $('#pedido').html('');
+      $('#resumo-pacotes').html('');
       var valor_pedido = 0;
       pedido.forEach(produto => {
 
@@ -145,7 +153,7 @@ $(document).ready(function() {
           cor = 'morango';
         }
 
-        $('#pedido').append(`
+        $('#resumo-pacotes').append(`
           <div class="box ${cor}">
             <div class="columns is-mobile is-gapless">
 
@@ -174,13 +182,13 @@ $(document).ready(function() {
         valor_pedido += produto.qtd * vlr_pacote;
       });
 
-      $('#vlr-pedido').text(`R$ ${valor_pedido.toFixed(2).replace('.', ',')}`);
+      $('#resumo-vlr-pedido').text(`R$ ${valor_pedido.toFixed(2).replace('.', ',')}`);
 
       $('#btn-voltar').show();
 
     }
 
-    if (page === 3) {
+    if (page === 2) {
       //? Verifica se os selects tipo-pagamento e tipo-entrega estão preenchidos
       const tipo_pagamento = $('#tipo-pagamento').val();
       const tipo_entrega = $('#tipo-entrega').val();
@@ -192,7 +200,7 @@ $(document).ready(function() {
     }
 
     // resumo geral
-    if (page === 3) {
+    if (page === 2) {
       // Retrieve the selected value from the #tipo-entrega dropdown
       var tipoEntrega = $('#tipo-entrega option:selected').val();
       
@@ -209,7 +217,7 @@ $(document).ready(function() {
       $('#resumo-frete').text($('#vlr-frete').text());
       
       // Calculate the total
-      var total = parseFloat($('#vlr-pedido').text().replace('R$ ', '').replace(',', '.')) + parseFloat($('#vlr-frete').text().replace('R$ ', '').replace(',', '.'));
+      var total = parseFloat($('#resumo-vlr-pedido').text().replace('R$ ', '').replace(',', '.')) + parseFloat($('#vlr-frete').text().replace('R$ ', '').replace(',', '.'));
       $('#resumo-total').text(`R$ ${total.toFixed(2).replace('.', ',')}`);
       
       // Update the remaining HTML elements
@@ -218,12 +226,12 @@ $(document).ready(function() {
     }
 
     // finalizar pedido
-    if (page === 4) {
+    if (page === 3) {
       
       //? Pagina de loading
-      $('#page-4').fadeOut(200, function() {
+      $('#page-3').fadeOut(200, function() {
         $('#btns').css('display', 'none');
-        $(`#page-5`).fadeIn(200);
+        $(`#page-4`).fadeIn(200);
         $('html, body').animate({ scrollTop: 0 }, 200);
       });
 
@@ -253,7 +261,7 @@ $(document).ready(function() {
 
     }
     
-    if (page === 3) {
+    if (page === 2) {
       $('#btn-continuar').text('Finalizar pedido');
       $('#btn-continuar').addClass('is-success');
     }else {

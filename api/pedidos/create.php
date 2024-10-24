@@ -33,6 +33,9 @@
   $res = $conn->query($sql);
   $db = $res->fetch_assoc();
 
+  $n_pedidos = $db['n_pedidos'];
+  $db['vlr_frete'] = $n_pedidos == 0 ? 0 : $db['vlr_frete'];
+
   $vlr_frete = $tipo_entrega == 'entrega' ? $db['vlr_frete'] : 0;
 
   $vlr_pacote = $db['vlr_pacote'];
@@ -81,6 +84,11 @@
   ];
 
   $response = gs_click($url, $method, $data);
+
+  //? Soma no numero de pedidos do cliente
+  $n_pedidos++;
+  $sql = "UPDATE usuarios SET n_pedidos = $n_pedidos WHERE cliente_id = $cliente_id";
+  $res = $conn->query($sql);
 
   send([
     'status' => 200,
