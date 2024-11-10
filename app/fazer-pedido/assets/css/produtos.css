@@ -34,32 +34,9 @@
   border-color: rgba(255, 153, 0, 1);
 }
 
-.quantidade {
-  background-color: rgba(122, 122, 122, 0.2);
-  text-align: center;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-radius: 5px;
-  font-size: 1.2rem;
-  padding-right: 3px;
-  padding-left: 3px;
-  margin-left: 10px;
-}
-
-.quantidade .decrementar {
-  color: rgb(230, 48, 48);
-  font-size: 1.7rem;
-  padding-bottom: 7px;
-}
-
-.quantidade .incrementar {
-  font-size: 1.6rem;
-  color: rgb(230, 48, 48);
-  padding-bottom: 10px;
-}
-
 .qtd {
-  margin-left: 3px;
-  margin-right: 3px;
+  /* muda a cor do fundo do input para fica com um branco 0.3 */
+  background-color: rgba(255, 255, 255, 0.3);
+  border: 1px solid #ffffff2a;
+  text-align: center;
 }

@@ -71,9 +71,7 @@ $(document).ready(function() {
 
               <div class="column">
                 <div class="quantidade" data-id="${produto.id}">
-                  <button class="decrementar">-</button>
-                  <span class="qtd">0</span>
-                  <button class="incrementar">+</button>
+                  <input class="input qtd" type="number" value="0">
                 </div>
               </div>
               
@@ -83,21 +81,6 @@ $(document).ready(function() {
       });
 
       $('main').show();
-
-      //? Adiciona eventos aos botões de incrementar e decrementar
-      $('.incrementar').click(function() {
-        const qtdElem = $(this).siblings('.qtd');
-        let qtd = parseInt(qtdElem.text());
-        qtdElem.text(qtd + 1);
-      });
-
-      $('.decrementar').click(function() {
-        const qtdElem = $(this).siblings('.qtd');
-        let qtd = parseInt(qtdElem.text());
-        if (qtd > 0) {
-          qtdElem.text(qtd - 1);
-        }
-      });
     }
   });
 
@@ -110,7 +93,7 @@ $(document).ready(function() {
       //? Registra a qtd de cada produto que é > 0 em um novo array pedido
       pedido = [];
       produtos.forEach(produto => {
-        const qtd = parseInt($(`.quantidade[data-id="${produto.id}"] .qtd`).text());
+        const qtd = parseInt($(`.quantidade[data-id="${produto.id}"] .qtd`).val());
         if (qtd > 0) {
           pedido.push({
             id: produto.id,
