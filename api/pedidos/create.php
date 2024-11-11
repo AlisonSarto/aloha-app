@@ -60,8 +60,8 @@
     $forma_pagamento = 2633094;
   }elseif ($tipo_pagamento == 'boleto') {
     $forma_pagamento = 2219792;
-  }else {
-    $forma_pagamento = 2219792;
+  }elseif ($tipo_pagamento == 'pix') {
+    $forma_pagamento = 2219799;
   }	
   
   $url = "vendas";
