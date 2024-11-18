@@ -30,6 +30,7 @@
     ]);
   }
 
+  $data = [];
   foreach ($produtos as $produto) {
     $data[] = [
       'id' => $produto['id'],
