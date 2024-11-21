@@ -55,6 +55,18 @@ $(document).ready(function() {
         } else if (produto.nome.toLowerCase().includes('morango')) {
           emoji = '🍓';
           cor = 'morango';
+        } else if (produto.nome.toLowerCase().includes('laranja')) {
+          emoji = '🍊';
+          emoji = '🆕';
+          cor = 'laranja';
+        } else if (produto.nome.toLowerCase().includes('pitaya')) {
+          emoji = '🐉';
+          emoji = '🆕';
+          cor = 'pitaya';
+        } else if (produto.nome.toLowerCase().includes('limão')) {
+          emoji = '🍋‍🟩';
+          emoji = '🆕';
+          cor = 'limao';
         }
 
         $('#produtos').append(`
@@ -134,6 +146,18 @@ $(document).ready(function() {
         } else if (produto.nome.toLowerCase().includes('morango')) {
           emoji = '🍓';
           cor = 'morango';
+        } else if (produto.nome.toLowerCase().includes('laranja')) {
+          emoji = '🍊';
+          emoji = '🆕';
+          cor = 'laranja';
+        } else if (produto.nome.toLowerCase().includes('pitaya')) {
+          emoji = '🐉';
+          emoji = '🆕';
+          cor = 'pitaya';
+        } else if (produto.nome.toLowerCase().includes('limão')) {
+          emoji = '🍋‍🟩';
+          emoji = '🆕';
+          cor = 'limao';
         }
 
         $('#resumo-pacotes').append(`

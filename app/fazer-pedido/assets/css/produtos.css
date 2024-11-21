@@ -30,8 +30,23 @@
 }
 
 .pessego {
-  background-color: rgba(255, 153, 0, 0.5);
-  border-color: rgba(255, 153, 0, 1);
+  background-color: rgba(255, 81, 0, 0.5);
+  border-color: rgb(255, 81, 0);
+}
+
+.laranja {
+  background-color: rgba(255, 174, 0, 0.5);
+  border-color: rgb(255, 174, 0);
+}
+
+.pitaya {
+  background-color: rgba(153, 0, 255, 0.5);
+  border-color: rgb(153, 0, 255);
+}
+
+.limao {
+  background-color: rgba(178, 218, 0, 0.5);
+  border-color: rgb(178, 218, 0);
 }
 
 .qtd {

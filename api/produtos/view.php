@@ -19,7 +19,7 @@
   if ($id !== null) {
     $data['id'] = $id;
   }
-  $data['grupo_id'] = 2571246;
+  // $data['grupo_id'] = 2571246;
 
   $produtos = gs_click($url, $method, $data);
 
