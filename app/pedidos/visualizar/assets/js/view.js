@@ -63,15 +63,18 @@ $(document).ready(function () {
       produtos.forEach(produto => {
         const pacote = produto.produto;
 
-        pacote.valor_venda = pacote.valor_venda.replace('.', ',');
         pacote.valor_total = pacote.valor_total.replace('.', ',');
         pacote.quantidade = pacote.quantidade.replace('.00', '');
+
+        //* Dividindo direto para incluir descontos
+        var valor_venda = parseFloat(pacote.valor_total.replace(',', '.')) / parseInt(pacote.quantidade);
+        valor_venda = valor_venda.toFixed(2).replace('.', ',');
 
         $('#produtos').append(`
           <tr>
             <td class="has-text-nowrap">${pacote.nome_produto}</td>
             <td class="has-text-nowrap">${pacote.quantidade}</td>
-            <td class="has-text-nowrap">R$ ${pacote.valor_venda}</td>
+            <td class="has-text-nowrap">R$ ${valor_venda}</td>
             <td class="has-text-nowrap">R$ ${pacote.valor_total}</td>
           </tr>
         `);

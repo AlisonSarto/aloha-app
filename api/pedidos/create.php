@@ -13,6 +13,11 @@
   $pedido = $_POST['pedido'] ?? null;
   $tipo_pagamento = $_POST['tipo_pagamento'] ?? null;
   $tipo_entrega = $_POST['tipo_entrega'] ?? null;
+  
+  $black_friday = false;
+  if (date('Y-m-d') == '2024-11-22' || date('Y-m-d') == '2024-11-23') {
+    $black_friday = true;
+  }
 
   if ($cliente_id === null) {
     send([
@@ -47,12 +52,26 @@
   }
   $pedido_formatado = [];
   foreach ($pedido as $produto) {
-    $pedido_formatado[] = [
+    $tbm_pedido = [
       'produto_id' => $produto['id'],
       'quantidade' => $produto['qtd'],
       'valor_venda' => $vlr_pacote
     ];
-    $vlr_total += $produto['qtd'] * $vlr_pacote;
+
+    $tbm_valor = $produto['qtd'] * $vlr_pacote;
+    
+    //* Black Friday 2024 (10% off nos sabores novos)
+    if ($black_friday == true) {
+      if ($produto['id'] == 70214810 || $produto['id'] == 70214803 || $produto['id'] == 70214781) {
+        $tbm_pedido['tipo_desconto'] = '%';
+        $tbm_pedido['desconto_porcentagem'] = '10';
+        $tbm_pedido['detalhes'] = '10% OFF na Black Friday dos sabores novos';
+        $tbm_valor = $tbm_valor - ($tbm_valor * 0.1);
+      }
+    }
+
+    $pedido_formatado[] = $tbm_pedido;
+    $vlr_total += $tbm_valor;
   }
   $vlr_total += $vlr_frete;
 

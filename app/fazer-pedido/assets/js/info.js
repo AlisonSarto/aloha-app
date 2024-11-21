@@ -5,6 +5,20 @@ $(document).ready(function() {
   var pedido;
   var produtos = [];
   var n_pedido;
+  var blackFriday = false;
+  
+  //? verifica se é o dia da black friday
+  var data = new Date();
+  var dia = data.getDate();
+  var mes = data.getMonth() + 1;
+  var ano = data.getFullYear();
+  if ((dia == 22 && mes == 11 && ano == 2024) || (dia == 23 && mes == 11 && ano == 2024)) {
+    blackFriday = true;
+  }
+
+  if (blackFriday) {
+    $('#black-friday').show();
+  }
 
   $.ajax({
     url: '/api/login/profile',
@@ -59,14 +73,23 @@ $(document).ready(function() {
           emoji = '🍊';
           emoji = '🆕';
           cor = 'laranja';
+          if (blackFriday) {
+            produto.nome = produto.nome + ' (10% off)';
+          }
         } else if (produto.nome.toLowerCase().includes('pitaya')) {
           emoji = '🐉';
           emoji = '🆕';
           cor = 'pitaya';
+          if (blackFriday) {
+            produto.nome = produto.nome + ' (10% off)';
+          }
         } else if (produto.nome.toLowerCase().includes('limão')) {
           emoji = '🍋‍🟩';
           emoji = '🆕';
           cor = 'limao';
+          if (blackFriday) {
+            produto.nome = produto.nome + ' (10% off)';
+          }
         }
 
         $('#produtos').append(`
@@ -128,6 +151,7 @@ $(document).ready(function() {
 
         var emoji = '⚠️';
         var cor = '';
+        var vlr_pacote_uni = parseFloat(vlr_pacote);
         if (produto.nome.toLowerCase().includes('coco')) {
           emoji = '🥥';
           cor = 'coco';
@@ -150,14 +174,23 @@ $(document).ready(function() {
           emoji = '🍊';
           emoji = '🆕';
           cor = 'laranja';
+          if (blackFriday) {
+            vlr_pacote_uni = vlr_pacote_uni * 0.9;
+          }
         } else if (produto.nome.toLowerCase().includes('pitaya')) {
           emoji = '🐉';
           emoji = '🆕';
           cor = 'pitaya';
+          if (blackFriday) {
+            vlr_pacote_uni = vlr_pacote_uni * 0.9;
+          }
         } else if (produto.nome.toLowerCase().includes('limão')) {
           emoji = '🍋‍🟩';
           emoji = '🆕';
           cor = 'limao';
+          if (blackFriday) {
+            vlr_pacote_uni = vlr_pacote_uni * 0.9;
+          }
         }
 
         $('#resumo-pacotes').append(`
@@ -180,13 +213,13 @@ $(document).ready(function() {
             
             <div class="columns is-mobile is-gapless">
               <div class="column is-12 is-align-content-center">
-                <b>Subtotal:</b> R$ ${(produto.qtd * vlr_pacote).toFixed(2).replace('.', ',')}
+                <b>Subtotal:</b> R$ ${(vlr_pacote_uni).toFixed(2).replace('.', ',')}
               </div>
             </div>
           </div>
         `);
 
-        valor_pedido += produto.qtd * vlr_pacote;
+        valor_pedido += produto.qtd * vlr_pacote_uni;
       });
 
       $('#resumo-vlr-pedido').text(`R$ ${valor_pedido.toFixed(2).replace('.', ',')}`);
