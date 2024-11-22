@@ -290,7 +290,15 @@ $(document).ready(function() {
 
           $('#loading-icon').html('<i class="fas fa-check fa-bounce" style="color: #63d84b;"></i>');
           $('#loading-title').text('Pedido realizado com sucesso!');
-          $('#loading-subtitle').text('Aguarde o contato da nossa equipe para finalizar o pagamento e agendar a entrega.');
+          $('#loading-subtitle').html(`
+            Aguarde que em breve nossa equipe entrara em contato para confirmar o seu pedido.
+            <br>
+            <br>
+            Lembrando que o prazo de entrega é de até <b>3 dias úteis.</b>
+            <br> 
+            <br>  
+            Equipe Aloha agradece a preferência! 🥂
+          `);
         },
         error: function(data) {
           console.log(data);
