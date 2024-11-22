@@ -9,12 +9,14 @@ $(document).ready(function() {
     });
   });
 
+
 });
 
 function newTable() {
 
   $('#clientes').empty();
   $('#table-clientes').hide();
+  $('#accordion-cadastros').hide();
   $('#loading').attr('style', 'display: block');
   $('#search').attr('disabled', true);
 
@@ -24,6 +26,8 @@ function newTable() {
     success: function(response) {
       const clientes = response.clientes;
 
+      var clientes_cadastrados = 0;
+      var clientes_nao_cadastrados = 0;
       clientes.forEach(cliente => {
 
         var registro;
@@ -41,6 +45,7 @@ function newTable() {
               <i class="fa-solid fa-trash"></i>
             </button>
           `;
+          clientes_cadastrados++;
         }else {
           registro = '<i class="fas fa-times fa-lg" style="color: #f75151;"></i>';
           btns = `
@@ -48,6 +53,7 @@ function newTable() {
               <i class="fa-solid fa-wand-magic-sparkles"></i>
             </button>
           `;
+          clientes_nao_cadastrados++;
         }
 
         $('#clientes').append(`
@@ -59,6 +65,28 @@ function newTable() {
             </td>
           </tr>
         `);
+               
+      });
+
+      var ctx = document.getElementById('chart').getContext('2d');
+      if (window.myChart) {
+        window.myChart.destroy();
+      }
+
+      myChart = new Chart(ctx, {
+        type: 'pie',
+        data: {
+          labels: ['Cadastrados', 'Não cadastrados'],
+          datasets: [{
+            label: 'Clientes',
+            data: [clientes_cadastrados, clientes_nao_cadastrados],
+            backgroundColor: [
+              'rgb(54, 162, 235)',
+              'rgb(255, 99, 132)'
+            ],
+            hoverOffset: 4
+          }]
+        }
       });
 
       //? Se tiver algo no search, filtra
@@ -71,6 +99,7 @@ function newTable() {
 
       $('#loading').attr('style', 'display: none !important');
       $('#table-clientes').show();
+      $('#accordion-cadastros').show();
 
       $('#search').attr('disabled', false);
       $('#search').focus();
