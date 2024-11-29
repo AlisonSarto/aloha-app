@@ -81,7 +81,10 @@
     $forma_pagamento = 2219792;
   }elseif ($tipo_pagamento == 'pix') {
     $forma_pagamento = 2219799;
-  }	
+  }
+
+  $prazo_entrega = prazoEntrega(date('Y-m-d'), 2);
+  $prazo_entrega = $prazo_entrega->format('Y-m-d');
   
   $url = "vendas";
   $method = 'POST';
@@ -93,6 +96,7 @@
     'produtos' => $pedido_formatado,
     'valor_frete' => $vlr_frete,
     'vendedor_id' => 1052314,
+    'prazo_entrega' => $prazo_entrega,
     'pagamentos' => [
       'pagamento' => [
         'forma_pagamento_id' => $forma_pagamento,

@@ -6,6 +6,25 @@ $(document).ready(function() {
   var produtos = [];
   var n_pedido;
   var blackFriday = false;
+
+  //? Prazo de entrega
+  var dataAtual = new Date();
+
+  var diasUteis = 2;
+  var diasAdicionados = 0;
+
+  while (diasAdicionados < diasUteis) {
+    dataAtual.setDate(dataAtual.getDate() + 1);
+
+    if (dataAtual.getDay() !== 0) {
+        diasAdicionados++;
+    }
+  }
+
+  var prazoDeEntrega = ("0" + dataAtual.getDate()).slice(-2) + "/" + 
+                     ("0" + (dataAtual.getMonth() + 1)).slice(-2) + "/" + 
+                     dataAtual.getFullYear();
+  $('#prazo-entrega').html(prazoDeEntrega);
   
   //? verifica se é o dia da black friday
   var data = new Date();
@@ -285,16 +304,14 @@ $(document).ready(function() {
         url: '/api/pedidos/create',
         method: 'POST',
         data: dados,
-        success: function(data) {
-          console.log(data);
-
+        success: function() {
           $('#loading-icon').html('<i class="fas fa-check fa-bounce" style="color: #63d84b;"></i>');
           $('#loading-title').text('Pedido realizado com sucesso!');
           $('#loading-subtitle').html(`
-            Aguarde que em breve nossa equipe entrara em contato para confirmar o seu pedido.
+            Aguarde que em breve nossa equipe enviará o pedido completo para você via WhatsApp.
             <br>
             <br>
-            Lembrando que o prazo de entrega é de até <b>2 dias úteis.</b>
+            Lembrando que o prazo de entrega é de até o dia <b>${prazoDeEntrega}</b>
             <br> 
             <br>  
             Equipe Aloha agradece a preferência! 🥂
