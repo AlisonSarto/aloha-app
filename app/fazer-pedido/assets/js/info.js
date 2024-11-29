@@ -294,7 +294,7 @@ $(document).ready(function() {
             Aguarde que em breve nossa equipe entrara em contato para confirmar o seu pedido.
             <br>
             <br>
-            Lembrando que o prazo de entrega é de até <b>3 dias úteis.</b>
+            Lembrando que o prazo de entrega é de até <b>2 dias úteis.</b>
             <br> 
             <br>  
             Equipe Aloha agradece a preferência! 🥂
