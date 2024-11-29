@@ -6,6 +6,25 @@ $(document).ready(function() {
   var produtos = [];
   var n_pedido;
   var blackFriday = false;
+
+  //? Prazo de entrega
+  var dataAtual = new Date();
+
+  var diasUteis = 2;
+  var diasAdicionados = 0;
+
+  while (diasAdicionados < diasUteis) {
+    dataAtual.setDate(dataAtual.getDate() + 1);
+
+    if (dataAtual.getDay() !== 0) {
+        diasAdicionados++;
+    }
+  }
+
+  var prazoDeEntrega = ("0" + dataAtual.getDate()).slice(-2) + "/" + 
+                     ("0" + (dataAtual.getMonth() + 1)).slice(-2) + "/" + 
+                     dataAtual.getFullYear();
+  $('#prazo-entrega').html(prazoDeEntrega);
   
   //? verifica se é o dia da black friday
   var data = new Date();
