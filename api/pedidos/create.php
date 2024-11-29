@@ -109,6 +109,52 @@
   $sql = "UPDATE usuarios SET n_pedidos = $n_pedidos WHERE cliente_id = $cliente_id";
   $res = $conn->query($sql);
 
+  //? Manda o pedido no WhatsApp
+  if(env('RUN_WHATSAPP') == 'true') {
+
+    //? Puxa o hash do pedido
+    $hash = $response['data']['hash'];
+    $link_pedido = 'https://gestaoclick.com/venda/' . $hash;
+
+    //? Profile gestão click
+    $url = "clientes";
+    $method = 'GET';
+    $data = [
+      'id' => $cliente_id
+    ];
+    $response = gs_click($url, $method, $data);
+
+    $nome = $response[0]['nome'] ?? null;
+    $numero = (string) $response[0]['celular'] ?? null;
+
+    if ($numero !== null && $numero !== '') {
+      
+      $numero = str_replace('(', '', $numero);
+      $numero = str_replace(')', '', $numero);
+      $numero = str_replace(' ', '', $numero);
+      $numero = str_replace('-', '', $numero);
+      $numero = str_replace('+', '', $numero);
+      if (substr($numero, 0, 2) == '55') {
+        $numero = substr($numero, 2);
+      }
+      $numero = '55' . $numero;
+
+      $mensagem = "**Aloha App:** \n📑 Olá, $nome! Seu pedido foi realizado com sucesso! Segue o link do pedido em PDF \n $link_pedido";
+
+      $token = env('WHATSAPP_TOKEN');
+      $url = "https://api-whatsapp.wascript.com.br/api/enviar-texto/$token";
+      $method = 'POST';
+      $data = [
+        'phone' => $numero,
+        'message' => $mensagem
+      ];
+
+      $response = curl($url, $method, $data);
+
+    }
+    
+  }
+
   send([
     'status' => 200,
     'data' => $data,
