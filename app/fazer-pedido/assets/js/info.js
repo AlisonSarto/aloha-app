@@ -10,7 +10,7 @@ $(document).ready(function() {
   //? Prazo de entrega
   var dataAtual = new Date();
 
-  var diasUteis = 2;
+  var diasUteis = 1;
   var diasAdicionados = 0;
 
   while (diasAdicionados < diasUteis) {
