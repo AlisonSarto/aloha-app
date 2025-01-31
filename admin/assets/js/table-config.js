@@ -44,6 +44,9 @@ function newTable() {
             <button class="btn btn-danger btn-sm delete" data-id="${cliente.id}" data-nome="${cliente.nome}">
               <i class="fa-solid fa-trash"></i>
             </button>
+            <button class="btn btn-success btn-sm magic ms-2" data-magic="${cliente.magic}" data-nome="${cliente.nome}">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+            </button>
           `;
           clientes_cadastrados++;
         }else {

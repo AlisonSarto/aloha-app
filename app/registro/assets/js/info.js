@@ -58,7 +58,7 @@ $(document).ready(function() {
         },
         error: function() {
           // reinicia a pagina
-          window.location.href = '/registro';
+          window.location.href = '/';
         }
       });
 
