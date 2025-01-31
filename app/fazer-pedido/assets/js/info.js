@@ -90,21 +90,18 @@ $(document).ready(function() {
           cor = 'morango';
         } else if (produto.nome.toLowerCase().includes('laranja')) {
           emoji = '🍊';
-          emoji = '🆕';
           cor = 'laranja';
           if (blackFriday) {
             produto.nome = produto.nome + ' (10% off)';
           }
         } else if (produto.nome.toLowerCase().includes('pitaya')) {
           emoji = '🐉';
-          emoji = '🆕';
           cor = 'pitaya';
           if (blackFriday) {
             produto.nome = produto.nome + ' (10% off)';
           }
         } else if (produto.nome.toLowerCase().includes('limão')) {
           emoji = '🍋‍🟩';
-          emoji = '🆕';
           cor = 'limao';
           if (blackFriday) {
             produto.nome = produto.nome + ' (10% off)';
