@@ -104,10 +104,33 @@
 
   $response = gs_click($url, $method, $data);
 
+  $id_venda = $response['id'];
+  $codigo_venda = $response['codigo'];
+
   //? Soma no numero de pedidos do cliente
   $n_pedidos++;
   $sql = "UPDATE usuarios SET n_pedidos = $n_pedidos WHERE cliente_id = $cliente_id";
   $res = $conn->query($sql);
+
+  //* Webhook WhatsApp
+  //? Puxa os dados do cliente no Gestão Click
+  $url = "clientes/$cliente_id";
+  $method = 'GET';
+  $response = gs_click($url, $method);
+
+  $nome_cliente = $response['nome'];
+  $telefone_cliente = $response['celular'];
+
+  //? Envia para o botconversa
+  $url = "https://new-backend.botconversa.com.br/api/v1/webhooks-automation/catch/11565/gr7Oav8yN3pn/";
+  $method = 'POST';
+  $header = [];
+  $data = [
+    'telefone' => $telefone_cliente,
+    'id_venda' => $id_venda,
+    'codigo_venda' => $codigo_venda,
+  ];
+  $response = curl($url, $header, $method, $data);
 
   send([
     'status' => 200,

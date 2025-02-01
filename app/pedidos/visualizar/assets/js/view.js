@@ -21,6 +21,7 @@ $(document).ready(function () {
     success: function (data) {
       const pedido = data.pedidos[0];
 
+      const codigo = pedido.codigo;
       const situacao_id = pedido.situacao_id;
       const nome_situacao = pedido.nome_situacao;
 
@@ -30,6 +31,8 @@ $(document).ready(function () {
         '4737015': 'em-rota',
         '3395254': 'entregue',
       }
+
+      $('#codigo').html(codigo);
       
       var anormal = true;
       for (const key in situacoes) {
