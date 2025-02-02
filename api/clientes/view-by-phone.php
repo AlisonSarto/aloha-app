@@ -5,7 +5,7 @@
   $phone = $_GET['phone'] ?? null;
 
   if ($phone == null) {
-    $phone = $_POST['phone'] ?? null;
+    $phone = $_POST['root']['phone'] ?? null;
   }
 
   if ($phone == null) {
