@@ -6,6 +6,12 @@
 
   if ($phone == null) {
     $phone = $_POST['root']['phone'] ?? null;
+
+    if ($phone == null) {
+      $phone = file_get_contents('php://input');
+      $phone = json_decode($phone, true);
+      $phone = $phone['phone'] ?? null;
+    }
   }
 
   if ($phone == null) {
