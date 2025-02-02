@@ -5,6 +5,10 @@
   $phone = $_GET['phone'] ?? null;
 
   if ($phone == null) {
+    $phone = $_POST['phone'] ?? null;
+  }
+
+  if ($phone == null) {
     send([
       'status' => 400,
       'message' => 'Telefone não informado'
