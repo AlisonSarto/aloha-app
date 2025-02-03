@@ -17,7 +17,8 @@
   if ($phone == null) {
     send([
       'status' => 400,
-      'message' => 'Telefone não informado'
+      'message' => 'Telefone não informado',
+      'data' => $_POST
     ]);
   }
 
