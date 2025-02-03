@@ -2,23 +2,14 @@
 
   include $_SERVER['DOCUMENT_ROOT'] . '/funcs/config.php';
 
-  $phone = $_GET['phone'] ?? null;
-
-  if ($phone == null) {
-    $phone = $_POST['root']['phone'] ?? null;
-
-    if ($phone == null) {
-      $phone = file_get_contents('php://input');
-      $phone = json_decode($phone, true);
-      $phone = $phone['root']['phone'] ?? null;
-    }
-  }
+  $phone = file_get_contents('php://input');
+  $phone = json_decode($phone, true);
+  $phone = $phone['phone'] ?? null;
 
   if ($phone == null) {
     send([
       'status' => 400,
       'message' => 'Telefone não informado',
-      'data' => $_POST
     ]);
   }
 
