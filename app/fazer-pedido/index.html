@@ -11,28 +11,18 @@
 
   <main class="container is-fluid" style="display: none;">
 
-    <br>
+    <br><br>
 
     <!-- Selecionar qtd -->
     <div id="page-1">
-      <h1 class="title is-4">Fazer pedido</h1>
-      <p class="subtitle is-6">Selecione os produtos que deseja pedir</p>
+      
+      <h1 class="title is-2">Fazer pedido</h1>
+      <p class="subtitle is-6">👇 Selecione os produtos que deseja pedir</p>
 
-      <!-- Prazo de entrega -->
-      <div class="notification is-info is-light">
-        <span class="icon has-text-info">
-          <i class="fas fa-clock"></i>
-        </span>
-        <strong style="margin-left: 10px;">Prazo de entrega: <span id="prazo-entrega"></span></strong>
-      </div>
-
-      <!-- Frete Grátis -->
-      <div class="notification is-success is-light" id="frete-gratis" style="display: none;">
-        <span class="icon has-text-success">
-          <i class="fas fa-truck"></i>
-        </span>
-        <strong style="margin-left: 10px;">Frete grátis no seu primeiro pedido pelo Aloha App!</strong>
-      </div>
+      <!-- Produtos -->
+      <div id="produtos"></div>
+      
+      <br>
 
       <!-- Black Friday 10% off novos sabores -->
       <div class="notification is-danger is-light" id="black-friday" style="display: none;">
@@ -50,7 +40,6 @@
         <strong style="margin-left: 10px;">Valor de cada pacote: </strong><span id="vlr-cada-pacote"></span>
       </div>
 
-      <div id="produtos"></div>
     </div>
 
     <!-- Forma de entrega e pagamento -->
@@ -72,10 +61,26 @@
       </div>
 
       <div id="notif-frete" style="display: none;">
-        <br>
+        <!-- Prazo de entrega -->
+        <div class="notification is-info is-light">
+          <span class="icon has-text-info">
+            <i class="fas fa-clock"></i>
+          </span>
+          <strong style="margin-left: 10px;">Prazo de entrega: <span id="prazo-entrega"></span></strong>
+        </div>
+
+        <!-- Frete Grátis -->
+        <div class="notification is-success is-light" id="frete-gratis" style="display: none;">
+          <span class="icon has-text-success">
+            <i class="fas fa-truck"></i>
+          </span>
+          <strong style="margin-left: 10px;">Frete grátis no seu primeiro pedido pelo Aloha App!</strong>
+        </div>
+
         <div class="notification">
           <strong>Valor do frete: </strong><span id="vlr-frete"></span>
         </div>
+
       </div>
       
       <br>
@@ -101,28 +106,39 @@
     <!-- Resumo Geral -->
     <div id="page-3" style="display: none;">
       <h1 class="title is-4">Resumo do pedido</h1>
-      <p class="subtitle is-6">Confirme se todas as informações estão corretas</p>
       
-      <div id="resumo-pacotes"></div>
-      <br>
-      <div class="notification if-frete" style="display: none;">
-        <strong>Valor pedido: </strong><span id="resumo-vlr-pedido"></span>
-      </div>
-      <div class="notification if-frete" style="display: none;">
-        <strong>Valor do frete: </strong><span id="resumo-frete"></span>
-      </div>
-      <div class="notification">
-        <strong>Valor total: </strong><span id="resumo-total"></span>
+      <div class="content">
+        <div class="table-container">
+          <table class="table is-bordered is-fullwidth">
+            <thead>
+              <tr>
+                <th>Produto</th>
+                <th>Qtd</th>
+                <th>Subtotal</th>
+              </tr>
+            </thead>
+            <tbody id="resumo-pacotes"></tbody>
+          </table>
+        </div>
       </div>
 
-      <hr>
-
-      <!-- forma de entraga e forma de pagamento -->
-      <div class="notification">
-        <strong>Forma de entrega: </strong><span id="resumo-entrega"></span>
-      </div>
-      <div class="notification">
-        <strong>Forma de pagamento: </strong><span id="resumo-pagamento"></span>
+      <div class="content">
+        <div class="table-container">
+          <table class="table is-bordered is-fullwidth">
+            <tr>
+              <td>Valor pedido:</td>
+              <td><span id="resumo-vlr-pedido"></span></td>
+            </tr>
+            <tr>
+              <td>Valor do frete:</td>
+              <td><span id="resumo-frete"></span></td>
+            </tr>
+            <tr>
+              <td>Valor total:</td>
+              <td><span id="resumo-total"></span></td>
+            </tr>
+          </table>
+        </div>
       </div>
 
     </div>
@@ -140,11 +156,11 @@
     <br>
     
     <div id="btns">
-      <button class="button is-primary is-fullwidth" id="btn-continuar">Continuar</button>
-      <button class="button is-danger is-fullwidth" id="btn-voltar" style="margin-top: 10px; display: none;">Voltar</button>
+      <button class="button is-primary is-medium is-fullwidth" id="btn-continuar">Continuar</button>
+      <button class="button is-danger is-medium is-fullwidth" id="btn-voltar" style="margin-top: 10px; display: none;">Voltar</button>
     </div>
 
-    <br>
+    <br><br><br>
 
   </main>
 

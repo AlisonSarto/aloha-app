@@ -9,7 +9,7 @@ $(document).ready(function () {
 
   }else {
     //? Se não existir, leva o user para o inicio
-    iframe('/app/pedidos');
+    iframe('/app/fazer-pedido');
   }
 
 });
@@ -64,7 +64,7 @@ function iframe(url) {
   if ($(`a[href='${link}']`).length == 0) {
 
     //? Se não existir, volta para o inicio
-    iframe('/app/pedidos');
+    iframe('/app/fazer-pedido');
 
     return;
   }

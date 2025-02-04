@@ -112,7 +112,7 @@ $(document).ready(function() {
           <div class="box ${cor}">
             <div class="columns is-mobile is-gapless">
 
-              <div class="column is-2 is-align-content-center">
+              <div class="column is-2 is-align-content-center"> 
                 <span class="is-size-3" id="emoji">${emoji}</span> 
               </div>
 
@@ -122,7 +122,7 @@ $(document).ready(function() {
 
               <div class="column">
                 <div class="quantidade" data-id="${produto.id}">
-                  <input class="input qtd" type="number" value="0">
+                  <input class="input qtd" type="number" placeholder="0">
                 </div>
               </div>
               
@@ -163,79 +163,22 @@ $(document).ready(function() {
       //? Adiciona os produtos selecionados na próxima página
       $('#resumo-pacotes').html('');
       var valor_pedido = 0;
-      pedido.forEach(produto => {
-
-        var emoji = '⚠️';
-        var cor = '';
+      var subtotal = 0;
+      pedido.forEach(pacote => {
+        
         var vlr_pacote_uni = parseFloat(vlr_pacote);
-        if (produto.nome.toLowerCase().includes('coco')) {
-          emoji = '🥥';
-          cor = 'coco';
-        } else if (produto.nome.toLowerCase().includes('pessego')) {
-          emoji = '🍑';
-          cor = 'pessego';
-        } else if (produto.nome.toLowerCase().includes('maracujá')) {
-          emoji = '🥭';
-          cor = 'maracuja';
-        } else if (produto.nome.toLowerCase().includes('melancia')) {
-          emoji = '🍉';
-          cor = 'melancia';
-        } else if (produto.nome.toLowerCase().includes('maça')) {
-          emoji = '🍏';
-          cor = 'maca';
-        } else if (produto.nome.toLowerCase().includes('morango')) {
-          emoji = '🍓';
-          cor = 'morango';
-        } else if (produto.nome.toLowerCase().includes('laranja')) {
-          emoji = '🍊';
-          emoji = '🆕';
-          cor = 'laranja';
-          if (blackFriday) {
-            vlr_pacote_uni = vlr_pacote_uni * 0.9;
-          }
-        } else if (produto.nome.toLowerCase().includes('pitaya')) {
-          emoji = '🐉';
-          emoji = '🆕';
-          cor = 'pitaya';
-          if (blackFriday) {
-            vlr_pacote_uni = vlr_pacote_uni * 0.9;
-          }
-        } else if (produto.nome.toLowerCase().includes('limão')) {
-          emoji = '🍋‍🟩';
-          emoji = '🆕';
-          cor = 'limao';
-          if (blackFriday) {
-            vlr_pacote_uni = vlr_pacote_uni * 0.9;
-          }
-        }
+        
+        var subtotal = pacote.qtd * vlr_pacote_uni;
 
         $('#resumo-pacotes').append(`
-          <div class="box ${cor}">
-            <div class="columns is-mobile is-gapless">
-
-              <div class="column is-2 is-align-content-center">
-                <span class="is-size-3" id="emoji">${emoji}</span> 
-              </div>
-
-              <div class="column is-7 is-align-content-center" style="margin-left: 7px">
-                <span class="is-size-7">${produto.nome}</span>
-              </div>
-
-              <div class="column has-text-centered is-align-content-center is-size-5">
-                <b>${produto.qtd}</b>
-              </div>
-              
-            </div>
-            
-            <div class="columns is-mobile is-gapless">
-              <div class="column is-12 is-align-content-center">
-                <b>Subtotal:</b> R$ ${(vlr_pacote_uni).toFixed(2).replace('.', ',')}
-              </div>
-            </div>
-          </div>
+          <tr>
+            <td class="has-text-nowrap">${pacote.nome}</td>
+            <td class="has-text-nowrap">${pacote.qtd}</td>
+            <td class="has-text-nowrap">R$ ${(subtotal).toFixed(2).replace('.', ',')}</td>
+          </tr>
         `);
 
-        valor_pedido += produto.qtd * vlr_pacote_uni;
+        valor_pedido += subtotal;
       });
 
       $('#resumo-vlr-pedido').text(`R$ ${valor_pedido.toFixed(2).replace('.', ',')}`);

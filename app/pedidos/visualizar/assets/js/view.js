@@ -58,9 +58,6 @@ $(document).ready(function () {
         `);
       }
 
-      $('#data').text(pedido.data.split('-').reverse().join('/'));
-      $('#prazo').text(pedido.prazo_entrega.split('-').reverse().join('/'));
-
       const produtos = pedido.produtos;
 
       produtos.forEach(produto => {
@@ -73,11 +70,12 @@ $(document).ready(function () {
         var valor_venda = parseFloat(pacote.valor_total.replace(',', '.')) / parseInt(pacote.quantidade);
         valor_venda = valor_venda.toFixed(2).replace('.', ',');
 
+        pacote.nome_produto = pacote.nome_produto.replace('ALOHA ', '');
+        
         $('#produtos').append(`
           <tr>
             <td class="has-text-nowrap">${pacote.nome_produto}</td>
             <td class="has-text-nowrap">${pacote.quantidade}</td>
-            <td class="has-text-nowrap">R$ ${valor_venda}</td>
             <td class="has-text-nowrap">R$ ${pacote.valor_total}</td>
           </tr>
         `);
