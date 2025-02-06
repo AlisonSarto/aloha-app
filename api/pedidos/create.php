@@ -43,7 +43,26 @@
 
   $vlr_frete = $tipo_entrega == 'entrega' ? $db['vlr_frete'] : 0;
 
+  $qtd_total = 0;
+  foreach ($pedido as $produto) {
+    $qtd_total += $produto['qtd'];
+  }
+
   $vlr_pacote = $db['vlr_pacote'];
+
+  //! Tabela de preços
+  if ($vlr_pacote	!= 0) {
+    $vlr_pacote = $vlr_pacote;
+
+  }elseif ($qtd_total <= 30) {
+    $vlr_pacote = 28.00;
+
+  }elseif ($qtd_total <= 100) {
+    $vlr_pacote = 25.20;
+
+  }elseif ($qtd_total > 100) {
+    $vlr_pacote = 22.40;
+  }
 
   //? Formata o pedido
   $vlr_total = 0;

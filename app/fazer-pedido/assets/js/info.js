@@ -6,6 +6,8 @@ $(document).ready(function() {
   var produtos = [];
   var n_pedido;
   var blackFriday = false;
+  var vlr_pacote_uni;
+  var qtd_total;
 
   //? Prazo de entrega
   var dataAtual = new Date();
@@ -163,11 +165,30 @@ $(document).ready(function() {
       //? Adiciona os produtos selecionados na próxima página
       $('#resumo-pacotes').html('');
       var valor_pedido = 0;
-      var subtotal = 0;
+
+      //? Verifica a quantidade total de pacotes
+      qtd_total = 0;
       pedido.forEach(pacote => {
-        
-        var vlr_pacote_uni = parseFloat(vlr_pacote);
-        
+        qtd_total += pacote.qtd;
+      });
+
+      //! Tabela de preços
+      pedido.forEach(pacote => {
+
+        if (vlr_pacote != 0) {
+          vlr_pacote_uni = parseFloat(vlr_pacote);
+
+        }else if (qtd_total <= 30) {
+          vlr_pacote_uni = parseFloat(28.00);
+
+        }else if (qtd_total <= 100) {
+          vlr_pacote_uni = parseFloat(25.20);
+
+        }else if (qtd_total > 100) {
+          vlr_pacote_uni = parseFloat(22.40);
+
+        }
+
         var subtotal = pacote.qtd * vlr_pacote_uni;
 
         $('#resumo-pacotes').append(`
@@ -210,7 +231,9 @@ $(document).ready(function() {
         $('.if-frete').show();
       }
       
-      // Update the HTML elements
+      $('#resumo-total-pacote').html(qtd_total + ' pacotes');
+      $('#resumo-vlr-pacote').html('R$ ' + parseFloat(vlr_pacote_uni).toFixed(2).replace('.', ','));
+
       $('#resumo-vlr-pedido').html($('#vlr-pedido').html());
       $('#resumo-pacotes').html($('#pedido').html());
       $('#resumo-frete').text($('#vlr-frete').text());
