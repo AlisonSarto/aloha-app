@@ -140,6 +140,18 @@
   $nome_cliente = $response['nome'];
   $telefone_cliente = $response['celular'];
 
+  //* remove os +
+  $telefone_cliente = str_replace('+', '', $telefone_cliente);
+  $telefone_cliente = str_replace('-', '', $telefone_cliente);
+  $telefone_cliente = str_replace('(', '', $telefone_cliente);
+  $telefone_cliente = str_replace(')', '', $telefone_cliente);
+  $telefone_cliente = str_replace(' ', '', $telefone_cliente);
+  
+  //* Se os 2 primeiros digitos não for 55 adiciona
+  if (substr($telefone_cliente, 0, 2) != '55') {
+    $telefone_cliente = '55' . $telefone_cliente;
+  }
+
   //? Envia para o botconversa
   $url = "https://new-backend.botconversa.com.br/api/v1/webhooks-automation/catch/11565/gr7Oav8yN3pn/";
   $method = 'POST';
