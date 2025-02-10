@@ -16,12 +16,9 @@
   }
 
   //* Pedidos Aloha
-  $url = 'vendas';
+  $url = 'vendas?situacao_id[]=4629853&situacao_id[]=4737015';
   $method = 'GET';
-  $data = [
-    'situacao_id[]' => 4629853, //? Aberto
-    'situacao_id[]' => 4737015 //? Em rota
-  ];
+  $data = [];
 
   $response = gs_click($url, $method, $data);
 
@@ -46,12 +43,9 @@
   }
 
   //* Pedidos Fábrica
-  $url = 'vendas';
+  $url = 'vendas?situacao_id[]=4629853&situacao_id[]=4737015&loja_id=399776';
   $method = 'GET';
-  $data = [
-    'situacao_id[]' => 4629853, //? Aberto
-    'situacao_id[]' => 4737015 //? Em rota
-  ];
+  $data = [];
 
   $response = gs_click($url, $method, $data);
 
