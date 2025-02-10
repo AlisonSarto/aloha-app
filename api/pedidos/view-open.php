@@ -77,7 +77,7 @@
 
   $mensagem = "";
   
-  if (!empty($vendas)) {
+  if (!empty($vendas_aloha) || !empty($vendas_fabrica)) {
 
     if (!empty($vendas_aloha)) {
       $mensagem .= "🥥 *Pedidos Aloha*\n\n";
