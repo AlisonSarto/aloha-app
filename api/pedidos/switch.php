@@ -15,11 +15,12 @@
     ]);
   }
 
+  $entregador = $json['entregador'] ?? null;
   $codigo = $json['codigo'] ?? null;
   $situacao = $json['situacao'] ?? null;
   $empresa_id = $json['empresa_id'] ?? null;
 
-  if ($codigo === null || $situacao === null || $empresa_id === null) {
+  if ($codigo === null || $situacao === null || $empresa_id === null || $entregador === null) {
     send([
       'status' => 400,
       'error' => 'Parâmetros insuficientes'
@@ -51,6 +52,14 @@
   $condicao_pagamento = $response[0]['condicao_pagamento'];
   $data = $response[0]['data'];
   $produtos = $response[0]['produtos'];
+  $observacoes = $response[0]['observacoes'];
+  if ($situacao == 2) {
+    if ($observacoes != "") {
+      $observacoes = "$observacoes\n\nEntregador: $entregador";
+    }else {
+      $observacoes = "Entregador: $entregador";
+    }
+  }
 
   if ($situacao == 1) {
     $situacao = 7680727; //? Reimprimir
@@ -73,7 +82,8 @@
     'valor_frete' => $valor_frete,
     'valor_total' => $valor_total,
     "pagamentos" => $pagamentos,
-    'produtos' => $produtos
+    'produtos' => $produtos,
+    'observacoes' => $observacoes
   ];
 
   $response = gs_click($url, $method, $data);
