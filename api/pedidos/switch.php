@@ -17,6 +17,7 @@
 
   $codigo = $json['codigo'] ?? null;
   $situacao = $json['situacao'] ?? null;
+  $empresa_id = $json['empresa'] ?? 234402;
 
   if ($codigo === null || $situacao === null) {
     send([
@@ -50,7 +51,9 @@
   $data = $response[0]['data'];
   $produtos = $response[0]['produtos'];
 
-  if ($situacao == 2) {
+  if ($situacao == 1) {
+    $situacao = 7680727; //? Reimprimir
+  }else if ($situacao == 2) {
     $situacao = 4737015; //? Em rota
   } else if ($situacao == 3) {
     $situacao = 3395254;  //? Entregue
