@@ -17,18 +17,19 @@
 
   $codigo = $json['codigo'] ?? null;
   $situacao = $json['situacao'] ?? null;
-  $empresa_id = $json['empresa'] ?? 234402;
+  $empresa_id = $json['empresa_id'] ?? null;
 
-  if ($codigo === null || $situacao === null) {
+  if ($codigo === null || $situacao === null || $empresa_id === null) {
     send([
       'status' => 400,
-      'error' => 'Código da venda e situação são obrigatórios'
+      'error' => 'Parâmetros insuficientes'
     ]);
   }
 
   $url = 'vendas';
   $method = 'GET';
   $data = [
+    'loja_id' => $empresa_id,
     'codigo' => $codigo
   ];
 
@@ -63,7 +64,7 @@
   $method = 'PUT';
   $data = [
     'tipo' => 'produto',
-    'empresa_id' => $empresa_id,
+    'loja_id' => $empresa_id,
     'codigo' => $codigo,
     'cliente_id' => $cliente_id,
     'situacao_id' => $situacao,
