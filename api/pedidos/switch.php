@@ -63,6 +63,7 @@
   $method = 'PUT';
   $data = [
     'tipo' => 'produto',
+    'empresa_id' => $empresa_id,
     'codigo' => $codigo,
     'cliente_id' => $cliente_id,
     'situacao_id' => $situacao,
