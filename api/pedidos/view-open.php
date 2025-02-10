@@ -73,10 +73,7 @@
       $prazo_entrega = $venda['prazo_entrega'];
       $situacao = $venda['situacao'];
   
-      $mensagem .= "
-        📦 *Nº:* $numero\n🏪 *Cliente:* $nome_cliente\n📅 *Entrega:* $prazo_entrega\n📊 *Situação:* $situacao\n
-        \n
-      ";
+      $mensagem .= "📦 *Nº:* $numero\n🏪 *Cliente:* $nome_cliente\n📅 *Entrega:* $prazo_entrega\n📊 *Situação:* $situacao\n\n";
     }
   
   } else {
