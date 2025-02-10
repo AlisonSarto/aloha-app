@@ -76,6 +76,9 @@
 
   $response = gs_click($url, $method, $data);
 
-  send($response);
+  send([
+    'status' => 200,
+    'response' => $response
+  ]);
   
 ?>
