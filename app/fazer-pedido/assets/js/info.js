@@ -274,7 +274,7 @@ $(document).ready(function() {
             Aguarde que em breve nossa equipe enviará o pedido completo para você via WhatsApp.
             <br>
             <br>
-            Lembrando que o prazo de entrega é de até o dia <b>${prazoDeEntrega}</b>
+            Lembrando que o vamos fazer o possivel para entrega-lo o mais rápido possível.
             <br> 
             <br>  
             Equipe Aloha agradece a preferência! 🥂
