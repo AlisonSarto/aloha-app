@@ -42,6 +42,7 @@
   $db['vlr_frete'] = $n_pedidos == 0 ? 0 : $db['vlr_frete'];
 
   $vlr_frete = $tipo_entrega == 'entrega' ? $db['vlr_frete'] : 0;
+  $observacao = $tipo_entrega == 'entrega' ? '' : 'RETIRADA';
 
   $qtd_total = 0;
   foreach ($pedido as $produto) {
@@ -112,6 +113,7 @@
     'produtos' => $pedido_formatado,
     'valor_frete' => $vlr_frete,
     'vendedor_id' => 1052314,
+    'observacoes' => $observacao,
     'pagamentos' => [
       'pagamento' => [
         'forma_pagamento_id' => $forma_pagamento,
