@@ -13,7 +13,7 @@
   $response = gs_click($url, $method, $data);
 
   //? Profile interno
-  $sql = "SELECT id, cliente_id, email, vlr_pacote, vlr_frete, n_pedidos FROM usuarios WHERE cliente_id = $cliente_id";
+  $sql = "SELECT * FROM usuarios WHERE cliente_id = $cliente_id";
   $res = $conn->query($sql);
 
   if ($res->num_rows === 0) {

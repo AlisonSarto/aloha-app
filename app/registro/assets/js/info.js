@@ -23,41 +23,15 @@ $(document).ready(function() {
   var page = 1;
   $('#btn-continuar').click(function() {
 
-    //? Email
-    if (page == 4) {
-      if ($('#email').val() == '') {
-        $('#email').addClass('is-danger');
-        return;
-      }
-    }
-
-    //? Senha
-    if (page == 5) {
-      if ($('#senha').val() == '') {
-        $('#senha').addClass('is-danger');
-        return;
-      }
-    }
-
-    $(this).attr('disabled', true);
-
     //? Fim
-    if (page == 6) {
+    if (page == 3) {
       
       $(this).addClass('is-loading');
 
       $.ajax({
         url: '/api/registro/add',
         method: 'POST',
-        data: {
-          email: $('#email').val(),
-          senha: $('#senha').val(),
-        },
         success: function() {
-          window.location.href = '/';
-        },
-        error: function() {
-          // reinicia a pagina
           window.location.href = '/';
         }
       });
@@ -66,7 +40,7 @@ $(document).ready(function() {
 
     }
 
-    if (page == 5) {
+    if (page == 2) {
       $(this).text('Acessar Aloha App');
       $(this).addClass('is-link');
       $(this).removeClass('is-success');

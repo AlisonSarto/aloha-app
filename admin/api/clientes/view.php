@@ -17,11 +17,11 @@
 
   $url = "clientes";
   $method = 'GET';
-  $data = [];
+  $data = [
+    'ativo' => 1,
+  ];
   if ($id !== null) {
-    $data = [
-      'id' => $id
-    ];
+    $data['id'] = $id;
   }
 
   $response = gs_click($url, $method, $data);

@@ -15,11 +15,6 @@ $(document).on('click', '.edit', function() {
 
       modal.find('.modal-title').text('Editar cliente ' + cliente.nome);
       modal.find('.modal-body').html(`
-        <label for="email">Email:</label>
-        <input type="text" id="email" class="form-control" value="${cliente.dados_internos.email}">
-
-        <hr class="my-3">
-
         <label for="vlr_pacote">Valor do Pacote:</label>
         <div class="input-group mb-3">
           <span class="input-group-text">R$</span>
