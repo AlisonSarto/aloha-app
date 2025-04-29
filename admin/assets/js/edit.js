@@ -26,6 +26,9 @@ $(document).on('click', '.edit', function() {
           <span class="input-group-text">R$</span>
           <input type="text" id="vlr_frete" class="form-control" value="${cliente.dados_internos.vlr_frete.replace('.', ',')}">
         </div>
+        
+        <label for="vlr_frete">Qtd semanal comodato (0 = não tem comodato):</label>
+        <input type="text" id="qtd_semanal" class="form-control" value="${cliente.dados_internos.qtd_semanal_comodato.replace('.', ',')}">
       `);
       modal.find('.modal-footer').html(`
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -44,17 +47,17 @@ $(document).on('click', '.edit', function() {
 
       $('#salvar').click(function() {
 
-        var email = $('#email').val();
         var vlr_pacote = $('#vlr_pacote').val().replace(',', '.');
         var vlr_frete = $('#vlr_frete').val().replace(',', '.');
+        var qtd_semanal = $('#qtd_semanal').val().replace(',', '.');
     
-        if (email == '' || vlr_pacote == '' || vlr_frete == '') {
+        if (vlr_pacote == '' || vlr_frete == '' || qtd_semanal == '') {
           toast('Preencha todos os campos!', 'danger');
           return;
         }
 
         //? Verifica se mudou algo
-        if (cliente.dados_internos.email == email && cliente.dados_internos.vlr_pacote == vlr_pacote && cliente.dados_internos.vlr_frete == vlr_frete) {
+        if (cliente.dados_internos.vlr_pacote == vlr_pacote && cliente.dados_internos.vlr_frete == vlr_frete && cliente.dados_internos.qtd_semanal_comodato == qtd_semanal) {
           toast('Nada foi alterado!', 'danger');
           return;
         }
@@ -64,9 +67,9 @@ $(document).on('click', '.edit', function() {
           type: 'POST',
           data: {
             id: id,
-            email: email,
             vlr_pacote: vlr_pacote,
-            vlr_frete: vlr_frete
+            vlr_frete: vlr_frete,
+            qtd_semanal: qtd_semanal
           },
           success: function(response) {
             var message = response.message;

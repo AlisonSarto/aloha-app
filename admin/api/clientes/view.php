@@ -3,9 +3,13 @@
   include $_SERVER['DOCUMENT_ROOT'] . '/funcs/config.php';
 
   $id = $_GET['id'] ?? null;
+  $comodato = $_GET['comodato'] ?? false;
 
   //? Puxa o cliente pelo no banco de dados
   $sql = "SELECT * FROM usuarios";
+  if ($comodato == true) {
+    $sql .= " WHERE qtd_semanal_comodato > 0";
+  }
   $res = $conn->query($sql);
 
   $clientes_registrados = [];
@@ -26,7 +30,26 @@
 
   $response = gs_click($url, $method, $data);
 
-  if ($id == null) {
+  if ($comodato == true) {
+
+    // apenas os clientes do banco de dados
+    $clientes = [];
+    foreach ($response as $cliente) {
+      $registrado = in_array($cliente['id'], $clientes_registrados);
+      $acess = base64_encode($cliente['id']);
+
+      if ($registrado == true) {
+        $clientes[] = [
+          'id' => $cliente['id'],
+          'nome' => $cliente['nome'],
+          'registrado' => $registrado,
+          'magic' => env('MAGIC') . '/api/login/magic?access=' . $acess,
+          'dados_internos' => $clientes_dados[$cliente['id']] ?? null
+        ];
+      }
+    }
+
+  }elseif ($id == null) {
     $clientes = [];
     foreach ($response as $cliente) {
       $registrado = in_array($cliente['id'], $clientes_registrados);

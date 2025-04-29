@@ -3,12 +3,13 @@ $(document).on('click', '.view', function() {
   const id = $(this).data('id');
 
   $.ajax({
-    url: './api/clientes/view',
+    url: '/admin/api/clientes/view',
     type: 'GET',
     data: {
       id: id
     },
     success: function(response) {
+
       const cliente = response.clientes[0];
 
       const modal = $('#modal');
