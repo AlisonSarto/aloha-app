@@ -29,7 +29,7 @@
 
   $response = gs_click($url, $method, $data);
 
-  if ($response == "Nenhum cliente foi encontrado!" || $response == null) {
+  if ($response == "Nenhum cliente foi encontrado!") {
     send([
       'status' => 400,
       'message' => 'Cliente não encontrado'

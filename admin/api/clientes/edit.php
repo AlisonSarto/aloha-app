@@ -34,7 +34,6 @@
 
   //? Atualiza o cliente
   $sql = "UPDATE usuarios SET vlr_frete = $vlr_frete, vlr_pacote = $vlr_pacote, qtd_semanal_comodato = $qtd_semanal WHERE cliente_id = $cliente_id";
-
   $conn->query($sql);
 
   send([
