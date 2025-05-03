@@ -21,6 +21,8 @@
     header('Location: /login');    
   }
 
+  session_unset();
+
   //? Verifica se o cliente existe
   $url = "clientes";
   $method = 'GET';
@@ -31,13 +33,9 @@
   $response = gs_click($url, $method, $data);
 
   if ($response == []) {
-    send([
-      'status' => 405,
-      'message' => 'Acesso negado'
-    ]);
+    header('Location: /login');
   }
 
-  session_unset();
   $_SESSION['cliente_id'] = $cliente_id;
   header('Location: /app/registro');
 
