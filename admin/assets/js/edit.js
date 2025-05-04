@@ -52,8 +52,8 @@ $(document).on('click', '.edit', function() {
 
         var vlr_pacote = $('#vlr_pacote').val().replace(',', '.');
         var vlr_frete = $('#vlr_frete').val().replace(',', '.');
-        var qtd_semanal = $('#qtd_semanal').val().replace(',', '.');
-        var prazo_boleto = $('#prazo_boleto').val().replace(',', '.');
+        var qtd_semanal = $('#qtd_semanal').val();
+        var prazo_boleto = $('#prazo_boleto').val();
     
         if (vlr_pacote == '' || vlr_frete == '' || qtd_semanal == '' || prazo_boleto == '') {
           toast('Preencha todos os campos!', 'danger');
