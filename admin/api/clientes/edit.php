@@ -15,7 +15,7 @@
   $qtd_semanal = $_POST['qtd_semanal'] ?? null;
   $prazo_boleto = $_POST['prazo_boleto'] ?? null;
 
-  if (!$cliente_id || !$vlr_frete || !$vlr_pacote || !$qtd_semanal || !$prazo_boleto) {
+  if ($cliente_id === null || $vlr_frete === null || $vlr_pacote === null || $qtd_semanal === null || $prazo_boleto === null) {
     send([
       'status' => 400,
       'message' => 'Parâmetros inválidos'
