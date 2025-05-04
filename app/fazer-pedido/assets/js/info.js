@@ -9,24 +9,19 @@ $(document).ready(function() {
   var vlr_pacote_uni;
   var qtd_total;
 
-  //? Prazo de entrega
-  var dataAtual = new Date();
-
-  var diasUteis = 1;
-  var diasAdicionados = 0;
-
-  while (diasAdicionados < diasUteis) {
-    dataAtual.setDate(dataAtual.getDate() + 1);
-
-    if (dataAtual.getDay() !== 0) {
-        diasAdicionados++;
-    }
+  //? Data de entrega, input #data-entrega coloca a data de hoje, sabendo que é um input de data html e o minimo é a data de hoje
+  var data = new Date();
+  var dia = data.getDate();
+  var mes = data.getMonth() + 1;
+  var ano = data.getFullYear();
+  if (mes < 10) {
+    mes = '0' + mes;
   }
-
-  var prazoDeEntrega = ("0" + dataAtual.getDate()).slice(-2) + "/" + 
-                     ("0" + (dataAtual.getMonth() + 1)).slice(-2) + "/" + 
-                     dataAtual.getFullYear();
-  $('#prazo-entrega').html(prazoDeEntrega);
+  if (dia < 10) {
+    dia = '0' + dia;
+  }
+  $('#data-entrega').attr('min', `${ano}-${mes}-${dia}`);
+  $('#data-entrega').val(`${ano}-${mes}-${dia}`);
   
   //? verifica se é o dia da black friday
   var data = new Date();
@@ -48,6 +43,13 @@ $(document).ready(function() {
       vlr_pacote = data.profile_interno[0].vlr_pacote;
       vlr_frete = data.profile_interno[0].vlr_frete;
       n_pedido = data.profile_interno[0].n_pedidos;
+
+      if (data.profile_interno[0].prazo_boleto > 0) {
+        $('#tipo-pagamento').append(`
+          <option value="boleto">Boleto</option>
+        `);
+        boleto = true;
+      }
 
       if (n_pedido == 0) {
         $('#frete-gratis').show();
@@ -212,11 +214,26 @@ $(document).ready(function() {
       //? Verifica se os selects tipo-pagamento e tipo-entrega estão preenchidos
       const tipo_pagamento = $('#tipo-pagamento').val();
       const tipo_entrega = $('#tipo-entrega').val();
+      const data_entrega = $('#data-entrega').val();
 
-      if (tipo_pagamento === null || tipo_entrega === null) {
+      if (tipo_pagamento === null) {
         $('#btn-continuar').attr('disabled', false);
+        alert('Selecione a forma de pagamento');
         return false;
       }
+
+      if (tipo_entrega === null) {
+        $('#btn-continuar').attr('disabled', false);
+        alert('Selecione a forma de entrega');
+        return false;
+      }
+
+      if (data_entrega === '') {
+        $('#btn-continuar').attr('disabled', false);
+        alert('Selecione a data de entrega');
+        return false;
+      }
+
     }
 
     // resumo geral
@@ -260,21 +277,24 @@ $(document).ready(function() {
       dados = {
         pedido: pedido,
         tipo_entrega: $('#tipo-entrega').val(),
-        tipo_pagamento: $('#tipo-pagamento').val()
+        tipo_pagamento: $('#tipo-pagamento').val(),
+        data_entrega: $('#data-entrega').val(),
+        obs: $('#obs').val(),
       }
 
       $.ajax({
         url: '/api/pedidos/create',
         method: 'POST',
         data: dados,
-        success: function() {
+        success: function(ress) {
+          console.log(ress);
           $('#loading-icon').html('<i class="fas fa-check fa-bounce" style="color: #63d84b;"></i>');
           $('#loading-title').text('Pedido realizado com sucesso!');
           $('#loading-subtitle').html(`
-            Aguarde que em breve nossa equipe enviará o pedido completo para você via WhatsApp.
+            Aguarde que em breve nossa equipe analisará e confirmará o pedido.
             <br>
             <br>
-            Lembrando que o vamos fazer o possivel para entrega-lo o mais rápido possível.
+            Assim que estiver tudo certo, avisaremos você.
             <br> 
             <br>  
             Equipe Aloha agradece a preferência! 🥂

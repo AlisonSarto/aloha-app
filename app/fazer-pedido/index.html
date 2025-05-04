@@ -11,7 +11,7 @@
 
   <main class="container is-fluid" style="display: none;">
 
-    <br><br>
+    <br>
 
     <!-- Selecionar qtd -->
     <div id="page-1">
@@ -36,7 +36,8 @@
 
     <!-- Forma de entrega e pagamento -->
     <div id="page-2" style="display: none;">
-      <h1 class="title is-4">Forma de entrega</h1>
+
+      <h1 class="title is-5">Forma de entrega</h1>
       <p class="subtitle is-6">Selecione a forma de entrega</p>
 
       <div class="field">
@@ -53,13 +54,6 @@
       </div>
 
       <div id="notif-frete" style="display: none;">
-        <!-- Prazo de entrega -->
-        <!-- <div class="notification is-info is-light">
-          <span class="icon has-text-info">
-            <i class="fas fa-clock"></i>
-          </span>
-          <strong style="margin-left: 10px;">Prazo de entrega: <span id="prazo-entrega"></span></strong>
-        </div> -->
 
         <!-- Frete Grátis -->
         <div class="notification is-success is-light" id="frete-gratis" style="display: none;">
@@ -77,7 +71,20 @@
       
       <br>
 
-      <h1 class="title is-4">Forma de pagamento</h1>
+      <!-- Data entrega -->
+      <h1 class="title is-5">Data de entrega/retirada</h1>
+      <p class="subtitle is-6">Selecione a data</p>
+
+      <div class="field">
+        <div class="control">
+          <input class="input" type="date" id="data-entrega" placeholder="Data de entrega">
+        </div>
+      </div>
+
+      <br>
+
+      <!-- Forma de pagamento -->
+      <h1 class="title is-5">Forma de pagamento</h1>
       <p class="subtitle is-6">Selecione a forma de pagamento</p>
 
       <div class="field">
@@ -86,10 +93,20 @@
             <select id="tipo-pagamento">
               <option selected disabled>Escolha aqui...</option>
               <option value="pix">Pix</option>
-              <option value="boleto">Boleto</option>
               <option value="dinheiro">Dinheiro</option>
             </select>
           </div>
+        </div>
+      </div>
+
+      <br>
+
+      <!-- Observação -->
+      <h1 class="title is-5">Observação</h1>
+      <p class="subtitle is-6">Horário de entrega ou outras informações</p>
+      <div class="field">
+        <div class="control">
+          <textarea class="textarea" id="obs" placeholder="Observação"></textarea>
         </div>
       </div>
 

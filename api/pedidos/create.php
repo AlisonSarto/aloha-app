@@ -13,6 +13,8 @@
   $pedido = $_POST['pedido'] ?? null;
   $tipo_pagamento = $_POST['tipo_pagamento'] ?? null;
   $tipo_entrega = $_POST['tipo_entrega'] ?? null;
+  $data_entrega = $_POST['data_entrega'] ?? null;
+  $obs = $_POST['obs'] ?? '';
   
   $black_friday = false;
   if (date('Y-m-d') == '2024-11-22' || date('Y-m-d') == '2024-11-23') {
@@ -26,7 +28,7 @@
     ]);
   }
 
-  if ($pedido === null || $tipo_pagamento === null || $tipo_entrega === null) {
+  if ($pedido === null || $tipo_pagamento === null || $tipo_entrega === null || $data_entrega === null) {
     send([
       'status' => 400,
       'error' => 'Pedido, tipo de pagamento e tipo de entrega são obrigatórios'
@@ -42,7 +44,12 @@
   $db['vlr_frete'] = $n_pedidos == 0 ? 0 : $db['vlr_frete'];
 
   $vlr_frete = $tipo_entrega == 'entrega' ? $db['vlr_frete'] : 0;
-  $observacao = $tipo_entrega == 'entrega' ? '' : 'RETIRADA';
+
+  $prazo_boleto = $db['prazo_boleto'];
+
+  $observacao = "\n";
+  $observacao .= $tipo_entrega == 'entrega' ? '' : "RETIRADA\n";
+  $observacao .= $obs;
 
   $qtd_total = 0;
   foreach ($pedido as $produto) {
@@ -110,6 +117,7 @@
     'cliente_id' => $cliente_id,
     'situacao_id' => 3395252,
     'date' => date('Y-m-d'),
+    'prazo_entrega' => $data_entrega,
     'produtos' => $pedido_formatado,
     'valor_frete' => $vlr_frete,
     'vendedor_id' => 1052314,
@@ -122,6 +130,12 @@
       ]
     ]
   ];
+
+  if ($tipo_pagamento !== 'boleto') {
+    $data['pagamentos']['pagamento']['data_vencimento'] = $data_entrega;
+  }else {
+    $data['pagamentos']['pagamento']['data_vencimento'] = date('Y-m-d', strtotime($data_entrega . ' + ' . $prazo_boleto . ' days'));
+  } 
 
   $response = gs_click($url, $method, $data);
 

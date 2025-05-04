@@ -13,8 +13,9 @@
   $vlr_frete = $_POST['vlr_frete'] ?? null;
   $vlr_pacote = $_POST['vlr_pacote'] ?? null;
   $qtd_semanal = $_POST['qtd_semanal'] ?? null;
+  $prazo_boleto = $_POST['prazo_boleto'] ?? null;
 
-  if (!$cliente_id || !$vlr_frete || !$vlr_pacote || !$qtd_semanal) {
+  if (!$cliente_id || !$vlr_frete || !$vlr_pacote || !$qtd_semanal || !$prazo_boleto) {
     send([
       'status' => 400,
       'message' => 'Parâmetros inválidos'
@@ -33,7 +34,7 @@
   }
 
   //? Atualiza o cliente
-  $sql = "UPDATE usuarios SET vlr_frete = $vlr_frete, vlr_pacote = $vlr_pacote, qtd_semanal_comodato = $qtd_semanal WHERE cliente_id = $cliente_id";
+  $sql = "UPDATE usuarios SET vlr_frete = $vlr_frete, vlr_pacote = $vlr_pacote, qtd_semanal_comodato = $qtd_semanal, prazo_boleto = $prazo_boleto WHERE cliente_id = $cliente_id";
   $conn->query($sql);
 
   send([

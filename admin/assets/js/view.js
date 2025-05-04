@@ -18,6 +18,7 @@ $(document).on('click', '.view', function() {
         <p><strong>Valor pacote:</strong> R$ ${cliente.dados_internos.vlr_pacote.replace('.', ',')}</p>
         <p><strong>Valor frete:</strong> R$ ${cliente.dados_internos.vlr_frete.replace('.', ',')}</p>
         <p><strong>Qtd semanal comodato:</strong> ${cliente.dados_internos.qtd_semanal_comodato.replace('.', ',')} pacotes</p>
+        <p><strong>Prazo boleto:</strong> ${cliente.dados_internos.prazo_boleto} dias</p>
       `);
       modal.find('.modal-footer').html(`
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>

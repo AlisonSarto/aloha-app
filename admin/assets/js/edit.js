@@ -28,7 +28,10 @@ $(document).on('click', '.edit', function() {
         </div>
         
         <label for="vlr_frete">Qtd semanal comodato (0 = não tem comodato):</label>
-        <input type="text" id="qtd_semanal" class="form-control" value="${cliente.dados_internos.qtd_semanal_comodato.replace('.', ',')}">
+        <input type="text" id="qtd_semanal" class="form-control mb-3" value="${cliente.dados_internos.qtd_semanal_comodato.replace('.', ',')}">
+        
+        <label for="vlr_frete">Prazo boleto (0 = boleto bloquedo):</label>
+        <input type="text" id="prazo_boleto" class="form-control" value="${cliente.dados_internos.prazo_boleto.replace('.', ',')}">
       `);
       modal.find('.modal-footer').html(`
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
@@ -50,15 +53,10 @@ $(document).on('click', '.edit', function() {
         var vlr_pacote = $('#vlr_pacote').val().replace(',', '.');
         var vlr_frete = $('#vlr_frete').val().replace(',', '.');
         var qtd_semanal = $('#qtd_semanal').val().replace(',', '.');
+        var prazo_boleto = $('#prazo_boleto').val().replace(',', '.');
     
-        if (vlr_pacote == '' || vlr_frete == '' || qtd_semanal == '') {
+        if (vlr_pacote == '' || vlr_frete == '' || qtd_semanal == '' || prazo_boleto == '') {
           toast('Preencha todos os campos!', 'danger');
-          return;
-        }
-
-        //? Verifica se mudou algo
-        if (cliente.dados_internos.vlr_pacote == vlr_pacote && cliente.dados_internos.vlr_frete == vlr_frete && cliente.dados_internos.qtd_semanal_comodato == qtd_semanal) {
-          toast('Nada foi alterado!', 'danger');
           return;
         }
 
@@ -69,7 +67,8 @@ $(document).on('click', '.edit', function() {
             id: id,
             vlr_pacote: vlr_pacote,
             vlr_frete: vlr_frete,
-            qtd_semanal: qtd_semanal
+            qtd_semanal: qtd_semanal,
+            prazo_boleto: prazo_boleto
           },
           success: function(response) {
             var message = response.message;
