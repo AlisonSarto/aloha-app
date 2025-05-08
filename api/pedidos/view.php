@@ -1,6 +1,7 @@
 <?php
 
-  include $_SERVER['DOCUMENT_ROOT'] . '/funcs/access.php';
+  //? Não é necessário autenticação
+  include $_SERVER['DOCUMENT_ROOT'] . '/funcs/config.php';
 
   if ($_SERVER['REQUEST_METHOD'] !== 'GET') {
     send([
