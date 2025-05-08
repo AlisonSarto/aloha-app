@@ -11,26 +11,38 @@ $(document).on('click', '.edit', function() {
     success: function(response) {
       const cliente = response.clientes[0];
 
+      var boleto_bloqueado = cliente.dados_internos.boleto_bloqueado;
+      if (cliente.dados_internos.boleto_bloqueado == 'true') {
+        boleto_bloqueado = 'checked';
+      } else {
+        boleto_bloqueado = '';
+      }
+
       const modal = $('#modal');
 
       modal.find('.modal-title').text('Editar cliente ' + cliente.nome);
       modal.find('.modal-body').html(`
-        <label for="vlr_pacote">Valor do Pacote:</label>
+        <label>Valor do Pacote:</label>
         <div class="input-group mb-3">
           <span class="input-group-text">R$</span>
           <input type="text" id="vlr_pacote" class="form-control" value="${cliente.dados_internos.vlr_pacote.replace('.', ',')}">
         </div>
 
-        <label for="vlr_frete">Valor do Frete:</label>
+        <label>Valor do Frete:</label>
         <div class="input-group mb-3">
           <span class="input-group-text">R$</span>
           <input type="text" id="vlr_frete" class="form-control" value="${cliente.dados_internos.vlr_frete.replace('.', ',')}">
         </div>
         
-        <label for="vlr_frete">Qtd semanal comodato (0 = não tem comodato):</label>
+        <label>Qtd semanal comodato (0 = não tem comodato):</label>
         <input type="text" id="qtd_semanal" class="form-control mb-3" value="${cliente.dados_internos.qtd_semanal_comodato.replace('.', ',')}">
+
+        <label>Bloquear boleto</label>
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" role="switch" id="boleto_bloqueado_${id}" ${boleto_bloqueado}>
+        </div>
         
-        <label for="vlr_frete">Prazo boleto (0 = boleto bloquedo):</label>
+        <label>Prazo boleto (0 = boleto desativado):</label>
         <input type="text" id="prazo_boleto" class="form-control" value="${cliente.dados_internos.prazo_boleto.replace('.', ',')}">
       `);
       modal.find('.modal-footer').html(`
@@ -87,4 +99,27 @@ $(document).on('click', '.edit', function() {
     }
   });
   
+});
+
+$(document).on('change', `.form-check-input[type="checkbox"]`, function() {
+  const id = $(this).attr('id').split('_').pop(); // Extrai o ID do cliente
+  const boletoBloqueado = $(this).is(':checked'); // Verifica se está marcado
+
+
+  $.ajax({
+    url: './api/clientes/switch_boleto',
+    type: 'POST',
+    data: {
+      id: id,
+      boleto_bloqueado: boletoBloqueado
+    },
+    error: function(response) {
+      console.log(response);
+      var message = response.responseJSON.message;
+      toast(message, 'danger');
+      $(`#boleto_bloqueado_${id}`).prop('checked', !boletoBloqueado);
+    }
+  });
+
+
 });

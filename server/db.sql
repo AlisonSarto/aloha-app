@@ -6,5 +6,6 @@ CREATE TABLE usuarios (
   `n_pedidos` INT NOT NULL DEFAULT '0',
   `qtd_semanal_comodato` INT NOT NULL DEFAULT '0',
   `prazo_boleto` INT NOT NULL DEFAULT '0',
+  `boleto_bloqueado` VARCHAR(45) NOT NULL DEFAULT 'false',
   PRIMARY KEY (`id`)
 );

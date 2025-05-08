@@ -8,6 +8,8 @@ $(document).ready(function() {
   var blackFriday = false;
   var vlr_pacote_uni;
   var qtd_total;
+  var boleto_bloqueado = false;
+  var prazo_boleto = 0;
 
   //? Data de entrega, input #data-entrega coloca a data de hoje, sabendo que é um input de data html e o minimo é a data de hoje
   var data = new Date();
@@ -44,7 +46,10 @@ $(document).ready(function() {
       vlr_frete = data.profile_interno[0].vlr_frete;
       n_pedido = data.profile_interno[0].n_pedidos;
 
-      if (data.profile_interno[0].prazo_boleto > 0) {
+      boleto_bloqueado = data.profile_interno[0].boleto_bloqueado;
+      prazo_boleto = data.profile_interno[0].prazo_boleto;
+
+      if (prazo_boleto > 0 && boleto_bloqueado == 'false') {
         $('#tipo-pagamento').append(`
           <option value="boleto">Boleto</option>
         `);
@@ -299,6 +304,9 @@ $(document).ready(function() {
             <br>  
             Equipe Aloha agradece a preferência! 🥂
           `);
+        },
+        success: function(data) {
+          console.log(data);
         },
         error: function(data) {
           console.log(data);

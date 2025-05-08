@@ -40,6 +40,7 @@
   $res = $conn->query($sql);
   $db = $res->fetch_assoc();
 
+  $boleto_bloqueado = $db['boleto_bloqueado'];
   $n_pedidos = $db['n_pedidos'];
   $db['vlr_frete'] = $n_pedidos == 0 ? 0 : $db['vlr_frete'];
 
@@ -147,6 +148,21 @@
   $sql = "UPDATE usuarios SET n_pedidos = $n_pedidos WHERE cliente_id = $cliente_id";
   $res = $conn->query($sql);
 
+  //? Verifica se já pode liberar o boleto para o cliente
+  if ($boleto_bloqueado == 'false' && $prazo_boleto == '0' && $n_pedidos >= 6) {
+    $url = 'clientes/' . $cliente_id;
+    $method = 'GET';
+    $response = gs_click($url, $method);
+
+    $cpf = $response['cpf'];
+    $cnpj = $response['cnpj'];
+
+    if ($cpf != '' && $cnpj == '') {
+      $sql = "UPDATE usuarios SET prazo_boleto = 3 WHERE cliente_id = $cliente_id";
+      $res = $conn->query($sql);
+    }
+  }
+
   //* Webhook WhatsApp
   //? Puxa os dados do cliente no Gestão Click
   $url = "clientes/$cliente_id";
@@ -181,8 +197,7 @@
 
   send([
     'status' => 200,
-    'data' => $data,
-    'response' => $response
+    'message' => 'Pedido criado com sucesso'
   ]);
   
 ?>
