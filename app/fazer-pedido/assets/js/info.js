@@ -305,9 +305,6 @@ $(document).ready(function() {
             Equipe Aloha agradece a preferência! 🥂
           `);
         },
-        success: function(data) {
-          console.log(data);
-        },
         error: function(data) {
           console.log(data);
         }
