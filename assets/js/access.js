@@ -11,6 +11,13 @@ $(document).ready(function() {
       if (response.profile_interno.length === 0) {
         location.href = '/app/registro';
       }
+      if (response.boleto_atrasado == true) {
+        location.href = '/app/err/boleto-atrasado/';
+      }
+      // espera 1 segundo para mostrar o body
+      setTimeout(function() {
+        $('body').show();
+      }, 700);
     }
   });
 

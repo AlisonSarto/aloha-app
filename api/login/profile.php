@@ -10,7 +10,24 @@
   $data = [
     'id' => $cliente_id
   ];
-  $response = gs_click($url, $method, $data);
+  $profile_gestao = gs_click($url, $method, $data);
+
+  //? Se ele está com boleto atrasado
+  $url = "recebimentos";
+  $method = 'GET';
+  $data = [
+    'data_inicio' => "2023-01-01",
+    'cliente_id' => $cliente_id,
+    'liquidado' => 'at',
+    'forma_pagamento_id' => 2219792 // Boleto
+  ];
+
+  $boletos_atrasados = gs_click($url, $method, $data);
+  
+  $devendo = true;
+  if ($boletos_atrasados == []) {
+    $devendo = false;
+  }
 
   //? Profile interno
   $sql = "SELECT * FROM usuarios WHERE cliente_id = $cliente_id";
@@ -22,12 +39,12 @@
     $db = $res->fetch_all(MYSQLI_ASSOC);
   }
 
-
   send([
     'status' => 200,
     'session' => $_SESSION,
     'profile_interno' => $db,
-    'profile' => $response
+    'profile' => $profile_gestao,
+    'boleto_atrasado' => $devendo,
   ]);
 
 ?>

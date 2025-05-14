@@ -1,5 +1,9 @@
 $(document).ready(function() {
 
+  setTimeout(function() {
+    $('body').show();
+  }, 1000);
+
   $.ajax({
     url: '/api/login/profile',
     method: 'GET',

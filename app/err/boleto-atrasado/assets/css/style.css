@@ -1,0 +1,66 @@
+ body {
+   background-color: #f8f9fa;
+   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+ }
+
+ .error-container {
+   max-width: 650px;
+   margin: 0 auto;
+   padding: 2rem;
+   border-radius: 12px;
+   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+   background-color: #ffffff;
+ }
+
+ .header-logo {
+   text-align: center;
+   margin-bottom: 1.5rem;
+ }
+
+ .error-icon {
+   font-size: 3.5rem;
+   color: #dc3545;
+   margin-bottom: 1rem;
+ }
+
+ .error-title {
+   color: #dc3545;
+   font-weight: 600;
+   margin-bottom: 1rem;
+ }
+
+ .error-message {
+   margin-bottom: 2rem;
+   color: #495057;
+   line-height: 1.6;
+ }
+
+ .boleto-item {
+   background-color: #f8f9fa;
+   border-left: 4px solid #ffc107;
+   padding: 1rem;
+   margin-bottom: 1rem;
+   border-radius: 6px;
+ }
+
+ .boleto-button {
+   width: 100%;
+   margin-top: 0.5rem;
+ }
+
+ .aloha-primary {
+   background-color: #0d6efd;
+   border-color: #0d6efd;
+ }
+
+ .aloha-primary:hover {
+   background-color: #0b5ed7;
+   border-color: #0a58ca;
+ }
+
+ .footer-note {
+   font-size: 0.9rem;
+   color: #6c757d;
+   text-align: center;
+   margin-top: 2rem;
+ }
