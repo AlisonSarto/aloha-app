@@ -1,195 +1,213 @@
-<!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fazer pedidos - Aloha App</title>
-  <link rel="stylesheet" href="/libs/bulma/bulma.css">
-  <link rel="stylesheet" href="./assets/css/produtos.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" href="./assets/css/produtos.css?v=2.0">
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
 </head>
-<body>
 
-  <main class="container is-fluid" style="display: none;">
+<body class="bg-gray-50" id="main-container" style="display: none;">
 
-    <br>
+  <!-- Selecionar qtd -->
+  <div id="page-1" class="page-transition">
+    <h1 class="text-3xl font-bold text-gray-800 page-title">Fazer pedido</h1>
+    <p class="page-subtitle">👇 Selecione os produtos que deseja pedir</p>
 
-    <!-- Selecionar qtd -->
-    <div id="page-1">
-      
-      <h1 class="title is-2">Fazer pedido</h1>
-      <p class="subtitle is-6">👇 Selecione os produtos que deseja pedir</p>
-
-      <!-- Produtos -->
-      <div id="produtos"></div>
-      
-      <br>
-
-      <!-- Black Friday 10% off novos sabores -->
-      <div class="notification is-danger is-light" id="black-friday" style="display: none;">
-        <span class="icon has-text-danger">
+    <!-- Black Friday 10% off novos sabores -->
+    <div class="notification notification-danger mb-6 animate-fade-in" id="black-friday" style="display: none;">
+      <div class="flex items-center">
+        <span class="text-red-600 mr-3 text-xl">
           <i class="fas fa-tags"></i>
         </span>
-        <strong style="margin-left: 10px;">Black Friday! 10% de desconto nos novos sabores! 🆕</strong>
-      </div>
-
-    </div>
-
-    <!-- Forma de entrega e pagamento -->
-    <div id="page-2" style="display: none;">
-
-      <h1 class="title is-5">Forma de entrega</h1>
-      <p class="subtitle is-6">Selecione a forma de entrega</p>
-
-      <div class="field">
-        <div class="control">
-          <!-- deixa w 100% o select -->
-          <div class="select is-fullwidth">
-            <select id="tipo-entrega">
-              <option selected disabled>Escolha aqui...</option>
-              <option value="entrega">Entrega</option>
-              <option value="retirada">Retirada</option>
-            </select>
-          </div>
+        <div>
+          <strong class="text-lg">Black Friday!</strong>
+          <p>10% de desconto nos novos sabores! 🆕</p>
         </div>
       </div>
+    </div>
 
-      <div id="notif-frete" style="display: none;">
+    <!-- Produtos -->
+    <div id="produtos" class="grid grid-cols-2 gap-4"></div>
 
-        <!-- Frete Grátis -->
-        <div class="notification is-success is-light" id="frete-gratis" style="display: none;">
-          <span class="icon has-text-success">
+    <div class="total-pedido-container animate-fade-in delay-300">
+      <span class="total-pedido-label">Total do pedido:</span>
+      <span class="total-pedido-value" id="total-pedido">R$ 0,00</span>
+    </div>
+  </div>
+
+  <!-- Forma de entrega e pagamento -->
+  <div id="page-2" class="page-transition" style="display: none;">
+    <h1 class="text-3xl font-bold text-gray-800 page-title">Detalhes do pedido</h1>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="form-group">
+        <label class="form-label" for="tipo-entrega">
+          <i class="fas fa-truck mr-2 text-gray-500"></i>Forma de entrega
+        </label>
+        <select id="tipo-entrega" class="form-select">
+          <option selected disabled>Escolha aqui...</option>
+          <option value="entrega">Entrega</option>
+          <option value="retirada">Retirada</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="data-entrega">
+          <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>Data de entrega/retirada
+        </label>
+        <input class="form-input" type="date" id="data-entrega" placeholder="Data de entrega">
+      </div>
+    </div>
+
+    <div id="notif-frete" style="display: none;">
+      <!-- Frete Grátis -->
+      <div class="notification notification-success mb-4 animate-fade-in" id="frete-gratis" style="display: none;">
+        <div class="flex items-center">
+          <span class="text-green-600 mr-3 text-xl">
             <i class="fas fa-truck"></i>
           </span>
-          <strong style="margin-left: 10px;">Frete grátis no seu primeiro pedido pelo Aloha App!</strong>
-        </div>
-
-        <div class="notification">
-          <strong>Valor do frete: </strong><span id="vlr-frete"></span>
-        </div>
-
-      </div>
-      
-      <br>
-
-      <!-- Data entrega -->
-      <h1 class="title is-5">Data de entrega/retirada</h1>
-      <p class="subtitle is-6">Selecione a data</p>
-
-      <div class="field">
-        <div class="control">
-          <input class="input" type="date" id="data-entrega" placeholder="Data de entrega">
+          <strong>Frete grátis no seu primeiro pedido pelo Aloha App!</strong>
         </div>
       </div>
 
-      <br>
-
-      <!-- Forma de pagamento -->
-      <h1 class="title is-5">Forma de pagamento</h1>
-      <p class="subtitle is-6">Selecione a forma de pagamento</p>
-
-      <div class="field">
-        <div class="control">
-          <div class="select is-fullwidth">
-            <select id="tipo-pagamento">
-              <option selected disabled>Escolha aqui...</option>
-              <option value="pix">Pix</option>
-              <option value="dinheiro">Dinheiro</option>
-            </select>
+      <div class="notification notification-info mb-4 animate-fade-in">
+        <div class="flex justify-between items-center">
+          <div class="flex items-center">
+            <span class="text-blue-600 mr-3 text-xl">
+              <i class="fas fa-info-circle"></i>
+            </span>
+            <strong>Valor do frete:</strong>
           </div>
+          <span id="vlr-frete" class="font-bold"></span>
         </div>
       </div>
-
-      <br>
-
-      <!-- Observação -->
-      <h1 class="title is-5">Observação</h1>
-      <p class="subtitle is-6">Horário de entrega ou outras informações</p>
-      <div class="field">
-        <div class="control">
-          <textarea class="textarea" id="obs" placeholder="Observação"></textarea>
-        </div>
-      </div>
-
     </div>
 
-    <!-- Resumo Geral -->
-    <div id="page-3" style="display: none;">
-      <h1 class="title is-4">Resumo do pedido</h1>
-      
-      <div class="content">
-        <div class="table-container">
-          <table class="table is-bordered is-fullwidth">
-            <thead>
-              <tr>
-                <th>Produto</th>
-                <th>Qtd</th>
-                <th>Subtotal</th>
-              </tr>
-            </thead>
-            <tbody id="resumo-pacotes"></tbody>
-          </table>
-        </div>
-      </div>
-
-      <div class="content">
-        <div class="table-container">
-          <table class="table is-bordered is-fullwidth">
-            <tr>
-              <td>Total de pacotes:</td>
-              <td><span id="resumo-total-pacote"></span></td>
-            </tr>
-            <tr>
-              <td>Valor cada pacote:</td>
-              <td><span id="resumo-vlr-pacote"></span></td>
-            </tr>
-        </div>
-      </div>
-
-      <div class="content">
-        <div class="table-container">
-          <table class="table is-bordered is-fullwidth">
-            <tr>
-              <td>Valor pedido:</td>
-              <td><span id="resumo-vlr-pedido"></span></td>
-            </tr>
-            <tr>
-              <td>Valor do frete:</td>
-              <td><span id="resumo-frete"></span></td>
-            </tr>
-            <tr>
-              <td>Valor total:</td>
-              <td><span id="resumo-total"></span></td>
-            </tr>
-          </table>
-        </div>
-      </div>
-
+    <div class="form-group">
+      <label class="form-label" for="tipo-pagamento">
+        <i class="fas fa-credit-card mr-2 text-gray-500"></i>Forma de pagamento
+      </label>
+      <select id="tipo-pagamento" class="form-select">
+        <option selected disabled>Escolha aqui...</option>
+        <option value="pix">Pix</option>
+        <option value="dinheiro">Dinheiro</option>
+      </select>
     </div>
 
-    <!-- loanding page -->
-    <div id="page-4" style="display: none;">
-      <br><br><br>
-      <h3 class="title is-3 has-text-centered" id="loading-icon">
+    <div class="form-group">
+      <label class="form-label" for="obs">
+        <i class="fas fa-clock mr-2 text-gray-500"></i>Horários de funcionamento / retirada
+      </label>
+      <p class="text-sm text-gray-500 mb-2">
+        Informe os horários disponíveis para pedidos ou retirada.
+      </p>
+      <textarea class="form-textarea" id="obs" rows="3"></textarea>
+    </div>
+  </div>
+
+  <!-- Resumo Geral -->
+  <div id="page-3" class="page-transition" style="display: none;">
+    <h1 class="text-3xl font-bold text-gray-800 page-title">Resumo do pedido</h1>
+
+    <div class="summary-card animate-fade-in">
+      <h2 class="summary-title">
+        <i class="fas fa-shopping-basket"></i>
+        Produtos selecionados
+      </h2>
+      <div class="table-container">
+        <table class="w-full">
+          <thead>
+            <tr>
+              <th>Produto</th>
+              <th>Qtd</th>
+              <th>Subtotal</th>
+            </tr>
+          </thead>
+          <tbody id="resumo-pacotes"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div class="summary-card animate-fade-in delay-100">
+        <h2 class="summary-title">
+          <i class="fas fa-box"></i>
+          Detalhes do pacote
+        </h2>
+        <div class="summary-row">
+          <span>Total de pacotes:</span>
+          <span id="resumo-total-pacote" class="font-semibold"></span>
+        </div>
+        <div class="summary-row">
+          <span>Valor cada pacote:</span>
+          <span id="resumo-vlr-pacote" class="font-semibold"></span>
+        </div>
+      </div>
+
+      <div class="summary-card animate-fade-in delay-200">
+        <h2 class="summary-title">
+          <i class="fas fa-truck-loading"></i>
+          Informações de entrega
+        </h2>
+        <div class="summary-row">
+          <span>Forma de entrega:</span>
+          <span id="resumo-entrega" class="font-semibold"></span>
+        </div>
+        <div class="summary-row">
+          <span>Data de entrega:</span>
+          <span id="resumo-data" class="font-semibold"></span>
+        </div>
+        <div class="summary-row">
+          <span>Forma de pagamento:</span>
+          <span id="resumo-pagamento" class="font-semibold"></span>
+        </div>
+      </div>
+    </div>
+
+    <div class="summary-card animate-fade-in delay-300">
+      <h2 class="summary-title">
+        <i class="fas fa-receipt"></i>
+        Valores
+      </h2>
+      <div class="summary-row">
+        <span>Valor pedido:</span>
+        <span id="resumo-vlr-pedido" class="font-semibold"></span>
+      </div>
+      <div class="summary-row">
+        <span>Valor do frete:</span>
+        <span id="resumo-frete" class="font-semibold"></span>
+      </div>
+      <div class="summary-row summary-total">
+        <span>Valor total:</span>
+        <span id="resumo-total" class="text-primary-color"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading page -->
+  <div id="page-4" class="page-transition" style="display: none;">
+    <div class="loading-container">
+      <div class="loading-icon" id="loading-icon">
         <i class="fas fa-spinner fa-spin"></i>
-      </h3>
-      <h1 class="title is-4 has-text-centered" id="loading-title">Aguarde...</h1>
-      <p class="subtitle is-6 has-text-centered" id="loading-subtitle">Estamos processando seu pedido</p>
+      </div>
+      <h1 class="text-2xl font-bold mb-2" id="loading-title">Aguarde...</h1>
+      <p class="text-gray-600 text-center" id="loading-subtitle">Estamos processando seu pedido</p>
     </div>
+  </div>
 
-    <br>
-    
-    <div id="btns">
-      <button class="button is-primary is-medium is-fullwidth" id="btn-continuar">Continuar</button>
-      <button class="button is-danger is-medium is-fullwidth" id="btn-voltar" style="margin-top: 10px; display: none;">Voltar</button>
-    </div>
+  <div class="flex flex-col space-y-3 mt-8" id="btns">
+    <button class="btn-primary w-full" id="btn-continuar">Continuar</button>
+    <button class="btn-secondary w-full" id="btn-voltar" style="display: none;">Voltar</button>
+  </div>
 
-    <br><br><br>
+  <br><br>
 
-  </main>
-
-  <script src="/libs/jquery/jquery.js"></script>
-  <script src="/libs/font-aweresome/font-aweresome.js"></script>
-  <!---->
-  <script src="./assets/js/info.js"></script>
+  <script src="./assets/js/info.js?v=2.0"></script>
 </body>
+
 </html>
