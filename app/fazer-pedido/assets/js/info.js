@@ -343,7 +343,7 @@ $(document).ready(function () {
       // Update the remaining HTML elements
       $('#resumo-entrega').text($('#tipo-entrega option:selected').text());
       $('#resumo-pagamento').text($('#tipo-pagamento option:selected').text());
-      $('#resumo-data').text($('#data-entrega').val());
+      $('#resumo-data').text($('#data-entrega').val().split('-').reverse().join('/'));
     }
 
     // finalizar pedido
@@ -369,7 +369,7 @@ $(document).ready(function () {
         data: dados,
         success: function (ress) {
           console.log(ress);
-          $('#loading-icon').html('<i class="fas fa-check-circle loading-success fa-bounce"></i>');
+          $('#loading-icon').html('<i class="fas fa-check-circle loading-success"></i>');
           $('#loading-title').text('Pedido realizado com sucesso!');
           $('#loading-subtitle').html(`
                 <div class="text-center">
