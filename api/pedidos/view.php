@@ -17,7 +17,6 @@
   $url = 'vendas';
   $method = 'GET';
   $data = [
-    'cliente_id' => $_SESSION['cliente_id'],
     'data_inicio' => $data_inicio
   ];
   if ($id !== null) {
