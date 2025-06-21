@@ -72,8 +72,8 @@ body {
 
 .kanban-card.novo { border-left-color: var(--warning); }
 .kanban-card.interessado { border-left-color: var(--info); }
-.kanban-card.pedido-realizado { border-left-color: var(--primary); }
-.kanban-card.cliente-ativo { border-left-color: var(--success); }
+.kanban-card.pedido_realizado { border-left-color: var(--primary); }
+.kanban-card.cliente_ativo { border-left-color: var(--success); }
 .kanban-card.inativo { border-left-color: var(--neutral); }
 .kanban-card.desqualificado { border-left-color: var(--danger); }
 
