@@ -33,4 +33,11 @@
 
   $conn = new mysqli($dbHost,$dbUsername,$dbPassword,$dbName);
 
+  $dbHost = env('DB_HOST_CRM');
+  $dbUsername = env('DB_USER_CRM');
+  $dbPassword = env('DB_PASS_CRM');
+  $dbName = env('DB_NAME_CRM');
+
+  $conn_crm = new mysqli($dbHost,$dbUsername,$dbPassword,$dbName);
+
 ?>
