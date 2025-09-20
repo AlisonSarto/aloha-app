@@ -1,6 +1,9 @@
 <?php
 
-  include $_SERVER['DOCUMENT_ROOT'] . '/funcs/access.php';
+  // Define o diretório raiz do projeto
+  $root_dir = dirname(dirname(__DIR__));
+  include $root_dir . '/funcs/access.php';
+  // Removido include do env.php pois gs_click.php já tem a função env()
 
   $cliente_id = $_SESSION['cliente_id'];
 
@@ -11,6 +14,11 @@
     'id' => $cliente_id
   ];
   $profile_gestao = gs_click($url, $method, $data);
+  
+  // Verifica se a resposta da API externa é válida
+  if (!$profile_gestao || !is_array($profile_gestao) || empty($profile_gestao) || isset($profile_gestao['message'])) {
+    $profile_gestao = [];
+  }
 
   //? Se ele está com boleto atrasado
   $url = "recebimentos";
@@ -39,12 +47,23 @@
     $db = $res->fetch_all(MYSQLI_ASSOC);
   }
 
+  //? Configurações de entrega
+  $dias_antecedencia = env('DIAS_ANTECEDENCIA_ENTREGA');
+  
+  // Fallback caso a variável não exista ou seja vazia
+  if ($dias_antecedencia === false || $dias_antecedencia === null || $dias_antecedencia === '') {
+    $dias_antecedencia = 1;
+  }
+
   send([
     'status' => 200,
     'session' => $_SESSION,
     'profile_interno' => $db,
     'profile' => $profile_gestao,
     'boleto_atrasado' => $devendo,
+    'config_entrega' => [
+      'dias_antecedencia' => intval($dias_antecedencia)
+    ]
   ]);
 
 ?>

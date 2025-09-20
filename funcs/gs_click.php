@@ -17,7 +17,7 @@
 
     $env = [
       "Produção" => $root,
-      "Localhost" => $_SERVER['DOCUMENT_ROOT'].'/.env.local',
+      "Localhost" => __DIR__ . '/../.env.local',
     ];
     
     //? Verifica se o arquivo existe
@@ -40,11 +40,29 @@
     $envData = [];
 
     foreach ($envContent as $line) {
-      if (strpos($line, '#') !== false) {
+      $line = trim($line);
+      
+      // Ignora linhas vazias e linhas que começam com #
+      if (empty($line) || $line[0] === '#') {
         continue;
       }
+      
+      // Se a linha contém #, pega apenas a parte antes do # (para comentários inline)
+      if (strpos($line, '#') !== false) {
+        $line = trim(substr($line, 0, strpos($line, '#')));
+      }
+      
+      if (empty($line) || strpos($line, '=') === false) {
+        continue;
+      }
+      
       [$key, $value] = explode('=', $line, 2);
-      $envData[$key] = $value;
+      $key = trim($key);
+      $value = trim($value);
+      
+      if (!empty($key)) {
+        $envData[$key] = $value;
+      }
     }
 
     if (array_key_exists($envName, $envData)) {

@@ -8,10 +8,12 @@ $(document).ready(function() {
         location.href = '/login';
       }
       var response = data.responseJSON;
-      if (response.profile_interno.length === 0) {
+      
+      // Verifica se response e profile_interno existem antes de acessar
+      if (response && response.profile_interno && response.profile_interno.length === 0) {
         location.href = '/app/registro';
       }
-      if (response.boleto_atrasado == true) {
+      if (response && response.boleto_atrasado == true) {
         location.href = '/app/err/boleto-atrasado/';
       }
       // espera 1 segundo para mostrar o body

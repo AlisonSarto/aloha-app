@@ -9,15 +9,22 @@ $(document).ready(function() {
     method: 'GET',
     success: function(data) {
 
-      if (data.profile_interno.length > 0) {
+      // Verifica se profile_interno existe antes de acessar
+      if (data.profile_interno && data.profile_interno.length > 0) {
         window.location.href = '/';
       }
       
-      const user = data.profile[0];
-
-      $('main').show();
-
-      $('#nome-user').text(user.nome);
+      // Verifica se profile existe antes de acessar
+      if (data.profile && data.profile.length > 0) {
+        const user = data.profile[0];
+        
+        $('main').show();
+        
+        $('#nome-user').text(user.nome);
+      } else {
+        // Se não tem dados do profile, redireciona
+        window.location.href = '/';
+      }
     },
     error: function() {
       window.location.href = '/';

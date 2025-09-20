@@ -37,10 +37,24 @@
     $envData = [];
 
     foreach ($envContent as $line) {
-      if (strpos($line, '#') !== false) {
+      // Ignora linhas vazias e linhas que começam com #
+      if (empty($line) || strpos(trim($line), '#') === 0) {
         continue;
       }
+      
+      // Se a linha contém #, pega apenas a parte antes do #
+      if (strpos($line, '#') !== false) {
+        $line = substr($line, 0, strpos($line, '#'));
+      }
+      
+      $line = trim($line);
+      if (empty($line)) {
+        continue;
+      }
+      
       [$key, $value] = explode('=', $line, 2);
+      $key = trim($key);
+      $value = trim($value);
       $envData[$key] = $value;
     }
 

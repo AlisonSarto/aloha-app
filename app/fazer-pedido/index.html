@@ -5,13 +5,29 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fazer pedidos - Aloha App</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <link rel="stylesheet" href="./assets/css/produtos.css?v=2.0">
-  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/js/all.min.js"></script>
+  <script src="/libs/jquery/jquery.js"></script>
+  <script src="/libs/font-aweresome/font-aweresome.js"></script>
 </head>
 
 <body class="bg-gray-50" id="main-container" style="display: none;">
+
+  <!-- Modal de aviso sobre entrega no dia seguinte -->
+  <div id="modal-aviso-entrega" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" style="display: none;">
+    <div class="bg-white rounded-lg p-6 mx-4 max-w-md w-full">
+      <div class="text-center">
+        <div class="text-6xl mb-4">⏰</div>
+        <h2 class="text-xl font-bold text-gray-800 mb-4">Importante: Prazo de Entrega</h2>
+        <p id="modal-texto-aviso" class="text-gray-600 mb-6">
+          Devido à alta demanda do fim de ano, todos os pedidos serão entregues no dia seguinte. 
+          Por favor, se organizem para receber o pedido no próximo dia útil.
+        </p>
+        <button id="fechar-modal-aviso" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+          Entendi
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- Selecionar qtd -->
   <div id="page-1" class="page-transition">
@@ -61,6 +77,10 @@
           <i class="fas fa-calendar-alt mr-2 text-gray-500"></i>Data de entrega/retirada
         </label>
         <input class="form-input" type="date" id="data-entrega" placeholder="Data de entrega">
+        <p id="dica-prazo-entrega" class="text-sm text-gray-500 mt-1" style="display: none;">
+          <i class="fas fa-info-circle mr-1"></i>
+          <span id="texto-dica-prazo"></span>
+        </p>
       </div>
     </div>
 
@@ -207,7 +227,7 @@
 
   <br><br>
 
-  <script src="./assets/js/info.js?v=2.0"></script>
+  <script src="./assets/js/info.js?v=2.5"></script>
 </body>
 
 </html>
