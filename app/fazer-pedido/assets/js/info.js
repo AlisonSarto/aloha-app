@@ -37,7 +37,10 @@ $(document).ready(function () {
     
     if (tipo_entrega === 'entrega' && dias_antecedencia > 0) {
       // Para entrega, adiciona os dias úteis de antecedência
-      data = adicionarDiasUteis(data, dias_antecedencia);
+      // Se hoje for sábado, não adiciona dias.
+      if (data.getDay() !== 6) {
+        data = adicionarDiasUteis(data, dias_antecedencia);
+      }
       console.log(`Configurando entrega: bloqueando ${dias_antecedencia} dia(s) útil(is) a partir de hoje`);
     } else {
       console.log(`Configurando retirada: sem bloqueio de data`);
@@ -69,6 +72,11 @@ $(document).ready(function () {
 
   // Função para exibir modal de aviso
   function exibirModalAviso() {
+    // Se for sábado, não exibe o modal de aviso
+    if (new Date().getDay() === 6) {
+      return;
+    }
+    
     if (dias_antecedencia > 0) {
       var titulo_modal = "Importante: Prazo de Entrega";
       var mensagem_modal = "";
