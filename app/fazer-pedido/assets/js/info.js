@@ -325,6 +325,10 @@ $(document).ready(function () {
 
   // Função para atualizar dica do prazo de entrega
   function atualizarDicaPrazo(tipo_entrega) {
+    if (new Date().getDay() === 6 && tipo_entrega === 'entrega') {
+      $('#dica-prazo-entrega').hide();
+      return;
+    }
     if (tipo_entrega === 'entrega' && dias_antecedencia > 0) {
       var texto_dica = "";
       if (dias_antecedencia === 1) {
