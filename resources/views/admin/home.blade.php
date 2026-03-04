@@ -3,5 +3,7 @@
 @section('title', 'Home')
 
 @section('content')
-Home
+<h1 class="text-xl font-medium">
+    Em desenvolvimento...
+</h1>
 @endsection

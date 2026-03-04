@@ -5,6 +5,7 @@
     <title>@yield('title') - Aloha App</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindplus/elements@1" type="module"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
 </head>
 <body>
     <nav class="relative bg-gray-800">
@@ -68,7 +69,7 @@
         </el-disclosure>
     </nav>
 
-    <main>
+    <main class="container mx-auto p-4">
         @yield('content')
     </main>
 
