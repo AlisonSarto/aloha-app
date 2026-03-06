@@ -11,16 +11,16 @@ class Store extends Model
     use HasFactory;
 
     protected $fillable = [
+        'name',
         'gestao_click_id',
         'shipping_amount',
-        'unit_price',
+        'price_table_id',
         'can_use_boleto',
         'boleto_due_days',
     ];
 
     protected $casts = [
         'shipping_amount' => 'decimal:2',
-        'unit_price' => 'decimal:2',
         'orders_count' => 'integer',
         'can_use_boleto' => 'boolean',
         'boleto_due_days' => 'integer',

@@ -16,26 +16,16 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
+        $this->call([
+            Core\RoleSeeder::class,
+            Core\PriceTableSeeder::class,
+        ]);
 
-        Role::create(['name' => 'admin']);
-        Role::create(['name' => 'seller']);
-        Role::create(['name' => 'client']);
-
-        User::factory()->create([
-            'name' => 'Admin',
-            'email' => 'admin@email.com',
-        ])->assignRole('admin');
-
-        User::factory()->create([
-            'name' => 'Seller',
-            'email' => 'seller@email.com',
-        ])->assignRole('seller');
-
-        User::factory()->create([
-            'name' => 'Client',
-            'email' => 'client@email.com',
-        ])->assignRole('client');
-
+        if (app()->environment('local')) {
+            $this->call([
+                Local\UserSeeder::class,
+                Local\ClientStoreSeeder::class,
+            ]);
+        }
     }
 }

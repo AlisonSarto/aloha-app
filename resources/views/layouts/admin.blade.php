@@ -26,12 +26,7 @@
                         <img src="{{ asset('favicon.ico') }}" alt="Your Company" class="h-8 w-auto"/>
                     </div>
                     <div class="hidden sm:ml-6 sm:block">
-                        <div class="flex space-x-4">
-                            <a href="./home" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
-                            <a href="./clients" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Clientes</a>
-                            <a href="./stores" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Comércios</a>
-                            <a href="./sellers" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Vendedores</a>
-                            <a href="./users" class="rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white">Usuários</a>
+                        <div class="flex space-x-4" id="desktop-menu">
                         </div>
                     </div>
                 </div>
@@ -58,13 +53,7 @@
         </div>
 
         <el-disclosure id="mobile-menu" hidden class="block sm:hidden">
-            <div class="space-y-1 px-2 pt-2 pb-3">
-                <!-- Current: "bg-gray-900 text-white", Default: "text-gray-300 hover:bg-white/5 hover:text-white" -->
-                <a href="./home" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Home</a>
-                <a href="./clients" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Cliente</a>
-                <a href="./stores" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Comércios</a>
-                <a href="./sellers" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Vendedores</a>
-                <a href="./users" class="block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white">Usuários</a>
+            <div class="space-y-1 px-2 pt-2 pb-3" id="mobile-menu-items">
             </div>
         </el-disclosure>
     </nav>
@@ -100,6 +89,57 @@
                     }
                 });
             }
+
+            // Menu data
+            const menuData = {
+                "menu": [
+                    {
+                        "name": "Home",
+                        "url": "/admin/home",
+                    },
+                    {
+                        "name": "Clientes",
+                        "url": "/admin/clients",
+                    },
+                    {
+                        "name": "Comércios",
+                        "url": "/admin/stores",
+                    },
+                    {
+                        "name": "Vendedores",
+                        "url": "/admin/sellers",
+                    },
+                    {
+                        "name": "Tabela de Preços",
+                        "url": "/admin/price-tables",
+                    },
+                    {
+                        "name": "Usuários",
+                        "url": "/admin/users",
+                    }
+                ]
+            };
+
+            // Load menu
+            const desktopMenuLink = document.getElementById('desktop-menu');
+            const mobileMenuLink = document.getElementById('mobile-menu-items');
+            menuData.menu.forEach(item => {
+
+                // PC
+                var a = document.createElement('a');
+                a.href = item.url;
+                a.className = 'rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white';
+                a.textContent = item.name;
+                desktopMenuLink.appendChild(a);
+
+                // Mobile
+                a = document.createElement('a');
+                a.href = item.url;
+                a.className = 'block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white';
+                a.textContent = item.name;
+                mobileMenuLink.appendChild(a);
+
+            });
         });
     </script>
 </body>
