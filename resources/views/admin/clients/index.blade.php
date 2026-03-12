@@ -43,9 +43,9 @@
                         <td class="border border-gray-300 px-4 py-3">
                             <div class="flex items-center gap-2">
 
-                                <!-- Visualizar -->
-                                <a href="#"
-                                class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
+                                <!-- Visualizar / vincular -->
+                                <a href="{{ route('admin.clients.show', $client) }}"
+                                   class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
                                     Vincular comércios
                                 </a>
 
@@ -62,6 +62,13 @@
             </tbody>
         </table>
     </div>
+
+    <!-- Mensagens -->
+    @if(session('success'))
+        <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
+            {{ session('success') }}
+        </div>
+    @endif
 
     <!-- Paginação -->
     <div class="mt-6">

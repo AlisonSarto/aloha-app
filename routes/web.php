@@ -27,6 +27,8 @@ Route::middleware(['auth'])->group(function() {
             Route::get('/home', [AdminHomeController::class, 'index'])->name('home');
 
             Route::get('/clients', [AdminClientController::class, 'index'])->name('clients.index');
+            Route::get('/clients/{client}', [AdminClientController::class, 'show'])->name('clients.show');
+            Route::put('/clients/{client}/stores', [AdminClientController::class, 'updateStores'])->name('clients.stores.update');
 
             Route::get('/stores', [AdminStoreController::class, 'index'])->name('stores.index');
             Route::get('/stores/{store}', [AdminStoreController::class, 'show'])->name('stores.show');
@@ -36,7 +38,7 @@ Route::middleware(['auth'])->group(function() {
             Route::get('/sellers', [AdminSellerController::class, 'index'])->name('sellers');
 
             Route::get('/price-tables', [AdminPriceTableController::class, 'index'])->name('price-tables');
-            
+
             Route::get('/users', [AdminUserController::class, 'index'])->name('users');
         });
 });
