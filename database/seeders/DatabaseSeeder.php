@@ -19,12 +19,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             Core\RoleSeeder::class,
             Core\PriceTableSeeder::class,
+            Core\StoreSeeder::class,
             Local\UserSeeder::class,
         ]);
 
         if (app()->environment('local') && env('SEED_FAKE_DATA')) {
             $this->call([
-                Local\ClientStoreSeeder::class,
+                Local\ClientSeeder::class
             ]);
         }
     }
