@@ -8,15 +8,19 @@ use App\Services\GestaoClickService;
 
 class SyncGestaoClickStores extends Command
 {
-    protected $signature = 'app:sync-gestao-click-stores';
+    protected $signature = 'sync:stores';
     protected $description = 'Sincronização das lojas do Gestão Click com o banco local';
 
     public function handle(GestaoClickService $gestaoClick)
     {
-        $stores = $gestaoClick->getStores();
+        $this->info('Iniciando sincronização de lojas');
 
-        $this->info(json_encode($stores, JSON_PRETTY_PRINT));
+        $start = microtime(true);
+        $stores = $gestaoClick->syncStores();
+        $end = microtime(true);
 
-        // $this->info('Stores sincronizadas com sucesso.');
+        $time = $end - $start;
+
+        $this->info('Lojas sincronizadas com sucesso ('.number_format($time, 3).'s)');
     }
 }

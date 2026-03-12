@@ -20,4 +20,9 @@ return [
         'secret' => env('GESTAOCLICK_SECRET_TOKEN'),
     ],
 
+    'google_maps' => [
+        'key' => env('GOOGLE_MAPS_KEY'),
+        'origin' => env('GOOGLE_MAPS_ORIGIN'),
+    ],
+
 ];
