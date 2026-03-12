@@ -24,13 +24,22 @@ class GestaoClickService
         ]);
     }
 
-    public function searchStores($search)
+    public function getStores()
     {
-        $response = $this->client()->get(
-            config('services.gestaoclick.url').'/stores',
-            ['search' => $search]
-        );
+        return $this->client()
+            ->get(config('services.gestaoclick.url').'/clientes')
+            ->json();
+    }
 
-        return $response->json();
+    public function getStore($id)
+    {
+        return $this->client()
+            ->get(config('services.gestaoclick.url')."/clientes/$id")
+            ->json();
+    }
+
+    public function syncStores()
+    {
+       
     }
 }
