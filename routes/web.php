@@ -46,6 +46,12 @@ Route::middleware(['auth'])->group(function() {
             Route::delete('/price-tables/{priceTable}', [AdminPriceTableController::class, 'destroy'])->name('price-tables.destroy');
             Route::post('/price-tables/{priceTable}/set-default', [AdminPriceTableController::class, 'setDefault'])->name('price-tables.set-default');
 
-            Route::get('/users', [AdminUserController::class, 'index'])->name('users');
+            Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+            Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+            Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+            Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
+            Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+            Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
         });
 });
