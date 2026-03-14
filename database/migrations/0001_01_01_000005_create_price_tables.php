@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('price_tables', function (Blueprint $table) {
             $table->id();
             $table->string('name');
-            $table->string('is_default')->default(false);
+            $table->boolean('is_default')->default(false);
             $table->timestamps();
         });
 
@@ -40,6 +40,6 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('price_tables');
-        Schema::dropIfExists('price_table_range');
+        Schema::dropIfExists('price_table_ranges');
     }
 };

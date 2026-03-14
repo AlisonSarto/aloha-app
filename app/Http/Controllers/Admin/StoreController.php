@@ -17,7 +17,7 @@ class StoreController extends Controller
                 $query->where('name', 'like', "%{$search}%");
             })
             ->orderBy('id', 'desc')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.stores.index', compact('stores', 'search'));

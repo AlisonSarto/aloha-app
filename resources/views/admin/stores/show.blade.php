@@ -21,9 +21,9 @@
 <!-- Tabela de preço -->
 <div class="bg-white border border-gray-200 rounded-xl p-5">
     <p class="text-sm text-gray-500">Tabela de preço</p>
-    <p class="text-lg font-semibold mt-1">
+    <a class="text-lg font-semibold mt-1 text-blue-600 hover:underline" href='../price-tables/{{ $store->priceTable->id }}'>
         {{ $store->priceTable->name ?? 'Tabela padrão' }}
-    </p>
+    </a>
 </div>
 
 <!-- Pode usar boleto -->

@@ -11,6 +11,10 @@ class PriceTable extends Model
         'is_default'
     ];
 
+    protected $casts = [
+        'is_default' => 'boolean',
+    ];
+
     public function ranges()
     {
         return $this->hasMany(PriceTableRange::class);
@@ -19,5 +23,10 @@ class PriceTable extends Model
     public function stores()
     {
         return $this->hasMany(Store::class);
+    }
+
+    public static function default()
+    {
+        return static::where('is_default', true)->first();
     }
 }

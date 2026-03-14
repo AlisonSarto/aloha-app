@@ -38,6 +38,13 @@ Route::middleware(['auth'])->group(function() {
             Route::get('/sellers', [AdminSellerController::class, 'index'])->name('sellers');
 
             Route::get('/price-tables', [AdminPriceTableController::class, 'index'])->name('price-tables');
+            Route::get('/price-tables/create', [AdminPriceTableController::class, 'create'])->name('price-tables.create');
+            Route::post('/price-tables', [AdminPriceTableController::class, 'store'])->name('price-tables.store');
+            Route::get('/price-tables/{priceTable}', [AdminPriceTableController::class, 'show'])->name('price-tables.show');
+            Route::get('/price-tables/{priceTable}/edit', [AdminPriceTableController::class, 'edit'])->name('price-tables.edit');
+            Route::put('/price-tables/{priceTable}', [AdminPriceTableController::class, 'update'])->name('price-tables.update');
+            Route::delete('/price-tables/{priceTable}', [AdminPriceTableController::class, 'destroy'])->name('price-tables.destroy');
+            Route::post('/price-tables/{priceTable}/set-default', [AdminPriceTableController::class, 'setDefault'])->name('price-tables.set-default');
 
             Route::get('/users', [AdminUserController::class, 'index'])->name('users');
         });

@@ -19,7 +19,8 @@ return new class extends Migration
             $table->decimal('shipping_amount', 12, 2)->default(0);
             $table->foreignId('price_table_id')
                     ->nullable()
-                    ->constrained();
+                    ->constrained()
+                    ->nullOnDelete();
             $table->boolean('can_use_boleto')->default(false);
             $table->unsignedInteger('boleto_due_days')->default(3);
             $table->unsignedInteger('orders_count')->default(0);

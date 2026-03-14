@@ -18,7 +18,7 @@ class ClientController extends Controller
                       ->orWhere('phone', 'like', "%{$search}%");
             })
             ->orderBy('id', 'desc')
-            ->paginate(5)
+            ->paginate(10)
             ->withQueryString();
 
         return view('admin.clients.index', compact('clients', 'search'));
