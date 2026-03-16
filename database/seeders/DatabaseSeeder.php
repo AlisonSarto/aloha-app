@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             Core\RoleSeeder::class,
             Core\PriceTableSeeder::class,
             Core\StoreSeeder::class,
-            Local\UserSeeder::class,
+            Core\AdminSeeder::class,
         ]);
 
         if (app()->environment('local') && env('SEED_FAKE_DATA')) {

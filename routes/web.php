@@ -35,7 +35,13 @@ Route::middleware(['auth'])->group(function() {
             Route::get('/stores/{store}/edit', [AdminStoreController::class, 'edit'])->name('stores.edit');
             Route::put('/stores/{store}', [AdminStoreController::class, 'update'])->name('stores.update');
 
-            Route::get('/sellers', [AdminSellerController::class, 'index'])->name('sellers');
+            Route::get('/sellers', [AdminSellerController::class, 'index'])->name('sellers.index');
+            Route::get('/sellers/create', [AdminSellerController::class, 'create'])->name('sellers.create');
+            Route::post('/sellers', [AdminSellerController::class, 'store'])->name('sellers.store');
+            Route::get('/sellers/{seller}', [AdminSellerController::class, 'show'])->name('sellers.show');
+            Route::get('/sellers/{seller}/edit', [AdminSellerController::class, 'edit'])->name('sellers.edit');
+            Route::put('/sellers/{seller}', [AdminSellerController::class, 'update'])->name('sellers.update');
+            Route::delete('/sellers/{seller}', [AdminSellerController::class, 'destroy'])->name('sellers.destroy');
 
             Route::get('/price-tables', [AdminPriceTableController::class, 'index'])->name('price-tables');
             Route::get('/price-tables/create', [AdminPriceTableController::class, 'create'])->name('price-tables.create');
