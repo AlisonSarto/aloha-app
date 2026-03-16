@@ -41,10 +41,13 @@
                         <button id="user-menu-button" class="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" aria-expanded="false" aria-haspopup="true">
                             <span class="absolute -inset-1.5"></span>
                             <span class="sr-only">Open user menu</span>
-                            <img src="https://api.dicebear.com/9.x/initials/svg?seed={{ $user->name }}" alt="" class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"/>
+                            <img src="https://api.dicebear.com/9.x/glass/svg?seed={{ auth()->user()->name }}" alt="" class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"/>
                         </button>
 
                         <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button">
+                            <div class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
+                                Logado como: {{ auth()->user()->name }}
+                            </div>
                             <form method="POST" action="{{ route('logout') }}" style="margin: 0px">
                                 @csrf
                                 <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
