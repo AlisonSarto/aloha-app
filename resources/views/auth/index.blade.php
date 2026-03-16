@@ -12,7 +12,7 @@
   </div>
 
   <div class="mx-auto w-full sm:mx-auto sm:w-full sm:max-w-md">
-    <form action="{{ route('login') }}" method="POST" class="space-y-6 bg-white px-6 rounded-lg shadow-sm">
+    <form action="{{ route('login') }}" method="POST" class="space-y-6 bg-white px-6 rounded-lg">
       @csrf
 
       <div>

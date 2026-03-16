@@ -13,12 +13,13 @@ use App\Http\Controllers\Admin\SellerController as AdminSellerController;
 use App\Http\Controllers\Admin\PriceTableController as AdminPriceTableController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 
+Route::get('/', [HomeController::class, 'index'])->name('home');
+
 Route::get('/login', [AuthController::class, 'form'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['auth'])->group(function() {
-    Route::get('/', [HomeController::class, 'index'])->name('home');
 
     Route::middleware(['role:admin'])
         ->prefix('/admin')

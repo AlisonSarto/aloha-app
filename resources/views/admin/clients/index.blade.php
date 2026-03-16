@@ -38,7 +38,7 @@
             <tbody class="divide-y divide-gray-200">
                 @forelse ($clients as $client)
                     <tr class="hover:bg-gray-50 transition">
-                        <td class="border border-gray-300 px-4 py-3 text-sm font-medium">{{ $client->name }}</td>
+                        <td class="border border-gray-300 px-4 py-3 text-sm font-medium">{{ $client->user->name }}</td>
                         <td class="border border-gray-300 px-4 py-3 text-sm">{{ $client->phone }}</td>
                         <td class="border border-gray-300 px-4 py-3">
                             <div class="flex items-center gap-2">
