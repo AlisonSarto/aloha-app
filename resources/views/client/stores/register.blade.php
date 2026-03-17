@@ -90,6 +90,57 @@
                 </button>
             </div>
 
+            <!-- ESTADO DE STORE EXISTENTE - Confirmação de dados -->
+            <div id="existing-store-state" class="hidden">
+                <div class="mb-6">
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                        <div class="flex">
+                            <svg class="w-5 h-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                            </svg>
+                            <div class="ml-3 flex-1">
+                                <h3 class="text-sm font-medium text-blue-800">Loja já cadastrada no sistema!</h3>
+                                <p id="existing-store-message" class="mt-2 text-sm text-blue-700"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-green-50 border border-green-200 rounded-lg p-6 mb-6 space-y-4">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase">Razão Social</label>
+                        <p id="existing-legal-name" class="text-gray-900 font-medium mt-1"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase">CNPJ</label>
+                        <p id="existing-cnpj" class="text-gray-900 font-medium mt-1"></p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 uppercase">Nome Fantasia</label>
+                        <p id="existing-fantasy-name" class="text-gray-900 font-medium mt-1"></p>
+                    </div>
+
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                        <p class="text-sm text-yellow-800">
+                            ⚠️ <strong>Atenção:</strong> Os dados não podem ser editados pois esta loja já está registrada no sistema.
+                            Se os dados estão incorretos, entre em contato com o suporte.
+                        </p>
+                    </div>
+                </div>
+
+                <button type="button" id="existing-store-btn"
+                    class="w-full flex justify-center rounded-lg bg-green-600 px-4 py-3 text-base font-semibold text-white hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 shadow-sm transition-colors mb-2">
+                    Confirmar e Vincular Loja
+                </button>
+
+                <button type="button" id="existing-store-back-btn"
+                    class="w-full flex justify-center rounded-lg bg-gray-200 px-4 py-3 text-base font-semibold text-gray-900 hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 shadow-sm transition-colors">
+                    Voltar
+                </button>
+            </div>
+
             <!-- PASSO 2 - Endereço -->
             <div id="step2-state" class="hidden">
                 <div class="mb-6">
@@ -351,6 +402,7 @@
         const initialState = document.getElementById('initial-state');
         const loadingState = document.getElementById('loading-state');
         const step1State = document.getElementById('step1-state');
+        const existingStoreState = document.getElementById('existing-store-state');
         const step2State = document.getElementById('step2-state');
         const step3State = document.getElementById('step3-state');
         const errorState = document.getElementById('error-state');
@@ -393,6 +445,7 @@
             cnpj: '',
             legal_name: '',
             fantasy_name: '',
+            exists_in_database: false,
             address: {
                 cep: '',
                 street: '',
@@ -475,8 +528,14 @@
                 currentFlowData.cnpj = data.store.cnpj;
                 currentFlowData.legal_name = data.store.legal_name || '';
                 currentFlowData.fantasy_name = data.store.fantasy_name || '';
+                currentFlowData.exists_in_database = data.exists_in_database || false;
 
-                showStep1(data.store);
+                // Se store já existe no banco, mostrar estado específico
+                if (data.exists_in_database) {
+                    showExistingStore(data.store, data.message);
+                } else {
+                    showStep1(data.store);
+                }
 
             } catch (error) {
                 showError(error.message || 'Erro ao verificar CNPJ. Tente novamente.');
@@ -484,6 +543,17 @@
                 submitBtn.disabled = false;
             }
         });
+
+        // ESTADO DE STORE EXISTENTE
+        function showExistingStore(storeData, message) {
+            loadingState.classList.add('hidden');
+            existingStoreState.classList.remove('hidden');
+
+            document.getElementById('existing-store-message').textContent = message || 'Encontramos esse CNPJ no nosso sistema! Confirme se os dados estão corretos.';
+            document.getElementById('existing-legal-name').textContent = storeData.legal_name || '-';
+            document.getElementById('existing-cnpj').textContent = formatCNPJ(storeData.cnpj);
+            document.getElementById('existing-fantasy-name').textContent = storeData.fantasy_name || '-';
+        }
 
         // PASSO 1
         function showStep1(storeData) {
@@ -495,7 +565,7 @@
             document.getElementById('fantasy-name').value = storeData.fantasy_name || '';
         }
 
-        document.getElementById('step1-btn').addEventListener('click', function() {
+        document.getElementById('step1-btn').addEventListener('click', async function() {
             const fantasyName = document.getElementById('fantasy-name').value.trim();
             const fantasyError = document.getElementById('fantasy-name-error');
 
@@ -507,8 +577,123 @@
 
             currentFlowData.fantasy_name = fantasyName;
             fantasyError.classList.add('hidden');
-            showStep2();
+
+            // Confirmar step1 no backend
+            try {
+                const response = await fetch('{{ route('client.stores.step1') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        cnpj: currentFlowData.cnpj,
+                        legal_name: currentFlowData.legal_name,
+                        fantasy_name: currentFlowData.fantasy_name,
+                        exists_in_database: currentFlowData.exists_in_database
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro ao confirmar dados');
+                }
+
+                showStep2();
+            } catch (error) {
+                showError(error.message || 'Erro ao confirmar dados. Tente novamente.');
+            }
         });
+
+        // Botão para store existente - vai direto para vinculação
+        document.getElementById('existing-store-btn').addEventListener('click', async function() {
+            this.disabled = true;
+            this.textContent = 'Vinculando...';
+
+            try {
+                const response = await fetch('{{ route('client.stores.step1') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        cnpj: currentFlowData.cnpj,
+                        legal_name: currentFlowData.legal_name,
+                        fantasy_name: currentFlowData.fantasy_name,
+                        exists_in_database: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro ao confirmar dados');
+                }
+
+                // Para stores existentes, vincular direto
+                await linkExistingStore();
+
+            } catch (error) {
+                showError(error.message || 'Erro ao vincular loja. Tente novamente.');
+                this.disabled = false;
+                this.textContent = 'Confirmar e Vincular Loja';
+            }
+        });
+
+        // Função para vincular store existente
+        async function linkExistingStore() {
+            try {
+                const response = await fetch('{{ route('client.stores.step3') }}', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                    },
+                    body: JSON.stringify({
+                        cnpj: currentFlowData.cnpj,
+                        legal_name: currentFlowData.legal_name,
+                        fantasy_name: currentFlowData.fantasy_name,
+                        address_cep: '00000000', // Dados dummy para stores existentes
+                        address_street: 'N/A',
+                        address_number: 'N/A',
+                        address_complement: '',
+                        address_district: 'N/A',
+                        address_city: 'N/A',
+                        address_state: 'SP',
+                        hours: {
+                            "0": {"is_open": true, "open_time": "08:00", "close_time": "18:00"},
+                            "1": {"is_open": true, "open_time": "08:00", "close_time": "18:00"},
+                            "2": {"is_open": true, "open_time": "08:00", "close_time": "18:00"},
+                            "3": {"is_open": true, "open_time": "08:00", "close_time": "18:00"},
+                            "4": {"is_open": true, "open_time": "08:00", "close_time": "18:00"},
+                            "5": {"is_open": true, "open_time": "08:00", "close_time": "18:00"},
+                            "6": {"is_open": false, "open_time": null, "close_time": null}
+                        },
+                        exists_in_database: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Erro ao vincular loja');
+                }
+
+                // Redirect to stores index
+                window.location.href = '{{ route('client.stores.index') }}';
+
+            } catch (error) {
+                throw error; // Propagar erro para o handler do botão
+            }
+        }
 
         // PASSO 2
         function showStep2() {
@@ -659,7 +844,8 @@
                         address_district: currentFlowData.address.district,
                         address_city: currentFlowData.address.city,
                         address_state: currentFlowData.address.state,
-                        hours: currentFlowData.hours
+                        hours: currentFlowData.hours,
+                        exists_in_database: currentFlowData.exists_in_database
                     })
                 });
 
@@ -689,6 +875,12 @@
             cnpjInput.focus();
         });
 
+        document.getElementById('existing-store-back-btn').addEventListener('click', function() {
+            existingStoreState.classList.add('hidden');
+            initialState.classList.remove('hidden');
+            cnpjInput.focus();
+        });
+
         document.getElementById('step2-back-btn').addEventListener('click', function() {
             step2State.classList.add('hidden');
             step1State.classList.remove('hidden');
@@ -702,6 +894,7 @@
         // Funções auxiliares
         function showError(message) {
             step1State.classList.add('hidden');
+            existingStoreState.classList.add('hidden');
             step2State.classList.add('hidden');
             step3State.classList.add('hidden');
             loadingState.classList.add('hidden');
@@ -718,6 +911,7 @@
                 cnpj: '',
                 legal_name: '',
                 fantasy_name: '',
+                exists_in_database: false,
                 address: {
                     cep: '',
                     street: '',

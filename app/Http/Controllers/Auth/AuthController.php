@@ -61,7 +61,7 @@ class AuthController extends Controller
             'phone' => $request->phone,
         ]);
 
-        return redirect()->route('home');
+        return redirect()->route('client.stores.register');
 
     }
 

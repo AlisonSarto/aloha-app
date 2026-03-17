@@ -111,23 +111,6 @@ Route::middleware(['auth'])->group(function() {
         ->name('client.')
         ->group(function() {
 
-            // Orders
-            Route::prefix('/orders')
-                ->name('orders.')
-                ->controller(ClientOrderController::class)
-                ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::get('/create', 'create')->name('create');
-                });
-
-            // Financial
-            Route::prefix('/financial')
-                ->name('financial.')
-                ->controller(ClientFinancialController::class)
-                ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                });
-
             // Stores
             Route::prefix('/stores')
                 ->name('stores.')
@@ -142,13 +125,36 @@ Route::middleware(['auth'])->group(function() {
                     Route::post('/confirm', 'confirm')->name('confirm');
                 });
 
-            // Profile
-            Route::prefix('/profile')
-                ->name('profile.')
-                ->controller(ClientProfileController::class)
-                ->group(function () {
-                    Route::get('/', 'index')->name('index');
+            Route::middleware(['has_store'])
+                ->group(function() {
+
+                    // Orders
+                    Route::prefix('/orders')
+                        ->name('orders.')
+                        ->controller(ClientOrderController::class)
+                        ->group(function () {
+                            Route::get('/', 'index')->name('index');
+                            Route::get('/create', 'create')->name('create');
+                        });
+
+                    // Financial
+                    Route::prefix('/financial')
+                        ->name('financial.')
+                        ->controller(ClientFinancialController::class)
+                        ->group(function () {
+                            Route::get('/', 'index')->name('index');
+                        });
+
+                    // Profile
+                    Route::prefix('/profile')
+                        ->name('profile.')
+                        ->controller(ClientProfileController::class)
+                        ->group(function () {
+                            Route::get('/', 'index')->name('index');
+                        });
+
                 });
+
         });
 
     Route::middleware(['role:seller'])

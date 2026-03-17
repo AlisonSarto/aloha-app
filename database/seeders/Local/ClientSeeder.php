@@ -2,14 +2,13 @@
 
 namespace Database\Seeders\Local;
 
-use Illuminate\Database\Seeder;
 use App\Models\Client;
-use App\Models\Store;
+use Illuminate\Database\Seeder;
 
 class ClientSeeder extends Seeder
 {
     public function run(): void
     {
-        $clients = Client::factory(2)->create();
+        Client::factory()->create();
     }
 }
