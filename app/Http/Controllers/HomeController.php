@@ -13,6 +13,9 @@ class HomeController extends Controller
             if (auth()->user()->hasRole('admin')) {
                 return redirect()->route('admin.home');
             }
+            if (auth()->user()->hasRole('client')) {
+                return redirect()->route('client.orders.create');
+            }
         }
 
         return view('index');

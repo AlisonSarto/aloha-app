@@ -4,7 +4,12 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Http\Request;
+use App\Services\GestaoClickService;
+use App\Models\User;
+use App\Models\Store;
+use App\Models\Client;
 
 class AuthController extends Controller
 {
@@ -24,6 +29,53 @@ class AuthController extends Controller
         }
 
         return back()->withErrors(['error' => 'Credenciais inválidas']);
+    }
+
+    public function registerForm() {
+        if (auth()->check()) {
+            return redirect()->route('home');
+        }
+        return view('auth.register');
+    }
+
+    public function register(Request $request, GestaoClickService $gestaoClick) {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'required|string|max:20',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => 'required|string|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        $user->assignRole('client');
+
+        Auth::login($user);
+
+        $client = Client::create([
+            'user_id' => $user->id,
+            'phone' => $request->phone,
+        ]);
+
+        // Check if there's a store associated with the phone
+        $response = $gestaoClick->getStoreByPhone($request->phone);
+        $stores = $response['data'];
+
+        foreach ($stores as $storeData) {
+            $store = Store::firstOrCreate(
+                ['gestao_click_id' => $storeData['id']],
+                ['name' => $storeData['nome']]
+            );
+
+            $client->stores()->syncWithoutDetaching($store->id);
+        }
+
+        return redirect()->route('home');
+
     }
 
     public function logout(Request $request) {

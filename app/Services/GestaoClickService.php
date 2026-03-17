@@ -58,6 +58,16 @@ class GestaoClickService
             ->json();
     }
 
+    public function getStoreByPhone(string $phone): array
+    {
+        return $this->client()
+            ->get("/clientes", [
+                'telefone' => $phone
+            ])
+            ->throw()
+            ->json();
+    }
+
     public function syncStores(): void
     {
         $page = 1;

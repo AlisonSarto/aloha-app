@@ -13,11 +13,24 @@ use App\Http\Controllers\Admin\SellerController as AdminSellerController;
 use App\Http\Controllers\Admin\PriceTableController as AdminPriceTableController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 
+use App\Http\Controllers\Client\OrderController as ClientOrderController;
+use App\Http\Controllers\Client\FinancialController as ClientFinancialController;
+use App\Http\Controllers\Client\StoreController as ClientStoreController;
+use App\Http\Controllers\Client\ProfileController as ClientProfileController;
+
+// Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
 
-Route::get('/login', [AuthController::class, 'form'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
+// Auth
+Route::controller(AuthController::class)
+    ->group(function () {
+        Route::get('/login', 'form')->name('login');
+        Route::post('/login', 'login');
+        Route::get('/register', 'registerForm')->name('register');
+        Route::post('/register', 'register');
+        Route::post('/logout', 'logout')->name('logout');
+    });
+
 
 Route::middleware(['auth'])->group(function() {
 
@@ -25,40 +38,119 @@ Route::middleware(['auth'])->group(function() {
         ->prefix('/admin')
         ->name('admin.')
         ->group(function() {
+
             Route::get('/home', [AdminHomeController::class, 'index'])->name('home');
 
-            Route::get('/clients', [AdminClientController::class, 'index'])->name('clients.index');
-            Route::get('/clients/{client}', [AdminClientController::class, 'show'])->name('clients.show');
-            Route::put('/clients/{client}/stores', [AdminClientController::class, 'updateStores'])->name('clients.stores.update');
+            // Clients
+            Route::prefix('/clients')
+                ->name('clients.')
+                ->controller(AdminClientController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{client}', 'show')->name('show');
+                    Route::put('/{client}/stores', 'updateStores')->name('stores.update');
+                });
 
-            Route::get('/stores', [AdminStoreController::class, 'index'])->name('stores.index');
-            Route::get('/stores/{store}', [AdminStoreController::class, 'show'])->name('stores.show');
-            Route::get('/stores/{store}/edit', [AdminStoreController::class, 'edit'])->name('stores.edit');
-            Route::put('/stores/{store}', [AdminStoreController::class, 'update'])->name('stores.update');
+            // Stores
+            Route::prefix('/stores')
+                ->name('stores.')
+                ->controller(AdminStoreController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/{store}', 'show')->name('show');
+                    Route::get('/{store}/edit', 'edit')->name('edit');
+                    Route::put('/{store}', 'update')->name('update');
+                });
 
-            Route::get('/sellers', [AdminSellerController::class, 'index'])->name('sellers.index');
-            Route::get('/sellers/create', [AdminSellerController::class, 'create'])->name('sellers.create');
-            Route::post('/sellers', [AdminSellerController::class, 'store'])->name('sellers.store');
-            Route::get('/sellers/{seller}', [AdminSellerController::class, 'show'])->name('sellers.show');
-            Route::get('/sellers/{seller}/edit', [AdminSellerController::class, 'edit'])->name('sellers.edit');
-            Route::put('/sellers/{seller}', [AdminSellerController::class, 'update'])->name('sellers.update');
-            Route::delete('/sellers/{seller}', [AdminSellerController::class, 'destroy'])->name('sellers.destroy');
+            // Sellers
+            Route::prefix('/sellers')
+                ->name('sellers.')
+                ->controller(AdminSellerController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{seller}', 'show')->name('show');
+                    Route::get('/{seller}/edit', 'edit')->name('edit');
+                    Route::put('/{seller}', 'update')->name('update');
+                    Route::delete('/{seller}', 'destroy')->name('destroy');
+                });
 
-            Route::get('/price-tables', [AdminPriceTableController::class, 'index'])->name('price-tables');
-            Route::get('/price-tables/create', [AdminPriceTableController::class, 'create'])->name('price-tables.create');
-            Route::post('/price-tables', [AdminPriceTableController::class, 'store'])->name('price-tables.store');
-            Route::get('/price-tables/{priceTable}', [AdminPriceTableController::class, 'show'])->name('price-tables.show');
-            Route::get('/price-tables/{priceTable}/edit', [AdminPriceTableController::class, 'edit'])->name('price-tables.edit');
-            Route::put('/price-tables/{priceTable}', [AdminPriceTableController::class, 'update'])->name('price-tables.update');
-            Route::delete('/price-tables/{priceTable}', [AdminPriceTableController::class, 'destroy'])->name('price-tables.destroy');
-            Route::post('/price-tables/{priceTable}/set-default', [AdminPriceTableController::class, 'setDefault'])->name('price-tables.set-default');
+            // Price Tables
+            Route::prefix('/price-tables')
+                ->name('price-tables.')
+                ->controller(AdminPriceTableController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{priceTable}', 'show')->name('show');
+                    Route::get('/{priceTable}/edit', 'edit')->name('edit');
+                    Route::put('/{priceTable}', 'update')->name('update');
+                    Route::delete('/{priceTable}', 'destroy')->name('destroy');
+                    Route::post('/{priceTable}/set-default', 'setDefault')->name('set-default');
+                });
 
-            Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
-            Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
-            Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
-            Route::get('/users/{user}', [AdminUserController::class, 'show'])->name('users.show');
-            Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
-            Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
-            Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+            // Users
+            Route::prefix('/users')
+                ->name('users.')
+                ->controller(AdminUserController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{user}', 'show')->name('show');
+                    Route::get('/{user}/edit', 'edit')->name('edit');
+                    Route::put('/{user}', 'update')->name('update');
+                    Route::delete('/{user}', 'destroy')->name('destroy');
+                });
+        });
+
+    Route::middleware(['role:client'])
+        ->prefix('/client')
+        ->name('client.')
+        ->group(function() {
+
+            // Orders
+            Route::prefix('/orders')
+                ->name('orders.')
+                ->controller(ClientOrderController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                });
+
+            // Financial
+            Route::prefix('/financial')
+                ->name('financial.')
+                ->controller(ClientFinancialController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                });
+
+            // Stores
+            Route::prefix('/stores')
+                ->name('stores.')
+                ->controller(ClientStoreController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                });
+
+            // Profile
+            Route::prefix('/profile')
+                ->name('profile.')
+                ->controller(ClientProfileController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                });
+        });
+
+    Route::middleware(['role:seller'])
+        ->prefix('/seller')
+        ->name('seller')
+        ->group(function() {
+
+
+
         });
 });
