@@ -53,7 +53,7 @@ class GestaoClickService
     public function getStore(string $id): array
     {
         return $this->client()
-            ->get("/clientes/{$id}")
+            ->get("/clientes/$id")
             ->throw()
             ->json();
     }
@@ -93,5 +93,41 @@ class GestaoClickService
             $page = $response['meta']['proxima_pagina'];
 
         } while ($page !== null);
+    }
+
+    public function firstOrCreateStore(array $store): array
+    {
+        $client = $this->client();
+
+        $existing = $client
+            ->get('/clientes', [
+                'cpf_cnpj' => $store['cnpj']
+            ])
+            ->throw()
+            ->json();
+
+        if (!empty($existing['data'])) {
+            return $existing;
+        }
+
+        return $client
+            ->post('/clientes', [
+                'tipo_pessoa' => 'PJ',
+                'nome' => $store['fantasy_name'],
+                'razao_social' => $store['legal_name'],
+                'cnpj' => $store['cnpj'],
+                'enderecos' => [
+                    'endereco' => [
+                        'cep' => $store['address_cep'],
+                        'logradouro' => $store['address_street'],
+                        'numero' => $store['address_number'],
+                        'bairro' => $store['address_district'],
+                        'nome_cidade' => $store['address_city'],
+                        'estado' => $store['address_state'],
+                    ]
+                ]
+            ])
+            ->throw()
+            ->json();
     }
 }

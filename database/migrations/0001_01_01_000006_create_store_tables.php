@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('stores', function (Blueprint $table) {
             $table->id();
+            $table->string('cnpj')->unique();
 
             $table->string('name');
             $table->string('gestao_click_id')->unique();
@@ -24,6 +25,18 @@ return new class extends Migration
             $table->boolean('can_use_boleto')->default(false);
             $table->unsignedInteger('boleto_due_days')->default(3);
             $table->unsignedInteger('orders_count')->default(0);
+
+            $table->string('legal_name')->nullable(); // Razão Social
+            $table->string('fantasy_name')->nullable(); // Nome Fantasia
+
+            // Endereço de entrega
+            $table->string('address_cep')->nullable();
+            $table->string('address_street')->nullable(); // Logradouro
+            $table->string('address_number')->nullable();
+            $table->string('address_complement')->nullable();
+            $table->string('address_district')->nullable(); // Bairro
+            $table->string('address_city')->nullable();
+            $table->string('address_state')->nullable(); // UF
 
             $table->timestamps();
         });

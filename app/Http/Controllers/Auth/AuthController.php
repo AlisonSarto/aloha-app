@@ -61,19 +61,6 @@ class AuthController extends Controller
             'phone' => $request->phone,
         ]);
 
-        // Check if there's a store associated with the phone
-        $response = $gestaoClick->getStoreByPhone($request->phone);
-        $stores = $response['data'];
-
-        foreach ($stores as $storeData) {
-            $store = Store::firstOrCreate(
-                ['gestao_click_id' => $storeData['id']],
-                ['name' => $storeData['nome']]
-            );
-
-            $client->stores()->syncWithoutDetaching($store->id);
-        }
-
         return redirect()->route('home');
 
     }

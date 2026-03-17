@@ -134,6 +134,12 @@ Route::middleware(['auth'])->group(function() {
                 ->controller(ClientStoreController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
+                    Route::get('/register', 'registerForm')->name('register');
+                    Route::post('/verify-cnpj', 'verifyCNPJ')->name('verify-cnpj');
+                    Route::post('/step1', 'confirmStep1')->name('step1');
+                    Route::post('/step2', 'confirmStep2')->name('step2');
+                    Route::post('/step3', 'confirmStep3')->name('step3');
+                    Route::post('/confirm', 'confirm')->name('confirm');
                 });
 
             // Profile

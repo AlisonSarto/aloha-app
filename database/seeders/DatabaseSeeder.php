@@ -19,7 +19,6 @@ class DatabaseSeeder extends Seeder
         $this->call([
             Core\RoleSeeder::class,
             Core\PriceTableSeeder::class,
-            Core\StoreSeeder::class,
             Core\AdminSeeder::class,
         ]);
 

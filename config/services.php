@@ -25,4 +25,8 @@ return [
         'origin' => env('GOOGLE_MAPS_ORIGIN'),
     ],
 
+    'open_cnpj' => [
+        'url' => env('OPEN_CNPJ_URL'),
+    ],
+
 ];
