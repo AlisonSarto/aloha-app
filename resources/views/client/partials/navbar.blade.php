@@ -1,5 +1,6 @@
 @php
     $currentRoute = request()->route()->getName();
+    $userName = auth()->user()->name ?? 'User';
 
     $navItems = [
         [
@@ -55,15 +56,23 @@
                 @if (!empty($item['center']))
                     <a href="{{ route($item['route']) }}"
                         aria-label="{{ $item['label'] }}"
-                        class="relative -mt-6 md:-mt-8 flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-blue-600 text-white shadow-xl transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-white">
+                        class="relative -mt-6 md:-mt-8 flex h-14 w-14 md:h-16 md:w-16 items-center justify-center rounded-2xl bg-green-600 text-white shadow-xl transition hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 focus:ring-offset-white">
                         <i class="fas {{ $item['icon'] }} text-xl md:text-2xl"></i>
                     </a>
                 @else
                     <a href="{{ route($item['route']) }}"
                         aria-label="{{ $item['label'] }}"
-                        class="flex flex-col items-center gap-1 text-xs md:text-sm font-medium transition-colors {{ $item['active'] ? 'text-blue-600' : 'text-gray-600 hover:text-gray-900' }}">
+                        class="flex flex-col items-center gap-1 text-xs md:text-sm font-medium transition-colors {{ $item['active'] ? 'text-green-600' : 'text-gray-600 hover:text-gray-900' }}">
 
-                        <i class="fas {{ $item['icon'] }} text-xl md:text-2xl"></i>
+                        @if ($item['route'] === 'client.profile.index')
+                            <img
+                                src="https://api.dicebear.com/9.x/glass/svg?seed={{ urlencode($userName) }}"
+                                alt="Profile"
+                                class="h-6 w-6 md:h-8 md:w-8 rounded-full object-cover border transition-transform duration-200 hover:scale-110 {{ $item['active'] ? 'border-green-600' : 'border-transparent' }}"
+                            >
+                        @else
+                            <i class="fas {{ $item['icon'] }} text-xl md:text-2xl"></i>
+                        @endif
 
                         <span class="hidden sm:inline">
                             {{ $item['label'] }}
