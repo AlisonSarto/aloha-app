@@ -136,8 +136,8 @@
     {{-- ═══════════════════════════════════════════════════════════════ --}}
 
     {{-- EDITAR PERFIL --}}
-    <div id="modal-edit-profile" class="fixed inset-0 z-50 hidden items-end justify-center bg-black/50 px-0 pb-0 sm:items-center sm:px-4">
-        <div class="w-full max-w-lg rounded-t-2xl bg-white p-6 shadow-xl sm:rounded-2xl">
+    <div id="modal-edit-profile" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="mb-4 flex items-center justify-between">
                 <h3 class="text-base font-semibold text-gray-900">Editar perfil</h3>
                 <button type="button" onclick="closeModal('modal-edit-profile')" class="text-gray-400 hover:text-gray-600">
@@ -196,8 +196,8 @@
     </div>
 
     {{-- ALTERAR SENHA --}}
-    <div id="modal-change-password" class="fixed inset-0 z-50 hidden items-end justify-center bg-black/50 px-0 pb-0 sm:items-center sm:px-4">
-        <div class="w-full max-w-lg rounded-t-2xl bg-white p-6 shadow-xl sm:rounded-2xl">
+    <div id="modal-change-password" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="mb-4 flex items-center justify-between">
                 <h3 class="text-base font-semibold text-gray-900">Alterar senha</h3>
                 <button type="button" onclick="closeModal('modal-change-password')" class="text-gray-400 hover:text-gray-600">
@@ -253,8 +253,8 @@
     </div>
 
     {{-- EXCLUIR CONTA --}}
-    <div id="modal-delete-account" class="fixed inset-0 z-50 hidden items-end justify-center bg-black/50 px-0 pb-0 sm:items-center sm:px-4">
-        <div class="w-full max-w-lg rounded-t-2xl bg-white p-6 shadow-xl sm:rounded-2xl">
+    <div id="modal-delete-account" class="fixed inset-0 z-50 hidden items-center justify-center bg-black/50 px-4">
+        <div class="w-full max-w-lg rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
             <div class="mb-4 flex items-center gap-3">
                 <div class="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-full bg-red-100">
                     <i class="fas fa-triangle-exclamation text-red-500"></i>
