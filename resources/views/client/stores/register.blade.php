@@ -444,7 +444,7 @@
         let currentFlowData = {
             cnpj: '',
             legal_name: '',
-            fantasy_name: '',
+            name: '',
             exists_in_database: false,
             address: {
                 cep: '',
@@ -527,7 +527,7 @@
 
                 currentFlowData.cnpj = data.store.cnpj;
                 currentFlowData.legal_name = data.store.legal_name || '';
-                currentFlowData.fantasy_name = data.store.fantasy_name || '';
+                currentFlowData.name = data.store.name || '';
                 currentFlowData.exists_in_database = data.exists_in_database || false;
 
                 // Se store já existe no banco, mostrar estado específico
@@ -552,7 +552,7 @@
             document.getElementById('existing-store-message').textContent = message || 'Encontramos esse CNPJ no nosso sistema! Confirme se os dados estão corretos.';
             document.getElementById('existing-legal-name').textContent = storeData.legal_name || '-';
             document.getElementById('existing-cnpj').textContent = formatCNPJ(storeData.cnpj);
-            document.getElementById('existing-fantasy-name').textContent = storeData.fantasy_name || '-';
+            document.getElementById('existing-fantasy-name').textContent = storeData.name || '-';
         }
 
         // PASSO 1
@@ -562,7 +562,7 @@
 
             document.getElementById('step1-legal-name').textContent = storeData.legal_name || '-';
             document.getElementById('step1-cnpj').textContent = formatCNPJ(storeData.cnpj);
-            document.getElementById('fantasy-name').value = storeData.fantasy_name || '';
+            document.getElementById('fantasy-name').value = storeData.name || '';
         }
 
         document.getElementById('step1-btn').addEventListener('click', async function() {
@@ -575,7 +575,7 @@
                 return;
             }
 
-            currentFlowData.fantasy_name = fantasyName;
+            currentFlowData.name = fantasyName;
             fantasyError.classList.add('hidden');
 
             // Confirmar step1 no backend
@@ -591,7 +591,7 @@
                     body: JSON.stringify({
                         cnpj: currentFlowData.cnpj,
                         legal_name: currentFlowData.legal_name,
-                        fantasy_name: currentFlowData.fantasy_name,
+                        name: currentFlowData.name,
                         exists_in_database: currentFlowData.exists_in_database
                     })
                 });
@@ -625,7 +625,7 @@
                     body: JSON.stringify({
                         cnpj: currentFlowData.cnpj,
                         legal_name: currentFlowData.legal_name,
-                        fantasy_name: currentFlowData.fantasy_name,
+                        name: currentFlowData.name,
                         exists_in_database: true
                     })
                 });
@@ -660,7 +660,7 @@
                     body: JSON.stringify({
                         cnpj: currentFlowData.cnpj,
                         legal_name: currentFlowData.legal_name,
-                        fantasy_name: currentFlowData.fantasy_name,
+                        name: currentFlowData.name,
                         address_cep: '00000000', // Dados dummy para stores existentes
                         address_street: 'N/A',
                         address_number: 'N/A',
@@ -836,7 +836,7 @@
                     body: JSON.stringify({
                         cnpj: currentFlowData.cnpj,
                         legal_name: currentFlowData.legal_name,
-                        fantasy_name: currentFlowData.fantasy_name,
+                        name: currentFlowData.name,
                         address_cep: currentFlowData.address.cep,
                         address_street: currentFlowData.address.street,
                         address_number: currentFlowData.address.number,
@@ -910,7 +910,7 @@
             currentFlowData = {
                 cnpj: '',
                 legal_name: '',
-                fantasy_name: '',
+                name: '',
                 exists_in_database: false,
                 address: {
                     cep: '',

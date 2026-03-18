@@ -113,7 +113,7 @@ class GestaoClickService
         return $client
             ->post('/clientes', [
                 'tipo_pessoa' => 'PJ',
-                'nome' => $store['fantasy_name'],
+                'nome' => $store['name'],
                 'razao_social' => $store['legal_name'],
                 'cnpj' => $store['cnpj'],
                 'enderecos' => [

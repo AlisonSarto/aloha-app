@@ -17,7 +17,6 @@ class Store extends Model
         'gestao_click_id',
         'cnpj',
         'legal_name',
-        'fantasy_name',
         'shipping_amount',
         'price_table_id',
         'can_use_boleto',

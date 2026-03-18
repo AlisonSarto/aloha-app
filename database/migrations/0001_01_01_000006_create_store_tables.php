@@ -27,7 +27,6 @@ return new class extends Migration
             $table->unsignedInteger('orders_count')->default(0);
 
             $table->string('legal_name')->nullable(); // Razão Social
-            $table->string('fantasy_name')->nullable(); // Nome Fantasia
 
             // Endereço de entrega
             $table->string('address_cep')->nullable();

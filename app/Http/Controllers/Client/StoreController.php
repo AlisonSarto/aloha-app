@@ -59,7 +59,7 @@ class StoreController extends Controller
                 'store' => [
                     'cnpj' => $existingStore->cnpj,
                     'legal_name' => $existingStore->legal_name,
-                    'fantasy_name' => $existingStore->fantasy_name,
+                    'name' => $existingStore->name,
                 ],
                 'exists_in_database' => true,
                 'message' => 'Encontramos esse CNPJ no nosso sistema! Confirme se os dados estão corretos.'
@@ -102,7 +102,7 @@ class StoreController extends Controller
             $storeData = [
                 'cnpj' => $cnpj,
                 'legal_name' => $data['razao_social'] ?? '',
-                'fantasy_name' => $data['nome_fantasia'] ?? '',
+                'name' => $data['nome_fantasia'] ?? '',
             ];
 
             return response()->json([
@@ -124,7 +124,7 @@ class StoreController extends Controller
         $request->validate([
             'cnpj' => 'required|regex:/^\d{14}$/',
             'legal_name' => 'required|string|max:255',
-            'fantasy_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'exists_in_database' => 'sometimes|boolean'
         ]);
 
@@ -145,7 +145,7 @@ class StoreController extends Controller
 
                 // Verificar se os dados enviados coincidem exatamente com os do banco
                 if ($existingStore->legal_name !== $request->input('legal_name') ||
-                    $existingStore->fantasy_name !== $request->input('fantasy_name')) {
+                    $existingStore->name !== $request->input('name')) {
                     return response()->json([
                         'success' => false,
                         'message' => 'Os dados não correspondem aos cadastrados no sistema. Entre em contato com o suporte.'
@@ -158,7 +158,7 @@ class StoreController extends Controller
                     'data' => [
                         'cnpj' => $existingStore->cnpj,
                         'legal_name' => $existingStore->legal_name,
-                        'fantasy_name' => $existingStore->fantasy_name,
+                        'name' => $existingStore->name,
                         'exists_in_database' => true
                     ]
                 ]);
@@ -171,7 +171,7 @@ class StoreController extends Controller
                 'data' => [
                     'cnpj' => $request->input('cnpj'),
                     'legal_name' => $request->input('legal_name'),
-                    'fantasy_name' => $request->input('fantasy_name'),
+                    'name' => $request->input('name'),
                     'exists_in_database' => false
                 ]
             ]);
@@ -228,7 +228,7 @@ class StoreController extends Controller
         $rules = [
             'cnpj' => 'required|regex:/^\d{14}$/',
             'legal_name' => 'required|string|max:255',
-            'fantasy_name' => 'required|string|max:255',
+            'name' => 'required|string|max:255',
             'exists_in_database' => 'sometimes|boolean'
         ];
 
@@ -299,9 +299,9 @@ class StoreController extends Controller
                     $store->gestao_click_id = $gestaoClickId;
 
                     $store->fill([
-                        'name' => $validated['fantasy_name'],
+                        'name' => $validated['name'],
                         'legal_name' => $validated['legal_name'],
-                        'fantasy_name' => $validated['fantasy_name'],
+                        'name' => $validated['name'],
                         'address_cep' => $validated['address_cep'],
                         'address_street' => $validated['address_street'],
                         'address_number' => $validated['address_number'],
