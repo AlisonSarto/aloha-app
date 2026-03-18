@@ -156,6 +156,9 @@ Route::middleware(['auth'])->group(function() {
                         ->controller(ClientProfileController::class)
                         ->group(function () {
                             Route::get('/', 'index')->name('index');
+                            Route::put('/', 'update')->name('update');
+                            Route::put('/password', 'updatePassword')->name('password');
+                            Route::delete('/', 'destroy')->name('destroy');
                         });
 
                 });
