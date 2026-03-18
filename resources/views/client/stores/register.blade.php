@@ -121,13 +121,6 @@
                         <label class="block text-xs font-medium text-gray-500 uppercase">Nome Fantasia</label>
                         <p id="existing-fantasy-name" class="text-gray-900 font-medium mt-1"></p>
                     </div>
-
-                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                        <p class="text-sm text-yellow-800">
-                            ⚠️ <strong>Atenção:</strong> Os dados não podem ser editados pois esta loja já está registrada no sistema.
-                            Se os dados estão incorretos, entre em contato com o suporte.
-                        </p>
-                    </div>
                 </div>
 
                 <button type="button" id="existing-store-btn"
@@ -261,6 +254,54 @@
                     <h3 class="text-lg font-semibold text-gray-900 mb-4">Passo 3 de 3: Horários de Funcionamento</h3>
                     <div class="w-full bg-gray-200 rounded-full h-2">
                         <div class="bg-green-600 h-2 rounded-full" style="width: 100%"></div>
+                    </div>
+                </div>
+
+                <!-- Aplicação em massa de horários -->
+                <div class="mb-5 rounded-lg bg-green-50 border border-green-200 p-4">
+                    <p class="mb-3 text-sm font-medium text-green-800">Aplicar horário em massa</p>
+
+                    <div class="flex items-center gap-2 mb-3">
+                        <input type="time" id="reg-bulk-open" value="08:00"
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-green-500" />
+                        <span class="text-sm text-gray-500">às</span>
+                        <input type="time" id="reg-bulk-close" value="18:00"
+                            class="rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 shadow-sm focus:border-green-500 focus:ring-green-500" />
+                    </div>
+
+                    <div class="mb-3 flex flex-wrap gap-1.5">
+                        <label class="flex cursor-pointer items-center gap-1 rounded-lg border border-green-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 has-[:checked]:border-green-500 has-[:checked]:bg-green-600 has-[:checked]:text-white transition-colors">
+                            <input type="checkbox" class="reg-bulk-day sr-only" data-day="0" /> Seg
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-1 rounded-lg border border-green-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 has-[:checked]:border-green-500 has-[:checked]:bg-green-600 has-[:checked]:text-white transition-colors">
+                            <input type="checkbox" class="reg-bulk-day sr-only" data-day="1" /> Ter
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-1 rounded-lg border border-green-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 has-[:checked]:border-green-500 has-[:checked]:bg-green-600 has-[:checked]:text-white transition-colors">
+                            <input type="checkbox" class="reg-bulk-day sr-only" data-day="2" /> Qua
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-1 rounded-lg border border-green-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 has-[:checked]:border-green-500 has-[:checked]:bg-green-600 has-[:checked]:text-white transition-colors">
+                            <input type="checkbox" class="reg-bulk-day sr-only" data-day="3" /> Qui
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-1 rounded-lg border border-green-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 has-[:checked]:border-green-500 has-[:checked]:bg-green-600 has-[:checked]:text-white transition-colors">
+                            <input type="checkbox" class="reg-bulk-day sr-only" data-day="4" /> Sex
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-1 rounded-lg border border-green-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 has-[:checked]:border-green-500 has-[:checked]:bg-green-600 has-[:checked]:text-white transition-colors">
+                            <input type="checkbox" class="reg-bulk-day sr-only" data-day="5" /> Sáb
+                        </label>
+                        <label class="flex cursor-pointer items-center gap-1 rounded-lg border border-green-200 bg-white px-2.5 py-1.5 text-xs font-medium text-gray-700 has-[:checked]:border-green-500 has-[:checked]:bg-green-600 has-[:checked]:text-white transition-colors">
+                            <input type="checkbox" class="reg-bulk-day sr-only" data-day="6" /> Dom
+                        </label>
+                    </div>
+
+                    <div class="flex gap-2">
+                        <button type="button" onclick="regApplyBulkToAll()"
+                            class="rounded-lg bg-green-600 px-3 py-2 text-xs font-medium text-white shadow-sm transition-colors hover:bg-green-700">
+                            Aplicar para todos
+                        </button>
+                        <button type="button" onclick="regApplyBulkToSelected()"
+                            class="rounded-lg border border-green-600 px-3 py-2 text-xs font-medium text-green-700 shadow-sm transition-colors hover:bg-green-50">
+                            Aplicar para selecionados
+                        </button>
                     </div>
                 </div>
 
@@ -785,6 +826,36 @@
         function showStep3() {
             step2State.classList.add('hidden');
             step3State.classList.remove('hidden');
+        }
+
+        // Bulk apply helpers for register step3
+        function regApplyBulkToDay(day, openTime, closeTime) {
+            const toggle = document.querySelector(`.day-toggle[data-day="${day}"]`);
+            if (!toggle) return;
+            toggle.checked = true;
+            const inputsContainer = document.querySelector(`.day-inputs-${day}`);
+            inputsContainer.classList.remove('hidden');
+            inputsContainer.classList.add('grid');
+            const openInput = document.querySelector(`.day-inputs-${day} .day-open-time`);
+            const closeInput = document.querySelector(`.day-inputs-${day} .day-close-time`);
+            if (openInput) openInput.value = openTime;
+            if (closeInput) closeInput.value = closeTime;
+        }
+
+        function regApplyBulkToAll() {
+            const openTime = document.getElementById('reg-bulk-open').value;
+            const closeTime = document.getElementById('reg-bulk-close').value;
+            for (let i = 0; i <= 6; i++) {
+                regApplyBulkToDay(i, openTime, closeTime);
+            }
+        }
+
+        function regApplyBulkToSelected() {
+            const openTime = document.getElementById('reg-bulk-open').value;
+            const closeTime = document.getElementById('reg-bulk-close').value;
+            document.querySelectorAll('.reg-bulk-day:checked').forEach(cb => {
+                regApplyBulkToDay(parseInt(cb.dataset.day), openTime, closeTime);
+            });
         }
 
         // Toggle para habilitar/desabilitar horários

@@ -125,6 +125,9 @@ Route::middleware(['auth'])->group(function() {
                     Route::post('/step2', 'confirmStep2')->name('step2');
                     Route::post('/step3', 'confirmStep3')->name('step3');
                     Route::post('/confirm', 'confirm')->name('confirm');
+                    Route::get('/{store}/edit', 'edit')->name('edit');
+                    Route::put('/{store}', 'update')->name('update');
+                    Route::delete('/{store}/unlink', 'unlink')->name('unlink');
                 });
 
             Route::middleware(['has_store', 'active_store'])

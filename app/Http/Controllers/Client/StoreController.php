@@ -372,6 +372,98 @@ class StoreController extends Controller
         }
     }
 
+    public function edit(Store $store)
+    {
+        $client = auth()->user()->client;
+
+        if (!$client->stores()->where('stores.id', $store->id)->exists()) {
+            abort(403);
+        }
+
+        $storeHours = $store->storeHours()->orderBy('day_of_week')->get()->keyBy('day_of_week');
+
+        return view('client.stores.edit', compact('store', 'storeHours'));
+    }
+
+    public function update(Request $request, Store $store)
+    {
+        $client = auth()->user()->client;
+
+        if (!$client->stores()->where('stores.id', $store->id)->exists()) {
+            abort(403);
+        }
+
+        // Strip formatting from CEP before validation
+        $request->merge(['address_cep' => preg_replace('/\D/', '', $request->address_cep ?? '')]);
+
+        $validated = $request->validate([
+            'name'               => 'required|string|max:255',
+            'address_cep'        => 'required|regex:/^\d{8}$/',
+            'address_street'     => 'required|string|max:255',
+            'address_number'     => 'required|string|max:20',
+            'address_complement' => 'nullable|string|max:255',
+            'address_district'   => 'required|string|max:100',
+            'address_city'       => 'required|string|max:100',
+            'address_state'      => 'required|regex:/^[A-Z]{2}$/',
+            'hours'              => 'required|array',
+        ], [
+            'address_cep.regex'   => 'CEP deve conter 8 dígitos.',
+            'address_state.regex' => 'Estado deve ser uma sigla válida (ex: SP).',
+        ]);
+
+        DB::transaction(function () use ($store, $validated) {
+            $store->update([
+                'name'               => $validated['name'],
+                'address_cep'        => $validated['address_cep'],
+                'address_street'     => $validated['address_street'],
+                'address_number'     => $validated['address_number'],
+                'address_complement' => $validated['address_complement'] ?? '',
+                'address_district'   => $validated['address_district'],
+                'address_city'       => $validated['address_city'],
+                'address_state'      => $validated['address_state'],
+            ]);
+
+            $store->storeHours()->delete();
+
+            $hoursData = [];
+            foreach ($validated['hours'] as $dayOfWeek => $hourData) {
+                $isOpen = ($hourData['is_open'] ?? '0') === '1';
+                $hoursData[] = [
+                    'day_of_week' => $dayOfWeek,
+                    'open_time'   => $isOpen ? ($hourData['open_time'] ?? null) : null,
+                    'close_time'  => $isOpen ? ($hourData['close_time'] ?? null) : null,
+                    'is_open'     => $isOpen,
+                    'created_at'  => now(),
+                    'updated_at'  => now(),
+                ];
+            }
+
+            if (!empty($hoursData)) {
+                $store->storeHours()->createMany($hoursData);
+            }
+        });
+
+        return redirect()->route('client.stores.index')->with('success', 'Loja atualizada com sucesso!');
+    }
+
+    public function unlink(Store $store)
+    {
+        $client = auth()->user()->client;
+
+        if (!$client->stores()->where('stores.id', $store->id)->exists()) {
+            abort(403);
+        }
+
+        $client->stores()->detach($store->id);
+
+        if (session('store_id') == $store->id) {
+            session()->forget('store_id');
+        }
+
+        return redirect()->route('client.stores.index')
+            ->with('success', 'Loja desvinculada com sucesso. Você pode vinculá-la novamente a qualquer momento.');
+    }
+
     private function validateCNPJ(string $cnpj): bool
     {
         return preg_match('/^\d{14}$/', $cnpj) === 1;
