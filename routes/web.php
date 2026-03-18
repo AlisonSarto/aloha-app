@@ -111,6 +111,8 @@ Route::middleware(['auth'])->group(function() {
         ->name('client.')
         ->group(function() {
 
+            Route::post('/set-store', [ClientStoreController::class, 'setActive'])->name('set.store');
+
             // Stores
             Route::prefix('/stores')
                 ->name('stores.')
@@ -125,7 +127,7 @@ Route::middleware(['auth'])->group(function() {
                     Route::post('/confirm', 'confirm')->name('confirm');
                 });
 
-            Route::middleware(['has_store'])
+            Route::middleware(['has_store', 'active_store'])
                 ->group(function() {
 
                     // Orders

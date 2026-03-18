@@ -12,8 +12,18 @@ class EnsureUserHasStore
     {
         $user = auth()->user();
 
-        if (!$user->client || $user->client->stores()->doesntExist()) {
+        if (!$user->client) {
             return redirect()->route('client.stores.register');
+        }
+
+        $stores = $user->client->stores;
+
+        if ($stores->isEmpty()) {
+            return redirect()->route('client.stores.register');
+        }
+
+        if ($stores->count() === 1 && !session()->has('store_id')) {
+            session(['store_id' => $stores->first()->id]);
         }
 
         return $next($request);

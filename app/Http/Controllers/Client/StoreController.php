@@ -18,6 +18,23 @@ class StoreController extends Controller
         return view('client.stores.index');
     }
 
+    public function setActive(Request $request)
+    {
+        $request->validate([
+            'store_id' => 'required|integer'
+        ]);
+
+        $user = auth()->user();
+
+        if (!$user->client->stores()->where('stores.id', $request->store_id)->exists()) {
+            abort(403);
+        }
+
+        session(['store_id' => $request->store_id]);
+
+        return redirect()->back();
+    }
+
     public function registerForm()
     {
         return view('client.stores.register');
