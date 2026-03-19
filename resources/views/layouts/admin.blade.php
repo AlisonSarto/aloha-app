@@ -115,6 +115,10 @@
                             "url": "/admin/price-tables",
                         },
                         {
+                            "name": "Entrega",
+                            "url": "/admin/delivery-config",
+                        },
+                        {
                             "name": "Usuários",
                             "url": "/admin/users",
                         }

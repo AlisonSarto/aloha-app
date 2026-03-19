@@ -12,6 +12,7 @@ use App\Http\Controllers\Admin\StoreController as AdminStoreController;
 use App\Http\Controllers\Admin\SellerController as AdminSellerController;
 use App\Http\Controllers\Admin\PriceTableController as AdminPriceTableController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\Admin\DeliveryConfigController as AdminDeliveryConfigController;
 
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\FinancialController as ClientFinancialController;
@@ -103,6 +104,15 @@ Route::middleware(['auth'])->group(function() {
                     Route::get('/{user}/edit', 'edit')->name('edit');
                     Route::put('/{user}', 'update')->name('update');
                     Route::delete('/{user}', 'destroy')->name('destroy');
+                });
+
+            // Delivery Config
+            Route::prefix('/delivery-config')
+                ->name('delivery-config.')
+                ->controller(AdminDeliveryConfigController::class)
+                ->group(function () {
+                    Route::get('/', 'edit')->name('edit');
+                    Route::put('/', 'update')->name('update');
                 });
         });
 

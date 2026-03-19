@@ -37,7 +37,7 @@
             <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
                 Criar Tabela
             </button>
-            <a href="{{ route('admin.price-tables') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
+            <a href="{{ route('admin.price-tables.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700">
                 Cancelar
             </a>
         </div>
