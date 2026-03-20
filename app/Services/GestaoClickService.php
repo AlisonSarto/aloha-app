@@ -178,57 +178,27 @@ class GestaoClickService
         return $products;
     }
 
-    /**
-     * Lista os pedidos de uma loja no GestaoClick.
-     *
-     * Endpoint real esperado: GET /vendas?cliente_id={id}
-     *
-     * Retorno real esperado:
-     * [
-     *   'data' => [
-     *     [
-     *       'id'              => 'venda_12345',
-     *       'numero'          => 'PED-2024-001',
-     *       'status'          => 'aguardando',   // aguardando | confirmado | entregue | cancelado
-     *       'data_emissao'    => '2024-01-15',
-     *       'data_entrega'    => '2024-01-17',
-     *       'valor_total'     => 140.00,
-     *       'forma_pagamento' => 'pix',          // pix | boleto | dinheiro | cartao
-     *       'tipo_entrega'    => 'entrega',       // entrega | retirada
-     *       'itens' => [
-     *         ['produto_id' => 'prod_001', 'nome' => 'Coco', 'quantidade' => 2, 'valor_unitario' => 70.00],
-     *       ],
-     *     ],
-     *   ],
-     *   'meta' => ['total' => 1, 'proxima_pagina' => null],
-     * ]
-     */
-    public function getOrders(string $gestaoClickStoreId): array
+    public function getOrder(string $id): array
     {
-        // TODO: substituir pelo endpoint real quando disponível
-        // return $this->client()
-        //     ->get('/vendas', ['cliente_id' => $gestaoClickStoreId])
-        //     ->throw()
-        //     ->json();
+        return $this->client()
+            ->get("/vendas/$id")
+            ->throw()
+            ->json();
+    }
+
+    public function getOrders(string $gestaoClickStoreId, int $page = 1): array
+    {
+        $response = $this->client()
+            ->get('/vendas', [
+                'cliente_id' => $gestaoClickStoreId,
+                'pagina'     => $page,
+            ])
+            ->throw()
+            ->json();
 
         return [
-            'data' => [
-                [
-                    'id' => 'venda_12345',
-                    'numero' => 'PED-2024-001',
-                    'status' => 'aguardando',
-                    'data_emissao' => '2024-01-15',
-                    'data_entrega' => '2024-01-17',
-                    'valor_total' => 140.00,
-                    'forma_pagamento' => 'pix',
-                    'tipo_entrega' => 'entrega',
-                    'itens' => [
-                        ['produto_id' => 'prod_001', 'nome' => 'Coco',    'quantidade' => 2, 'valor_unitario' => 70.00],
-                        ['produto_id' => 'prod_002', 'nome' => 'Morango', 'quantidade' => 1, 'valor_unitario' => 70.00],
-                    ],
-                ],
-            ],
-            'meta' => ['total' => 1, 'proxima_pagina' => null],
+            'data' => $response['data'] ?? [],
+            'meta' => $response['meta'] ?? [],
         ];
     }
 

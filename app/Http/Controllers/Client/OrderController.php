@@ -12,13 +12,28 @@ class OrderController extends Controller
 {
     public function __construct(private GestaoClickService $gestaoClick) {}
 
-    public function index()
+    public function index(Request $request)
     {
         $store  = activeStore();
-        $result = $this->gestaoClick->getOrders($store->gestao_click_id);
-        $orders = $result;
+        $page   = max(1, (int) $request->get('page', 1));
 
-        return view('client.orders.index', compact('orders'));
+        $result = $this->gestaoClick->getOrders($store->gestao_click_id, $page);
+
+        $orders      = $result['data'];
+        $meta        = $result['meta'];
+        $currentPage = $meta['pagina_atual']    ?? $page;
+        $nextPage    = $meta['proxima_pagina']  ?? null;
+        $prevPage    = $currentPage > 1 ? $currentPage - 1 : null;
+
+        return view('client.orders.index', compact('orders', 'currentPage', 'nextPage', 'prevPage'));
+    }
+
+    public function show(string $id)
+    {
+        $response = $this->gestaoClick->getOrder($id);
+        $order    = $response['data'];
+
+        return view('client.orders.show', compact('order'));
     }
 
     public function create()
