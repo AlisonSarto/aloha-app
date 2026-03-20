@@ -77,7 +77,7 @@
                         {{-- Qty controls --}}
                         <div class="flex items-center gap-1.5 flex-shrink-0 ml-3">
                             <button type="button"
-                                    onclick="changeQty({{ $flavor['id'] }}, -1)"
+                                    onclick="changeQty('{{ $flavor['id'] }}', -1)"
                                     class="w-8 h-8 rounded-lg bg-gray-100 hover:bg-red-50 hover:text-red-500 flex items-center justify-center text-gray-600 transition-all active:scale-90">
                                 <i class="fas fa-minus text-xs"></i>
                             </button>
@@ -87,12 +87,12 @@
                                    value="0"
                                    min="0"
                                    inputmode="numeric"
-                                   onchange="setQty({{ $flavor['id'] }}, this.value)"
-                                   oninput="setQty({{ $flavor['id'] }}, this.value)"
+                                   onchange="setQty('{{ $flavor['id'] }}', this.value)"
+                                   oninput="setQty('{{ $flavor['id'] }}', this.value)"
                                    class="w-14 text-center font-bold text-gray-900 text-sm border border-gray-200 rounded-lg py-1 focus:outline-none focus:border-green-500 focus:ring-1 focus:ring-green-500 transition-colors">
 
                             <button type="button"
-                                    onclick="changeQty({{ $flavor['id'] }}, 1)"
+                                    onclick="changeQty('{{ $flavor['id'] }}', 1)"
                                     class="w-8 h-8 rounded-lg bg-green-600 hover:bg-green-700 flex items-center justify-center text-white transition-all active:scale-90">
                                 <i class="fas fa-plus text-xs"></i>
                             </button>
@@ -703,12 +703,34 @@
 
         // ── CONFIRM ORDER ─────────────────────────────────────────────────────
         function confirmOrder() {
-            document.getElementById('btn-confirm').disabled = true;
-            document.getElementById('btn-confirm').innerHTML =
-                '<i class="fas fa-circle-notch fa-spin mr-1.5"></i> Enviando…';
+            const btn = document.getElementById('btn-confirm');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin mr-1.5"></i> Enviando…';
 
-            // TODO: replace with real fetch POST to order store endpoint
-            setTimeout(() => {
+            const flavors = Object.entries(state.quantities)
+                .filter(([id, qty]) => qty > 0)
+                .map(([id, qty]) => ({ id, qty: Number(qty) }));
+
+            fetch('{{ route("client.orders.store") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                },
+                body: JSON.stringify({
+                    flavors,
+                    delivery_type: state.deliveryType,
+                    delivery_date: state.deliveryDate,
+                    payment:       state.payment,
+                    notes:         state.notes,
+                }),
+            })
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) throw new Error('Falha ao criar pedido');
+
+                console.log(data);
+
                 document.getElementById('step-3').innerHTML =
                     '<div class="flex flex-col items-center gap-5 py-10">' +
                         '<div class="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center shadow-inner">' +
@@ -716,14 +738,19 @@
                         '</div>' +
                         '<div class="text-center">' +
                             '<p class="text-xl font-extrabold text-gray-900 mb-1">Pedido realizado! 🎉</p>' +
-                            '<p class="text-sm text-gray-500">Em breve você receberá a confirmação.</p>' +
+                            '<p class="text-sm text-gray-500">Pedido <strong>' + data.numero + '</strong> enviado com sucesso.</p>' +
                         '</div>' +
                         '<a href="{{ route('client.orders.index') }}"' +
                         '   class="mt-2 inline-flex items-center gap-2 rounded-xl bg-green-600 text-white px-8 py-3.5 font-semibold hover:bg-green-700 transition-all active:scale-95">' +
                             '<i class="fas fa-list-check"></i> Ver meus pedidos' +
                         '</a>' +
                     '</div>';
-            }, 1400);
+            })
+            .catch(() => {
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check mr-1.5"></i> Confirmar pedido';
+                alert('Erro ao enviar o pedido. Tente novamente.');
+            });
         }
 
         // ── INIT ──────────────────────────────────────────────────────────────
