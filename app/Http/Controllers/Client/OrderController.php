@@ -75,7 +75,7 @@ class OrderController extends Controller
             'flavors.*.qty' => 'required|integer|min:1',
             'delivery_type' => 'required|in:delivery,pickup',
             'delivery_date' => 'required|date|after_or_equal:today',
-            'payment'       => 'required|in:pix,boleto,cash',
+            'payment'       => 'required|in:pix,boleto,cash,card',
             'notes'         => 'nullable|string|max:500',
         ]);
 

@@ -209,6 +209,7 @@ class GestaoClickService
         $forma_pagamento = match ($data['forma_pagamento']) {
             'cash'   => 2633094,
             'boleto' => 2219792,
+            'card' => 6408121,
             default  => 2219799, // pix
         };
 

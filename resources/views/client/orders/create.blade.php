@@ -244,7 +244,7 @@
                         <i id="check-cash" class="fas fa-circle-check text-green-600 text-lg hidden"></i>
                     </button>
 
-                    {{-- Dinheiro --}}
+                    {{-- Cartão --}}
                     <button type="button" id="pay-card" onclick="setPayment('card')"
                             class="pay-btn w-full flex items-center gap-3 rounded-xl border-2 border-gray-200 p-3.5 text-left transition-all hover:border-green-300">
                         <span class="text-2xl leading-none">💳</span>
@@ -391,6 +391,45 @@
         };
 
         const PAYMENT_LABELS = { pix: 'Pix ⚡', boleto: 'Boleto 📄', cash: 'Dinheiro 💵', card: 'Cartão 💳' };
+
+        let deferredInstallPrompt = null;
+
+        function isRunningAsPWA() {
+            return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+        }
+
+        function syncPwaInstallButtonVisibility() {
+            const installBtn = document.getElementById('btn-install-pwa');
+            if (!installBtn) return;
+
+            const shouldShow = !isRunningAsPWA() && !!deferredInstallPrompt;
+            installBtn.classList.toggle('hidden', !shouldShow);
+        }
+
+        async function installPwaApp() {
+            if (!deferredInstallPrompt) return;
+
+            deferredInstallPrompt.prompt();
+            const choice = await deferredInstallPrompt.userChoice;
+
+            if (choice?.outcome !== 'accepted') {
+                return;
+            }
+
+            deferredInstallPrompt = null;
+            syncPwaInstallButtonVisibility();
+        }
+
+        window.addEventListener('beforeinstallprompt', (event) => {
+            event.preventDefault();
+            deferredInstallPrompt = event;
+            syncPwaInstallButtonVisibility();
+        });
+
+        window.addEventListener('appinstalled', () => {
+            deferredInstallPrompt = null;
+            syncPwaInstallButtonVisibility();
+        });
 
         // ── STATE ─────────────────────────────────────────────────────────────
         const state = {
@@ -744,7 +783,13 @@
                         '   class="mt-2 inline-flex items-center gap-2 rounded-xl bg-green-600 text-white px-8 py-3.5 font-semibold hover:bg-green-700 transition-all active:scale-95">' +
                             '<i class="fas fa-list-check"></i> Ver meus pedidos' +
                         '</a>' +
+                        '<button type="button" id="btn-install-pwa" onclick="installPwaApp()"' +
+                        '   class="hidden inline-flex items-center gap-2 rounded-xl border border-green-200 bg-white px-8 py-3 font-semibold text-green-700 hover:bg-green-50 transition-all active:scale-95">' +
+                            '<i class="fas fa-mobile-screen-button"></i> Instalar app da Aloha' +
+                        '</button>' +
                     '</div>';
+
+                syncPwaInstallButtonVisibility();
             })
             .catch(() => {
                 btn.disabled = false;
