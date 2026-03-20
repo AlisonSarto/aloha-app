@@ -8,6 +8,15 @@
     <div class="flex min-h-screen flex-col justify-center px-6 py-12 bg-gradient-to-b from-green-50 to-white">
 
         <div class="mx-auto w-full max-w-sm">
+            
+            <div class="mb-4">
+                <a href="{{ route('client.stores.index') }}"
+                class="inline-flex items-center text-sm text-gray-500 hover:text-gray-700 transition-colors">
+                    <i class="fas fa-arrow-left mr-2 text-xs"></i>
+                    Voltar
+                </a>
+            </div>
+
             <img src="{{ asset('favicon.ico') }}" alt="Aloha App logo" class="mx-auto h-16 w-auto mb-4" />
             <h2 class="text-center text-2xl font-bold tracking-tight text-gray-900">Vincule sua loja</h2>
             <p class="mt-2 text-center text-sm text-gray-600">Para fazer pedidos, você precisa ter pelo menos uma

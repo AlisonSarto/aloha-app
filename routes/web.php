@@ -140,6 +140,17 @@ Route::middleware(['auth'])->group(function() {
                     Route::delete('/{store}/unlink', 'unlink')->name('unlink');
                 });
 
+                // Profile
+                Route::prefix('/profile')
+                    ->name('profile.')
+                    ->controller(ClientProfileController::class)
+                    ->group(function () {
+                        Route::get('/', 'index')->name('index');
+                        Route::put('/', 'update')->name('update');
+                        Route::put('/password', 'updatePassword')->name('password');
+                        Route::delete('/', 'destroy')->name('destroy');
+                    });
+
             Route::middleware(['has_store', 'active_store'])
                 ->group(function() {
 
@@ -160,17 +171,6 @@ Route::middleware(['auth'])->group(function() {
                         ->controller(ClientFinancialController::class)
                         ->group(function () {
                             Route::get('/', 'index')->name('index');
-                        });
-
-                    // Profile
-                    Route::prefix('/profile')
-                        ->name('profile.')
-                        ->controller(ClientProfileController::class)
-                        ->group(function () {
-                            Route::get('/', 'index')->name('index');
-                            Route::put('/', 'update')->name('update');
-                            Route::put('/password', 'updatePassword')->name('password');
-                            Route::delete('/', 'destroy')->name('destroy');
                         });
 
                 });
