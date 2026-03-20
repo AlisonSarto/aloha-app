@@ -34,6 +34,29 @@
         {{-- ═══════════════════════════════════════════════════════════════════ --}}
         <div id="step-1" class="pb-64">
 
+            {{-- Incentive message --}}
+            <div id="incentive-msg"
+                class="hidden mb-4 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100
+                    border border-amber-300 px-4 py-3 shadow-sm">
+
+                <div class="flex items-start gap-3">
+
+                    <!-- Icon -->
+                    <div class="flex-shrink-0 w-9 h-9 rounded-full bg-amber-500 flex items-center justify-center shadow">
+                        <i class="fas fa-fire text-white text-sm"></i>
+                    </div>
+
+                    <!-- Text -->
+                    <div>
+                        <p class="text-sm font-semibold text-amber-900">
+                            Oferta especial
+                        </p>
+                        <p id="incentive-text" class="text-sm text-amber-800 leading-snug mt-0.5"></p>
+                    </div>
+
+                </div>
+            </div>
+
             <div class="space-y-2.5">
                 @foreach ($flavors as $flavor)
                     <div id="card-{{ $flavor['id'] }}"
@@ -81,14 +104,6 @@
             {{-- Fixed summary panel (sits above bottom navbar) --}}
             <div id="summary-panel" class="fixed bottom-24 inset-x-0 mx-auto max-w-lg px-4 z-40">
                 <div class="bg-white rounded-2xl shadow-2xl ring-1 ring-black/10 p-4">
-
-                    {{-- Incentive message --}}
-                    <div id="incentive-msg" class="hidden mb-3 rounded-xl bg-amber-50 ring-1 ring-amber-200 px-3 py-2.5">
-                        <p class="text-xs text-amber-800 font-medium leading-snug">
-                            <i class="fas fa-fire-flame-curved text-amber-500 mr-1"></i>
-                            <span id="incentive-text"></span>
-                        </p>
-                    </div>
 
                     {{-- Totals row --}}
                     <div class="flex items-center justify-between mb-3">
@@ -230,14 +245,14 @@
                     </button>
 
                     {{-- Dinheiro --}}
-                    <button type="button" id="pay-cash" onclick="setPayment('cash')"
+                    <button type="button" id="pay-card" onclick="setPayment('card')"
                             class="pay-btn w-full flex items-center gap-3 rounded-xl border-2 border-gray-200 p-3.5 text-left transition-all hover:border-green-300">
                         <span class="text-2xl leading-none">💳</span>
                         <div class="flex-1 min-w-0">
                             <p class="text-sm font-semibold text-gray-800">Cartão</p>
                             <p class="text-xs text-gray-400">Pago na entrega ou retirada no débito ou crédito</p>
                         </div>
-                        <i id="check-cash" class="fas fa-circle-check text-green-600 text-lg hidden"></i>
+                        <i id="check-card" class="fas fa-circle-check text-green-600 text-lg hidden"></i>
                     </button>
 
                 </div>
@@ -375,7 +390,7 @@
             shipping_amount: {{ (float) ($store->shipping_amount ?? 0) }},
         };
 
-        const PAYMENT_LABELS = { pix: 'Pix ⚡', boleto: 'Boleto 📄', cash: 'Dinheiro 💵' };
+        const PAYMENT_LABELS = { pix: 'Pix ⚡', boleto: 'Boleto 📄', cash: 'Dinheiro 💵', card: 'Cartão 💳' };
 
         // ── STATE ─────────────────────────────────────────────────────────────
         const state = {
@@ -470,18 +485,17 @@
             if (next && unitPrice && next.unit_price < unitPrice) {
                 const needed  = next.min_quantity - qty;
                 incentiveTx.textContent =
-                    '🔥 Adicione mais ' + needed + ' un. e pague ' + fmt(next.unit_price) +
-                    '/un — economize ' + fmt(unitPrice - next.unit_price) + ' por unidade!';
+                    '🔥 Adicione mais ' + needed + ' pct. e pague ' + fmt(next.unit_price) +
+                    '/pct — economize ' + fmt(unitPrice - next.unit_price) + ' por pacote!';
                 incentiveEl.classList.remove('hidden');
             } else if (next && !unitPrice && qty > 0) {
                 incentiveTx.textContent =
-                    'Mais ' + (next.min_quantity - qty) + ' unidades para entrar na faixa de preço!';
+                    'Mais ' + (next.min_quantity - qty) + ' pacotes para entrar na faixa de preço!';
                 incentiveEl.classList.remove('hidden');
             } else if (!unitPrice && qty === 0) {
                 incentiveTx.textContent = 'Adicione produtos para ver os preços por faixa.';
-                incentiveEl.classList.remove('hidden');
-            } else {
                 incentiveEl.classList.add('hidden');
+            } else {
             }
 
             // Enable step-1 continue button
@@ -606,7 +620,7 @@
         }
 
         // ── PAYMENT ───────────────────────────────────────────────────────────
-        const PAY_IDS = ['pix', 'boleto', 'cash'];
+        const PAY_IDS = ['pix', 'boleto', 'cash', 'card'];
 
         function setPayment(method) {
             state.payment = method;
