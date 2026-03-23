@@ -4,6 +4,30 @@
 
 @section('content')
 
+    {{-- Flatpickr --}}
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/pt.js"></script>
+    <style>
+        .flatpickr-day.selected,
+        .flatpickr-day.selected:hover { background: #16a34a; border-color: #16a34a; }
+        .flatpickr-day:hover:not(.flatpickr-disabled):not(.selected) { background: #f0fdf4; border-color: #bbf7d0; }
+
+        /* Modal centralizado */
+        .flatpickr-calendar.open {
+            position: fixed !important;
+            top: 50% !important;
+            left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            z-index: 1100 !important;
+            border-radius: 1rem !important;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.45) !important;
+        }
+    </style>
+
+    {{-- Backdrop do seletor de data --}}
+    <div id="fp-backdrop" class="hidden fixed inset-0 bg-black/50 z-[1050]"></div>
+
     <div class="select-none">
 
         {{-- ── PROGRESS HEADER ──────────────────────────────────────────────── --}}
@@ -183,11 +207,9 @@
                     <span id="date-label">Data de entrega</span>
                 </h3>
 
-                <input type="date"
-                       id="delivery-date"
-                       class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors">
-
-                <p id="date-hint" class="text-xs text-gray-400 mt-1.5"></p>
+                <input type="text" id="delivery-date" readonly
+                       placeholder="Selecione uma data..."
+                       class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors cursor-pointer">
             </div>
 
             {{-- Pagamento --}}
@@ -381,7 +403,7 @@
         console.log(PRICE_RANGES);
 
         const DELIVERY_CFG = {
-            delivery_days:  @json($deliveryConfig->delivery_days),
+            delivery_days:  @json($deliveryConfig->delivery_days).map(Number),
             lead_days:      {{ (int) $deliveryConfig->lead_days }},
             late_direction: '{{ $deliveryConfig->late_direction }}',
         };
@@ -432,6 +454,8 @@
         });
 
         // ── STATE ─────────────────────────────────────────────────────────────
+        let fp; // instância global do Flatpickr
+
         const state = {
             step:         1,
             quantities:   {},
@@ -603,7 +627,7 @@
 
             // Reset date and recompute min
             state.deliveryDate = '';
-            document.getElementById('delivery-date').value = '';
+            if (fp) fp.clear();
             updateDateConstraints();
             validateStep2UI();
         }
@@ -631,7 +655,15 @@
             const today = new Date();
             today.setHours(0, 0, 0, 0);
 
-            if (state.deliveryType === 'pickup') return today;
+            if (state.deliveryType === 'pickup') {
+                // Sem restrição de lead — começa hoje ou no próximo dia disponível
+                const d = new Date(today);
+                for (let i = 0; i <= 7; i++) {
+                    if (DELIVERY_CFG.delivery_days.includes(jsToAppDay(d.getDay()))) return d;
+                    d.setDate(d.getDate() + 1);
+                }
+                return today;
+            }
 
             const d = new Date(today);
             d.setDate(d.getDate() + DELIVERY_CFG.lead_days);
@@ -642,20 +674,37 @@
                 if (++tries > 14) break;
             }
 
-            // Never go before today
-            if (d < today) d.setTime(today.getTime());
+            // Se 'before' recuou para antes de hoje, busca para frente a partir de hoje
+            if (d < today) {
+                d.setTime(today.getTime());
+                let fwd = 0;
+                while (!DELIVERY_CFG.delivery_days.includes(jsToAppDay(d.getDay()))) {
+                    d.setDate(d.getDate() + 1);
+                    if (++fwd > 14) break;
+                }
+            }
+
             return d;
         }
 
+        function buildDisableFn() {
+            return function(date) {
+                return !DELIVERY_CFG.delivery_days.includes(jsToAppDay(date.getDay()));
+            };
+        }
+
         function updateDateConstraints() {
-            const min   = calcMinDate();
-            const input = document.getElementById('delivery-date');
-            input.min   = toISO(min);
+            const min = calcMinDate();
+
+            if (fp) {
+                fp.set('minDate', min);
+                fp.set('disable', [buildDisableFn()]);
+            }
 
             document.getElementById('date-hint').textContent =
                 state.deliveryType === 'delivery'
                     ? 'Data mínima de entrega: ' + formatPT(toISO(min))
-                    : 'Pode retirar a partir de hoje.';
+                    : 'Pode retirar a partir de ' + formatPT(toISO(min)) + '.';
         }
 
         // ── PAYMENT ───────────────────────────────────────────────────────────
@@ -801,13 +850,34 @@
         // ── INIT ──────────────────────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', () => {
             recalculate();
+
+            fp = flatpickr('#delivery-date', {
+                locale: 'pt',
+                dateFormat: 'Y-m-d',
+                altInput: true,
+                altFormat: 'D, d/m/Y',
+                minDate: calcMinDate(),
+                defaultDate: calcMinDate(),
+                disable: [buildDisableFn()],
+                disableMobile: true,
+                onOpen() {
+                    document.getElementById('fp-backdrop').classList.remove('hidden');
+                },
+                onClose() {
+                    document.getElementById('fp-backdrop').classList.add('hidden');
+                },
+                onChange(selectedDates, dateStr) {
+                    state.deliveryDate = dateStr;
+                    validateStep2UI();
+                },
+            });
+
+            state.deliveryDate = toISO(calcMinDate());
+
+            document.getElementById('fp-backdrop').addEventListener('click', () => fp.close());
+
             updateDateConstraints();
             validateStep2UI();
-
-            document.getElementById('delivery-date').addEventListener('change', function () {
-                state.deliveryDate = this.value;
-                validateStep2UI();
-            });
 
             document.getElementById('order-notes').addEventListener('input', function () {
                 state.notes = this.value;
