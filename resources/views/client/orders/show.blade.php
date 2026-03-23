@@ -6,10 +6,35 @@
     @php
         $situacao = mb_strtolower($order['nome_situacao'] ?? '');
         $statusConfig = match (true) {
-            str_contains($situacao, 'confirm') => ['label' => $order['nome_situacao'], 'class' => 'bg-blue-100 text-blue-700',    'icon' => 'fa-circle-check'],
-            str_contains($situacao, 'entreg')  => ['label' => $order['nome_situacao'], 'class' => 'bg-green-100 text-green-700',  'icon' => 'fa-box-open'],
-            str_contains($situacao, 'cancel')  => ['label' => $order['nome_situacao'], 'class' => 'bg-red-100 text-red-700',      'icon' => 'fa-circle-xmark'],
-            default                            => ['label' => $order['nome_situacao'] ?? 'Aguardando', 'class' => 'bg-yellow-100 text-yellow-700', 'icon' => 'fa-clock'],
+            str_contains($situacao, 'em rota') => [
+                'label' => 'Em rota',
+                'class' => 'bg-blue-100 text-blue-700',
+                'icon'  => 'fa-truck'
+            ],
+
+            str_contains($situacao, 'preparando envio') => [
+                'label' => 'Preparando envio',
+                'class' => 'bg-orange-100 text-orange-700',
+                'icon'  => 'fa-box'
+            ],
+
+            str_contains($situacao, 'concluído') => [
+                'label' => $order['nome_situacao'],
+                'class' => 'bg-green-100 text-green-700',
+                'icon'  => 'fa-box-open'
+            ],
+
+            str_contains($situacao, 'analise') => [
+                'label' => 'Em análise',
+                'class' => 'bg-gray-100 text-gray-700',
+                'icon'  => 'fa-clock'
+            ],
+
+            default => [
+                'label' => 'Em análise',
+                'class' => 'bg-gray-100 text-gray-700',
+                'icon'  => 'fa-clock'
+            ],
         };
 
         $orderDate    = ($order['data'] ?? null)             ? \Carbon\Carbon::parse($order['data'])->format('d/m/Y')             : '–';
