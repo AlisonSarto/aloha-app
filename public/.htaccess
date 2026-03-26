@@ -1,5 +1,3 @@
-AddHandler application/x-httpd-alt-php82 .php
-
 <IfModule mod_rewrite.c>
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
