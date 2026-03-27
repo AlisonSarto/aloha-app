@@ -1,5 +1,5 @@
 <h1 align="center">
-  🍦 Aloha App
+  🌴 Aloha App
 </h1>
 
 <p align="center">
