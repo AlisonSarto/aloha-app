@@ -29,4 +29,10 @@ return [
         'url' => env('OPEN_CNPJ_URL'),
     ],
 
+    'botconversa' => [
+        "webhooks" => [
+            'new_order' => env('BOTCONVERSA_NEW_ORDER_HOOK'),
+        ],
+    ]
+
 ];

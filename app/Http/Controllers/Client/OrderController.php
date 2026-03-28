@@ -5,12 +5,17 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Models\DeliveryConfig;
 use App\Services\GestaoClickService;
+use App\Services\BotconversaService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class OrderController extends Controller
 {
-    public function __construct(private GestaoClickService $gestaoClick) {}
+    public function __construct(
+        private GestaoClickService $gestaoClick,
+        private BotconversaService $botconversa,
+    ) {}
 
     public function index(Request $request)
     {
@@ -92,11 +97,36 @@ class OrderController extends Controller
             ])->toArray(),
         ]);
 
+        $botconversaResult = null;
+        $phone = (string) (auth()->user()?->client?->phone ?? '');
+        $saleId = (string) ($result['data']['id'] ?? '');
+        $saleCode = (string) ($result['data']['numero'] ?? $result['data']['codigo'] ?? $saleId);
+
+        if ($phone !== '' && $saleId !== '' && $saleCode !== '') {
+            try {
+                $botconversaResult = $this->botconversa->newOrderNotification(
+                    $phone,
+                    $saleId,
+                    $saleCode,
+                    (string) $store->name,
+                );
+            } catch (Throwable $e) {
+                // Do not fail order creation if notification webhook is unavailable.
+                $botconversaResult = [
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ];
+            }
+        }
+
+
+
         return response()->json([
             'success'  => true,
             'order_id' => $result['data']['id'],
             'numero'   => $result['data']['numero'],
-            'result'   => $result
+            'result'   => $result,
+            'botconversa' => $botconversaResult,
         ]);
     }
 

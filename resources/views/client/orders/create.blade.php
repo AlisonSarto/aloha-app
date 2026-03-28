@@ -826,7 +826,7 @@
                         '</div>' +
                         '<div class="text-center">' +
                             '<p class="text-xl font-extrabold text-gray-900 mb-1">Pedido realizado! 🎉</p>' +
-                            '<p class="text-sm text-gray-500">Pedido <strong>' + data.numero + '</strong> enviado com sucesso.</p>' +
+                            '<p class="text-sm text-gray-500">Pedido <strong>#' + data.numero + '</strong> enviado com sucesso.</p>' +
                         '</div>' +
                         '<a href="{{ route('client.orders.index') }}"' +
                         '   class="mt-2 inline-flex items-center gap-2 rounded-xl bg-green-600 text-white px-8 py-3.5 font-semibold hover:bg-green-700 transition-all active:scale-95">' +
