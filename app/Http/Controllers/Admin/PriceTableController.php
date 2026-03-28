@@ -57,7 +57,7 @@ class PriceTableController extends Controller
             }
         });
 
-        return redirect()->route('admin.price-tables')->with('success', 'Tabela de preços criada com sucesso.');
+        return redirect()->route('admin.price-tables.index')->with('success', 'Tabela de preços criada com sucesso.');
     }
 
     public function show(PriceTable $priceTable)
@@ -105,18 +105,18 @@ class PriceTableController extends Controller
             }
         });
 
-        return redirect()->route('admin.price-tables')->with('success', 'Tabela de preços atualizada com sucesso.');
+        return redirect()->route('admin.price-tables.index')->with('success', 'Tabela de preços atualizada com sucesso.');
     }
 
     public function destroy(PriceTable $priceTable)
     {
         if ($priceTable->is_default) {
-            return redirect()->route('admin.price-tables')->with('error', 'Não é possível deletar a tabela padrão.');
+            return redirect()->route('admin.price-tables.index')->with('error', 'Não é possível deletar a tabela padrão.');
         }
 
         $priceTable->delete();
 
-        return redirect()->route('admin.price-tables')->with('success', 'Tabela de preços deletada com sucesso.');
+        return redirect()->route('admin.price-tables.index')->with('success', 'Tabela de preços deletada com sucesso.');
     }
 
     public function setDefault(PriceTable $priceTable)
@@ -124,6 +124,6 @@ class PriceTableController extends Controller
         PriceTable::where('is_default', true)->update(['is_default' => false]);
         $priceTable->update(['is_default' => true]);
 
-        return redirect()->route('admin.price-tables')->with('success', 'Tabela padrão definida com sucesso.');
+        return redirect()->route('admin.price-tables.index')->with('success', 'Tabela padrão definida com sucesso.');
     }
 }

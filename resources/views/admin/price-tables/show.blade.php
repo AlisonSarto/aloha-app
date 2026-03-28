@@ -42,7 +42,7 @@
     </div>
 
     <div class="mt-6">
-        <a href="{{ route('admin.price-tables') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 mr-2">
+        <a href="{{ route('admin.price-tables.index') }}" class="bg-gray-600 text-white px-4 py-2 rounded-lg hover:bg-gray-700 mr-2">
             Voltar
         </a>
         <a href="{{ route('admin.price-tables.edit', $priceTable) }}" class="bg-yellow-500 text-white px-4 py-2 rounded-lg hover:bg-yellow-600">
