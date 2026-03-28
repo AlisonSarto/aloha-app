@@ -24,8 +24,13 @@ class BotconversaService
             ];
         }
 
+        $formattedPhone = preg_replace('/\D/', '', $phone);
+        if (!str_starts_with($formattedPhone, '55')) {
+            $formattedPhone = '55' . $formattedPhone;
+        }
+
         $payload = [
-            'telefone' => '+' . $phone,
+            'telefone' => $formattedPhone,
             'id_venda' => $saleId,
             'codigo_venda' => $saleCode,
             'nome_comercio' => $storeName,
@@ -43,7 +48,7 @@ class BotconversaService
                 'success' => true,
                 'status' => $response->status(),
                 'send' => [
-                    'telefone' => $phone,
+                    'telefone' => $formattedPhone,
                     'id_venda' => $saleId,
                     'codigo_venda' => $saleCode,
                     'nome_comercio' => $storeName,
@@ -56,7 +61,7 @@ class BotconversaService
                 'status' => $e->response?->status(),
                 'message' => 'Botconversa request failed.',
                 'send' => [
-                    'telefone' => $phone,
+                    'telefone' => $formattedPhone,
                     'id_venda' => $saleId,
                     'codigo_venda' => $saleCode,
                     'nome_comercio' => $storeName,
@@ -69,7 +74,7 @@ class BotconversaService
                 'success' => false,
                 'message' => 'Unexpected Botconversa error.',
                 'send' => [
-                    'telefone' => $phone,
+                    'telefone' => $formattedPhone,
                     'id_venda' => $saleId,
                     'codigo_venda' => $saleCode,
                     'nome_comercio' => $storeName,
