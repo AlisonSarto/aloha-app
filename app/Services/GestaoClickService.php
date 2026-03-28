@@ -235,7 +235,7 @@ class GestaoClickService
         $vlr_total = ($totalQty * $vlr_unitario) + $vlr_frete;
 
         if ($data['tipo_entrega'] === 'retirada') {
-            $observacao .= "\n>> RETIRADA NO LOCAL <<";
+            $observacao = "\n>> RETIRADA NO LOCAL <<";
         } else {
             $dias = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
             $observacao = "=== Horários de Funcionamento ===\n";
