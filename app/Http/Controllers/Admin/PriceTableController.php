@@ -33,18 +33,16 @@ class PriceTableController extends Controller
             'ranges.*.unit_price' => 'required|numeric|min:0',
         ]);
 
-        if ($request->is_default === null) {
-            $request->is_default = false;
-        }
+        $isDefault = $request->boolean('is_default');
 
-        DB::transaction(function () use ($request) {
-            if ($request->is_default) {
+        DB::transaction(function () use ($request, $isDefault) {
+            if ($isDefault) {
                 PriceTable::where('is_default', true)->update(['is_default' => false]);
             }
 
             $priceTable = PriceTable::create([
                 'name' => $request->name,
-                'is_default' => $request->is_default,
+                'is_default' => $isDefault,
             ]);
 
             foreach ($request->ranges as $range) {
@@ -81,14 +79,16 @@ class PriceTableController extends Controller
             'ranges.*.unit_price' => 'required|numeric|min:0',
         ]);
 
-        DB::transaction(function () use ($request, $priceTable) {
-            if ($request->is_default && !$priceTable->is_default) {
+        $isDefault = $request->boolean('is_default');
+
+        DB::transaction(function () use ($request, $priceTable, $isDefault) {
+            if ($isDefault && !$priceTable->is_default) {
                 PriceTable::where('is_default', true)->update(['is_default' => false]);
             }
 
             $priceTable->update([
                 'name' => $request->name,
-                'is_default' => $request->is_default,
+                'is_default' => $isDefault,
             ]);
 
             // Delete existing ranges
