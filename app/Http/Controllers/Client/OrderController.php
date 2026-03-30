@@ -138,11 +138,11 @@ class OrderController extends Controller
 
         return match (true) {
             str_contains($n, 'coco')     => '#f1f1f1',
+            str_contains($n, 'ssego')    => '#ff7043',
             str_contains($n, 'morango')  => '#e91e63',
             str_contains($n, 'maracuj')  => '#ff9800',
             str_contains($n, 'melancia') => '#43a047',
             str_contains($n, 'maç')      => '#7cb342',
-            str_contains($n, 'ssego')    => '#ff7043',
             str_contains($n, 'laranja')  => '#fb8c00',
             str_contains($n, 'lim')      => '#c0ca33',
             str_contains($n, 'pitaya')   => '#d81b60',
@@ -156,11 +156,11 @@ class OrderController extends Controller
 
         return match (true) {
             str_contains($n, 'coco')     => '🥥',
+            str_contains($n, 'ssego')    => '🍑',
             str_contains($n, 'morango')  => '🍓',
             str_contains($n, 'maracuj')  => '🥭',
             str_contains($n, 'melancia') => '🍉',
             str_contains($n, 'maç')      => '🍏',
-            str_contains($n, 'ssego')    => '🍑',
             str_contains($n, 'laranja')  => '🍊',
             str_contains($n, 'lim')      => '🍋',
             str_contains($n, 'pitaya')   => '🐉',
