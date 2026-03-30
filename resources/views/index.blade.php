@@ -222,7 +222,7 @@
 @section('content')
 
 {{-- ══ PWA Gate: só aparece se não estiver rodando como app instalado ══ --}}
-<div id="pwa-gate">
+<div id="pwa-gate" style="display:none">
     <div class="gate-content">
 
         <div class="gate-icon-wrap">
