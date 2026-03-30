@@ -94,10 +94,10 @@
                 // Menu data
                 const menuData = {
                     "menu": [
-                        {
-                            "name": "Home",
-                            "url": "/admin/home",
-                        },
+                    //  {
+                    //     "name": "Home",
+                    //      "url": "/admin/home",
+                    //  },
                         {
                             "name": "Clientes",
                             "url": "/admin/clients",

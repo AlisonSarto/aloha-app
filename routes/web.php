@@ -40,8 +40,6 @@ Route::middleware(['auth'])->group(function() {
         ->name('admin.')
         ->group(function() {
 
-            Route::get('/home', [AdminHomeController::class, 'index'])->name('home');
-
             // Clients
             Route::prefix('/clients')
                 ->name('clients.')
