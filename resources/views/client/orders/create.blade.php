@@ -323,6 +323,13 @@
                     <span class="text-sm text-gray-500">Subtotal</span>
                     <span class="font-bold text-gray-900" id="sum-subtotal">—</span>
                 </div>
+                <div id="sum-discount-row" class="hidden mt-1.5 flex justify-between items-center">
+                    <span class="text-sm text-green-600 font-medium flex items-center gap-1.5">
+                        <i class="fas fa-tag text-xs"></i>
+                        <span id="sum-coupon-code-label">—</span>
+                    </span>
+                    <span class="text-sm font-bold text-green-600" id="sum-discount">—</span>
+                </div>
             </div>
 
             {{-- Entrega --}}
@@ -362,6 +369,52 @@
                 <p id="sum-notes" class="text-sm text-amber-900 leading-snug"></p>
             </div>
 
+            {{-- Cupom de desconto --}}
+            <div class="rounded-xl bg-white p-4 shadow-sm ring-1 ring-black/5">
+                <h3 class="text-sm font-semibold text-gray-700 mb-3">
+                    <i class="fas fa-tag text-green-600 mr-1.5"></i> Cupom de desconto
+                </h3>
+
+                {{-- Estado: sem cupom --}}
+                <div id="coupon-empty">
+                    <button type="button" onclick="openCouponModal()"
+                            class="w-full flex items-center justify-between rounded-xl border-2 border-dashed border-gray-200 px-4 py-3 hover:border-green-400 hover:bg-green-50 transition-all active:scale-[0.99]">
+                        <div class="flex items-center gap-2 text-gray-400">
+                            <i class="fas fa-ticket text-base"></i>
+                            <span class="text-sm">Adicionar cupom</span>
+                        </div>
+                        <i class="fas fa-chevron-right text-xs text-gray-300"></i>
+                    </button>
+                </div>
+
+                {{-- Estado: com cupom --}}
+                <div id="coupon-applied" class="hidden">
+                    <div class="flex items-center justify-between rounded-xl bg-green-50 border border-green-200 px-4 py-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-9 h-9 rounded-lg bg-green-600 flex items-center justify-center flex-shrink-0">
+                                <i class="fas fa-tag text-white text-sm"></i>
+                            </div>
+                            <div>
+                                <p id="coupon-code-display" class="text-sm font-bold text-green-800 font-mono tracking-wide">—</p>
+                                <p id="coupon-label-display" class="text-xs text-green-600">—</p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="removeCoupon()"
+                                class="text-xs text-red-500 hover:text-red-700 font-semibold px-2.5 py-1.5 rounded-lg hover:bg-red-50 transition-all">
+                            Remover
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Economia --}}
+            <div id="sum-savings-box" class="hidden rounded-xl bg-emerald-50 ring-1 ring-emerald-200 px-4 py-3 text-center">
+                <p class="text-sm font-semibold text-emerald-700">
+                    <i class="fas fa-circle-check mr-1.5 text-emerald-500"></i>
+                    Você economizou <span id="sum-savings-amount" class="font-extrabold">—</span>!
+                </p>
+            </div>
+
             {{-- Total geral --}}
             <div class="rounded-2xl bg-gradient-to-r from-green-600 to-green-700 p-5 shadow-lg">
                 <div class="flex items-center justify-between">
@@ -394,6 +447,73 @@
 
     </div>{{-- /select-none --}}
 
+    {{-- ═══════════════════════════════════════════════════════════════════ --}}
+    {{-- MODAL: CUPONS (bottom-sheet)                                         --}}
+    {{-- ═══════════════════════════════════════════════════════════════════ --}}
+    <div id="coupon-modal" class="fixed inset-0 z-50 hidden">
+
+        {{-- Backdrop --}}
+        <div class="absolute inset-0 bg-black/50" onclick="closeCouponModal()"></div>
+
+        {{-- Bottom sheet --}}
+        <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl max-h-[85vh] flex flex-col shadow-2xl">
+
+            {{-- Handle --}}
+            <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
+                <div class="w-10 h-1 bg-gray-300 rounded-full"></div>
+            </div>
+
+            {{-- Header --}}
+            <div class="flex items-center justify-between px-5 py-3 border-b border-gray-100 flex-shrink-0">
+                <h2 class="text-base font-bold text-gray-900">
+                    <i class="fas fa-tag text-green-600 mr-2"></i> Cupons de desconto
+                </h2>
+                <button type="button" onclick="closeCouponModal()"
+                        class="w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 hover:bg-gray-200 transition-all active:scale-90">
+                    <i class="fas fa-xmark text-gray-500 text-sm"></i>
+                </button>
+            </div>
+
+            {{-- Scrollable body --}}
+            <div class="overflow-y-auto flex-1 px-5 py-4 space-y-5">
+
+                {{-- Input manual --}}
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Inserir código</p>
+                    <div class="flex gap-2">
+                        <input type="text" id="coupon-input"
+                               placeholder="Digite seu código"
+                               class="flex-1 border border-gray-300 rounded-xl px-4 py-2.5 text-sm font-mono uppercase tracking-wider focus:border-green-500 focus:ring-1 focus:ring-green-500 focus:outline-none transition-colors"
+                               oninput="this.value = this.value.toUpperCase()"
+                               onkeydown="if(event.key==='Enter') applyManualCoupon()">
+                        <button type="button" id="coupon-apply-btn" onclick="applyManualCoupon()"
+                                class="px-4 py-2.5 rounded-xl bg-green-600 text-white text-sm font-semibold hover:bg-green-700 transition-all active:scale-95 flex-shrink-0">
+                            Aplicar
+                        </button>
+                    </div>
+                    <p id="coupon-error" class="hidden text-xs text-red-500 mt-1.5 font-medium">
+                        <i class="fas fa-circle-exclamation mr-1"></i>
+                        <span id="coupon-error-msg">Cupom inválido ou não encontrado.</span>
+                    </p>
+                </div>
+
+                {{-- Divider --}}
+                <div class="flex items-center gap-3">
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                    <span class="text-xs text-gray-400 font-medium">ou escolha abaixo</span>
+                    <div class="flex-1 h-px bg-gray-200"></div>
+                </div>
+
+                {{-- Cupons disponíveis --}}
+                <div>
+                    <p class="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Cupons disponíveis</p>
+                    <div id="coupon-list" class="space-y-2.5 pb-4"></div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
     <script>
         // ── DATA FROM PHP ─────────────────────────────────────────────────────
         const FLAVORS = @json($flavors);
@@ -413,6 +533,13 @@
         };
 
         const PAYMENT_LABELS = { pix: 'Pix ⚡', boleto: 'Boleto 📄', cash: 'Dinheiro 💵', card: 'Cartão 💳' };
+
+        // ── MOCK COUPONS ───────────────────────────────────────────────────────
+        const MOCK_COUPONS = [
+            { code: 'PROMO10',    label: '10% de desconto',     description: 'Desconto percentual no subtotal', condition: 'Sem pedido mínimo',     type: 'percent',  value: 10 },
+            { code: 'FRETEFREE',  label: 'Frete grátis',         description: 'Isenção total do frete',          condition: null,                     type: 'shipping', value: 0  },
+            { code: 'DESCONTO20', label: 'R$ 20,00 de desconto', description: 'Desconto fixo no total',          condition: 'Pedido mínimo de R$ 50', type: 'fixed',    value: 20 },
+        ];
 
         let deferredInstallPrompt = null;
 
@@ -463,6 +590,7 @@
             deliveryDate: '',
             payment:      '',
             notes:        '',
+            coupon:       null,
         };
 
         FLAVORS.forEach(f => { state.quantities[f.id] = 0; });
@@ -739,12 +867,17 @@
 
         // ── SUMMARY RENDER ────────────────────────────────────────────────────
         function renderSummary() {
-            const qty      = totalQty();
-            const range    = getRange(qty);
-            const uPrice   = range ? range.unit_price : 0;
-            const subtotal = uPrice * qty;
-            const shipping = state.deliveryType === 'delivery' ? STORE.shipping_amount : 0;
-            const total    = subtotal + shipping;
+            const qty         = totalQty();
+            const range       = getRange(qty);
+            const uPrice      = range ? range.unit_price : 0;
+            const subtotal    = uPrice * qty;
+            const shippingBase = state.deliveryType === 'delivery' ? STORE.shipping_amount : 0;
+
+            // Discount calculation
+            const { discountOnSubtotal, discountOnShipping } = calcDiscount(subtotal, shippingBase);
+            const totalDiscount     = discountOnSubtotal + discountOnShipping;
+            const effectiveShipping = shippingBase - discountOnShipping;
+            const total             = subtotal - discountOnSubtotal + effectiveShipping;
 
             // Flavor rows
             const container = document.getElementById('summary-flavors');
@@ -765,21 +898,47 @@
                 container.appendChild(row);
             });
 
-            document.getElementById('sum-subtotal').textContent      = fmt(subtotal);
+            document.getElementById('sum-subtotal').textContent = fmt(subtotal);
+
+            // Discount row
+            const discountRow = document.getElementById('sum-discount-row');
+            if (state.coupon && (discountOnSubtotal > 0 || discountOnShipping > 0)) {
+                discountRow.classList.remove('hidden');
+                document.getElementById('sum-coupon-code-label').textContent = state.coupon.code;
+                document.getElementById('sum-discount').textContent = '- ' + fmt(totalDiscount);
+            } else {
+                discountRow.classList.add('hidden');
+            }
+
             document.getElementById('sum-delivery-type').textContent =
                 state.deliveryType === 'delivery' ? '🚚 Entrega' : '🏪 Retirada';
-            document.getElementById('sum-date').textContent          = formatPT(state.deliveryDate);
-            document.getElementById('sum-payment').textContent       = PAYMENT_LABELS[state.payment] || '—';
+            document.getElementById('sum-date').textContent    = formatPT(state.deliveryDate);
+            document.getElementById('sum-payment').textContent = PAYMENT_LABELS[state.payment] || '—';
 
             const shRow = document.getElementById('sum-shipping-row');
             if (state.deliveryType === 'delivery') {
                 shRow.classList.remove('hidden');
-                document.getElementById('sum-shipping').textContent = fmt(shipping);
+                if (state.coupon && state.coupon.type === 'shipping' && shippingBase > 0) {
+                    document.getElementById('sum-shipping').innerHTML =
+                        '<span class="line-through text-gray-400 mr-1">' + fmt(shippingBase) + '</span>' +
+                        '<span class="text-green-600 font-bold">Grátis! 🎉</span>';
+                } else {
+                    document.getElementById('sum-shipping').textContent = fmt(shippingBase);
+                }
             } else {
                 shRow.classList.add('hidden');
             }
 
             document.getElementById('sum-total').textContent = fmt(total);
+
+            // Savings box
+            const savingsBox = document.getElementById('sum-savings-box');
+            if (state.coupon && totalDiscount > 0) {
+                savingsBox.classList.remove('hidden');
+                document.getElementById('sum-savings-amount').textContent = fmt(totalDiscount);
+            } else {
+                savingsBox.classList.add('hidden');
+            }
 
             const notesBox = document.getElementById('sum-notes-box');
             const notesEl  = document.getElementById('sum-notes');
@@ -811,6 +970,7 @@
                     delivery_date: state.deliveryDate,
                     payment:       state.payment,
                     notes:         state.notes,
+                    coupon_code:   state.coupon ? state.coupon.code : null,
                 }),
             })
             .then(r => r.json())
@@ -845,6 +1005,112 @@
                 btn.innerHTML = '<i class="fas fa-check mr-1.5"></i> Confirmar pedido';
                 alert('Erro ao enviar o pedido. Tente novamente.');
             });
+        }
+
+        // ── COUPON ────────────────────────────────────────────────────────────
+        function calcDiscount(subtotal, shipping) {
+            if (!state.coupon) return { discountOnSubtotal: 0, discountOnShipping: 0 };
+            const c = state.coupon;
+            if (c.type === 'percent')  return { discountOnSubtotal: subtotal * c.value / 100, discountOnShipping: 0 };
+            if (c.type === 'fixed')    return { discountOnSubtotal: Math.min(c.value, subtotal), discountOnShipping: 0 };
+            if (c.type === 'shipping') return { discountOnSubtotal: 0, discountOnShipping: shipping };
+            return { discountOnSubtotal: 0, discountOnShipping: 0 };
+        }
+
+        function openCouponModal() {
+            document.getElementById('coupon-modal').classList.remove('hidden');
+            document.getElementById('coupon-input').value = '';
+            document.getElementById('coupon-error').classList.add('hidden');
+            document.body.style.overflow = 'hidden';
+            renderCouponList();
+        }
+
+        function closeCouponModal() {
+            document.getElementById('coupon-modal').classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        function renderCouponList() {
+            const container = document.getElementById('coupon-list');
+            container.innerHTML = '';
+
+            MOCK_COUPONS.forEach(c => {
+                const isActive = state.coupon && state.coupon.code === c.code;
+
+                const div = document.createElement('div');
+                div.className = 'flex items-start justify-between rounded-xl border-2 p-3.5 transition-all ' +
+                    (isActive ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-white');
+
+                div.innerHTML =
+                    '<div class="flex-1 min-w-0 mr-3">' +
+                        '<p class="text-sm font-bold text-gray-900 font-mono tracking-wide">' + c.code + '</p>' +
+                        '<p class="text-sm font-semibold text-green-700 mt-0.5">' + c.label + '</p>' +
+                        '<p class="text-xs text-gray-400 mt-0.5">' + c.description + '</p>' +
+                        (c.condition ? '<p class="text-xs text-amber-600 mt-1"><i class="fas fa-circle-info mr-1"></i>' + c.condition + '</p>' : '') +
+                    '</div>' +
+                    (isActive
+                        ? '<span class="flex-shrink-0 text-xs font-semibold text-green-600 flex items-center gap-1 pt-0.5">' +
+                              '<i class="fas fa-circle-check"></i> Aplicado' +
+                          '</span>'
+                        : '<button type="button" onclick="applyCoupon(\'' + c.code + '\')" ' +
+                              'class="flex-shrink-0 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-all active:scale-95">' +
+                              'Aplicar' +
+                          '</button>');
+
+                container.appendChild(div);
+            });
+        }
+
+        function applyCoupon(code) {
+            const coupon = MOCK_COUPONS.find(c => c.code === code);
+            if (!coupon) return;
+            state.coupon = coupon;
+            updateCouponUI();
+            closeCouponModal();
+            if (state.step === 3) renderSummary();
+        }
+
+        function applyManualCoupon() {
+            const input  = document.getElementById('coupon-input');
+            const btn    = document.getElementById('coupon-apply-btn');
+            const errorEl = document.getElementById('coupon-error');
+            const code   = input.value.trim().toUpperCase();
+
+            if (!code) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+            errorEl.classList.add('hidden');
+
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = 'Aplicar';
+
+                const coupon = MOCK_COUPONS.find(c => c.code === code);
+                if (coupon) {
+                    applyCoupon(code);
+                } else {
+                    errorEl.classList.remove('hidden');
+                    document.getElementById('coupon-error-msg').textContent =
+                        'Cupom "' + code + '" não encontrado ou inválido.';
+                }
+            }, 600);
+        }
+
+        function removeCoupon() {
+            state.coupon = null;
+            updateCouponUI();
+            if (state.step === 3) renderSummary();
+        }
+
+        function updateCouponUI() {
+            const has = !!state.coupon;
+            document.getElementById('coupon-empty').classList.toggle('hidden', has);
+            document.getElementById('coupon-applied').classList.toggle('hidden', !has);
+            if (has) {
+                document.getElementById('coupon-code-display').textContent = state.coupon.code;
+                document.getElementById('coupon-label-display').textContent = state.coupon.label;
+            }
         }
 
         // ── INIT ──────────────────────────────────────────────────────────────
