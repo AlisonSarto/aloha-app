@@ -30,6 +30,7 @@
             <thead class="bg-gray-100">
                 <tr>
                     <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Nome</th>
+                    <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">CNPJ</th>
                     <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Ações</th>
                 </tr>
             </thead>
@@ -38,6 +39,7 @@
                 @forelse ($stores as $store)
                     <tr class="hover:bg-gray-50 transition">
                         <td class="border border-gray-300 px-4 py-3 text-sm font-medium">{{ $store->name }}</td>
+                        <td class="border border-gray-300 px-4 py-3 text-sm text-gray-600">{{ $store->cnpj }}</td>
                         <td class="border border-gray-300 px-4 py-3">
                             <div class="flex items-center gap-2">
 
