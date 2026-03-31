@@ -5,149 +5,121 @@
 @endsection
 
 @section('body')
-    <body>
-        <nav class="relative bg-gray-800">
-            <div class="mx-auto max-w-7xl px-2 sm:px-6 lg:px-8">
-                <div class="relative flex h-16 items-center justify-between">
-                    <div class="absolute inset-y-0 left-0 flex items-center sm:hidden">
-                        <button type="button" command="--toggle" commandfor="mobile-menu" class="relative inline-flex items-center justify-center rounded-md p-2 text-gray-400 hover:bg-white/5 hover:text-white focus:outline-2 focus:-outline-offset-1 focus:outline-indigo-500">
-                            <span class="absolute -inset-0.5"></span>
-                            <span class="sr-only">Open main menu</span>
-                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" data-slot="icon" aria-hidden="true" class="size-6 in-aria-expanded:hidden">
-                                <path d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" stroke-linecap="round" stroke-linejoin="round"/>
-                            </svg>
-                        </button>
-                    </div>
+    <body class="min-h-screen bg-gradient-to-b from-green-50 to-white text-gray-900">
 
-                    <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
-                        <div class="flex shrink-0 items-center">
-                            <img src="{{ asset('favicon.ico') }}" alt="Your Company" class="h-8 w-auto"/>
-                        </div>
-                        <div class="hidden sm:ml-6 sm:block">
-                            <div class="flex space-x-4" id="desktop-menu">
-                            </div>
-                        </div>
-                    </div>
+        {{-- ── HEADER ──────────────────────────────────────────────────────────── --}}
+        <header class="fixed inset-x-0 top-0 z-50 bg-white/90 backdrop-blur shadow-sm ring-1 ring-black/5">
+            <div class="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-3">
 
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-2 sm:static sm:inset-auto sm:ml-6 sm:pr-0">
-                        <div class="relative ml-3">
-                            <button id="user-menu-button" class="relative flex rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-500" aria-expanded="false" aria-haspopup="true">
-                                <span class="absolute -inset-1.5"></span>
-                                <span class="sr-only">Open user menu</span>
-                                <img src="https://api.dicebear.com/9.x/glass/svg?seed={{ auth()->user()->name }}" alt="" class="size-8 rounded-full bg-gray-800 outline -outline-offset-1 outline-white/10"/>
+                {{-- Brand + hamburger --}}
+                <div class="flex items-center gap-2">
+                    <button id="mob-menu-btn"
+                        class="sm:hidden inline-flex items-center justify-center rounded-lg p-2 text-gray-500 hover:bg-gray-100 transition">
+                        <i class="fas fa-bars text-base"></i>
+                    </button>
+                    <a href="/admin/home" class="flex items-center gap-2 font-bold text-gray-800">
+                        <img src="{{ asset('favicon.ico') }}" alt="Aloha" class="w-8 h-8">
+                        <span class="hidden sm:inline text-lg">Aloha App</span>
+                        <span class="text-xs font-semibold text-green-700 bg-green-100 px-2 py-0.5 rounded-full">Admin</span>
+                    </a>
+                </div>
+
+                {{-- Desktop navigation --}}
+                <nav class="hidden sm:flex items-center gap-0.5" id="desktop-menu"></nav>
+
+                {{-- User menu --}}
+                <div class="relative">
+                    <button id="user-menu-btn"
+                        class="flex items-center gap-2 rounded-xl px-3 py-1.5 text-sm font-medium text-gray-700 hover:bg-gray-100 transition">
+                        <img src="https://api.dicebear.com/9.x/glass/svg?seed={{ auth()->user()->name }}"
+                            alt="" class="w-8 h-8 rounded-full ring-2 ring-green-200"/>
+                        <span class="hidden md:inline max-w-[120px] truncate">{{ auth()->user()->name }}</span>
+                        <i class="fas fa-chevron-down text-xs text-gray-400"></i>
+                    </button>
+
+                    <div id="user-menu"
+                        class="hidden absolute right-0 mt-2 w-52 rounded-xl bg-white py-1.5 shadow-lg ring-1 ring-black/10 z-50">
+                        <div class="px-4 py-2.5 text-xs text-gray-500 border-b border-gray-100 truncate">
+                            {{ auth()->user()->email }}
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                class="w-full flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition">
+                                <i class="fas fa-right-from-bracket text-xs"></i> Sair
                             </button>
-
-                            <div id="user-menu" class="hidden absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button">
-                                <div class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                    Logado como: {{ auth()->user()->name }}
-                                </div>
-                                <form method="POST" action="{{ route('logout') }}" style="margin: 0px">
-                                    @csrf
-                                    <button type="submit" class="w-full text-left block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">
-                                        Sair
-                                    </button>
-                                </form>
-                            </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
+
             </div>
 
-            <el-disclosure id="mobile-menu" hidden class="block sm:hidden">
-                <div class="space-y-1 px-2 pt-2 pb-3" id="mobile-menu-items">
-                </div>
-            </el-disclosure>
-        </nav>
+            {{-- Mobile nav dropdown --}}
+            <div id="mobile-menu"
+                class="hidden sm:hidden border-t border-gray-100 bg-white px-4 py-2 space-y-0.5"></div>
+        </header>
 
-        <main class="container mx-auto p-4">
+        {{-- ── MAIN CONTENT ─────────────────────────────────────────────────────── --}}
+        <main class="mx-auto max-w-7xl px-4 pt-20 pb-12">
             @yield('content')
         </main>
 
         <script>
-            document.addEventListener('DOMContentLoaded', function() {
-                const toggleBtn = document.querySelector('button[command="--toggle"]');
-                const mobileMenu = document.getElementById('mobile-menu');
+            document.addEventListener('DOMContentLoaded', function () {
 
-                if (toggleBtn && mobileMenu) {
-                    mobileMenu.classList.add('hidden');
-                    toggleBtn.addEventListener('click', function() {
-                        mobileMenu.classList.toggle('hidden');
-                    });
-                }
-
-                const userBtn = document.getElementById('user-menu-button');
+                // ── User menu ──
+                const userBtn  = document.getElementById('user-menu-btn');
                 const userMenu = document.getElementById('user-menu');
+                userBtn.addEventListener('click', function (e) {
+                    e.stopPropagation();
+                    userMenu.classList.toggle('hidden');
+                });
+                document.addEventListener('click', function () {
+                    userMenu.classList.add('hidden');
+                });
 
-                if (userBtn && userMenu) {
-                    userBtn.addEventListener('click', function(e) {
-                        e.stopPropagation();
-                        userMenu.classList.toggle('hidden');
-                    });
+                // ── Mobile hamburger ──
+                const mobBtn  = document.getElementById('mob-menu-btn');
+                const mobMenu = document.getElementById('mobile-menu');
+                mobBtn.addEventListener('click', function () {
+                    mobMenu.classList.toggle('hidden');
+                });
 
-                    document.addEventListener('click', function() {
-                        if (!userMenu.classList.contains('hidden')) {
-                            userMenu.classList.add('hidden');
-                        }
-                    });
-                }
+                // ── Menu data ──
+                const menuData = [
+                    { name: 'Clientes',        url: '/admin/clients',         icon: 'fa-users' },
+                    { name: 'Comércios',  url: '/admin/stores',          icon: 'fa-store' },
+                    { name: 'Vendedores',      url: '/admin/sellers',         icon: 'fa-handshake' },
+                    { name: 'Tabela de Preços', url: '/admin/price-tables', icon: 'fa-table' },
+                    { name: 'Cupons',          url: '/admin/coupons',         icon: 'fa-ticket' },
+                    { name: 'Entrega',         url: '/admin/delivery-config', icon: 'fa-truck' },
+                    { name: 'Usuários',  url: '/admin/users',           icon: 'fa-user-shield' },
+                ];
 
-                // Menu data
-                const menuData = {
-                    "menu": [
-                    //  {
-                    //     "name": "Home",
-                    //      "url": "/admin/home",
-                    //  },
-                        {
-                            "name": "Clientes",
-                            "url": "/admin/clients",
-                        },
-                        {
-                            "name": "Comércios",
-                            "url": "/admin/stores",
-                        },
-                        {
-                            "name": "Vendedores",
-                            "url": "/admin/sellers",
-                        },
-                        {
-                            "name": "Tabela de Preços",
-                            "url": "/admin/price-tables",
-                        },
-                        {
-                            "name": "Entrega",
-                            "url": "/admin/delivery-config",
-                        },
-                        {
-                            "name": "Usuários",
-                            "url": "/admin/users",
-                        },
-                        {
-                            "name": "Cupons",
-                            "url": "/admin/coupons",
-                        }
-                    ]
-                };
+                const currentPath = window.location.pathname;
+                const desktop     = document.getElementById('desktop-menu');
+                const mobile      = document.getElementById('mobile-menu');
 
-                // Load menu
-                const desktopMenuLink = document.getElementById('desktop-menu');
-                const mobileMenuLink = document.getElementById('mobile-menu-items');
-                menuData.menu.forEach(item => {
+                menuData.forEach(function (item) {
+                    const isActive = currentPath.startsWith(item.url);
 
-                    // PC
-                    var a = document.createElement('a');
+                    // Desktop link
+                    const a = document.createElement('a');
                     a.href = item.url;
-                    a.className = 'rounded-md px-3 py-2 text-sm font-medium text-gray-300 hover:bg-white/5 hover:text-white';
-                    a.textContent = item.name;
-                    desktopMenuLink.appendChild(a);
+                    a.className = isActive
+                        ? 'flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-semibold text-green-700 bg-green-100'
+                        : 'flex items-center gap-1.5 rounded-lg px-3 py-2 text-sm font-medium text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition';
+                    a.innerHTML = '<i class="fas ' + item.icon + ' text-xs"></i> ' + item.name;
+                    desktop.appendChild(a);
 
-                    // Mobile
-                    a = document.createElement('a');
-                    a.href = item.url;
-                    a.className = 'block rounded-md px-3 py-2 text-base font-medium text-gray-300 hover:bg-white/5 hover:text-white';
-                    a.textContent = item.name;
-                    mobileMenuLink.appendChild(a);
-
+                    // Mobile link
+                    const ma = document.createElement('a');
+                    ma.href = item.url;
+                    ma.className = isActive
+                        ? 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-green-700 bg-green-50'
+                        : 'flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 hover:bg-gray-50 transition';
+                    ma.innerHTML = '<i class="fas ' + item.icon + ' text-xs w-4 text-center ' + (isActive ? 'text-green-600' : 'text-gray-400') + '"></i>' + item.name;
+                    mobile.appendChild(ma);
                 });
             });
         </script>

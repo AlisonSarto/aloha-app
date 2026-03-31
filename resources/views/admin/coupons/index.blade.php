@@ -2,139 +2,165 @@
 @section('title', 'Cupons')
 @section('content')
 
-<div class="flex justify-between items-center mb-4">
-    <h1 class="text-3xl font-bold">Cupons</h1>
-    <a href="{{ route('admin.coupons.create') }}" class="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700">
-        <i class="fa-solid fa-plus mr-1"></i> Criar Cupom
-    </a>
-</div>
-
-@if(session('success'))
-    <div class="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">{{ session('success') }}</div>
-@endif
-@if(session('error'))
-    <div class="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">{{ session('error') }}</div>
-@endif
-
-<form method="GET" class="mb-6 flex flex-wrap gap-3 items-end">
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Buscar por código</label>
-        <input type="text" name="search" value="{{ $search }}" placeholder="Ex: PROMO10"
-            class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
+    <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Cupons</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Crie e gerencie cupons de desconto.</p>
+        </div>
+        <a href="{{ route('admin.coupons.create') }}"
+            class="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700 transition whitespace-nowrap">
+            <i class="fas fa-plus text-xs"></i> Criar Cupom
+        </a>
     </div>
-    <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Status</label>
-        <select name="status" class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-            <option value="">Todos</option>
-            <option value="1" {{ $status === '1' ? 'selected' : '' }}>Ativo</option>
-            <option value="0" {{ $status === '0' ? 'selected' : '' }}>Inativo</option>
-        </select>
-    </div>
-    <button type="submit" class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-        <i class="fa-solid fa-magnifying-glass mr-1"></i> Filtrar
-    </button>
-    @if($search || $status !== null && $status !== '')
-        <a href="{{ route('admin.coupons.index') }}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-300">Limpar</a>
+
+    @if(session('success'))
+        <div class="mb-5 flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+            <i class="fas fa-check-circle"></i> {{ session('success') }}
+        </div>
     @endif
-</form>
+    @if(session('error'))
+        <div class="mb-5 flex items-center gap-2 rounded-xl bg-red-50 px-4 py-3 text-sm font-medium text-red-700 ring-1 ring-red-200">
+            <i class="fas fa-circle-xmark"></i> {{ session('error') }}
+        </div>
+    @endif
 
-<div class="overflow-x-auto">
-    <table class="min-w-full border border-gray-400 border-collapse">
-        <thead class="bg-gray-100">
-            <tr>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Código</th>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Tipo</th>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Valor</th>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Pedido mínimo</th>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Validade</th>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Visib.</th>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Status</th>
-                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Ações</th>
-            </tr>
-        </thead>
-        <tbody class="divide-y divide-gray-200">
-            @forelse($coupons as $coupon)
-                <tr class="hover:bg-gray-50 transition">
-                    <td class="border border-gray-300 px-4 py-3 text-sm font-mono font-semibold">{{ $coupon->code }}</td>
-                    <td class="border border-gray-300 px-4 py-3 text-sm">
-                        @if($coupon->discount_type === 'percent')
-                            Percentual
-                        @elseif($coupon->discount_type === 'fixed')
-                            Fixo
-                        @else
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Frete Grátis</span>
-                        @endif
-                    </td>
-                    <td class="border border-gray-300 px-4 py-3 text-sm">
-                        @if($coupon->discount_type === 'percent')
-                            {{ number_format($coupon->discount_value, 2, ',', '.') }}%
-                        @elseif($coupon->discount_type === 'fixed')
-                            R$ {{ number_format($coupon->discount_value, 2, ',', '.') }}
-                        @else
-                            —
-                        @endif
-                    </td>
-                    <td class="border border-gray-300 px-4 py-3 text-sm">
-                        {{ $coupon->min_order_value ? 'R$ ' . number_format($coupon->min_order_value, 2, ',', '.') : '—' }}
-                    </td>
-                    <td class="border border-gray-300 px-4 py-3 text-sm">
-                        @if($coupon->expires_at)
-                            {{ $coupon->expires_at->format('d/m/Y') }}
-                        @else
-                            Sem validade
-                        @endif
-                    </td>
-                    <td class="border border-gray-300 px-4 py-3 text-sm">
-                        @if($coupon->is_public)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Público</span>
-                        @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Privado</span>
-                        @endif
-                    </td>
-                    <td class="border border-gray-300 px-4 py-3 text-sm">
-                        @if($coupon->is_active)
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">Ativo</span>
-                        @else
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Inativo</span>
-                        @endif
-                    </td>
-                    <td class="border border-gray-300 px-4 py-3 text-sm">
-                        <div class="flex items-center gap-1 flex-wrap">
-                            <a href="{{ route('admin.coupons.edit', $coupon) }}"
-                               class="px-3 py-1.5 text-sm font-medium text-yellow-600 bg-yellow-50 rounded-lg hover:bg-yellow-100">
-                                <i class="fa-solid fa-pen-to-square"></i>
-                            </a>
+    <div class="mb-5 rounded-xl bg-white shadow-sm ring-1 ring-black/5 px-4 py-3">
+        <form method="GET" class="flex flex-wrap gap-3 items-end">
+            <div class="flex-1 min-w-[180px]">
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Código</label>
+                <div class="relative">
+                    <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                    <input type="text" name="search" value="{{ $search }}"
+                        placeholder="Ex: PROMO10"
+                        class="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-4 py-2.5 text-sm text-gray-900 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-green-500 transition">
+                </div>
+            </div>
+            <div>
+                <label class="block text-xs font-medium text-gray-500 mb-1.5">Status</label>
+                <select name="status"
+                    class="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm text-gray-900 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-green-500 transition">
+                    <option value="">Todos</option>
+                    <option value="1" {{ $status === '1' ? 'selected' : '' }}>Ativo</option>
+                    <option value="0" {{ $status === '0' ? 'selected' : '' }}>Inativo</option>
+                </select>
+            </div>
+            <button type="submit"
+                class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 transition shadow-sm">
+                <i class="fas fa-filter text-xs"></i> Filtrar
+            </button>
+            @if($search || ($status !== null && $status !== ''))
+                <a href="{{ route('admin.coupons.index') }}"
+                    class="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 bg-white px-4 py-2.5 text-sm font-medium text-gray-600 hover:bg-gray-50 transition">
+                    <i class="fas fa-xmark text-xs"></i> Limpar
+                </a>
+            @endif
+        </form>
+    </div>
 
-                            <form method="POST" action="{{ route('admin.coupons.toggle', $coupon) }}" style="display:inline;">
-                                @csrf
-                                <button type="submit"
-                                    class="px-3 py-1.5 text-sm font-medium rounded-lg {{ $coupon->is_active ? 'text-orange-600 bg-orange-50 hover:bg-orange-100' : 'text-green-600 bg-green-50 hover:bg-green-100' }}"
-                                    title="{{ $coupon->is_active ? 'Desativar' : 'Ativar' }}">
-                                    <i class="fa-solid {{ $coupon->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }}"></i>
-                                </button>
-                            </form>
-
-                            <form method="POST" action="{{ route('admin.coupons.destroy', $coupon) }}" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit"
-                                    onclick="return confirm('Tem certeza que deseja excluir o cupom {{ $coupon->code }}?')"
-                                    class="px-3 py-1.5 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100">
-                                    <i class="fa-solid fa-trash"></i>
-                                </button>
-                            </form>
-                        </div>
-                    </td>
+    <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 overflow-hidden overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-100">
+            <thead>
+                <tr class="bg-green-50">
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Código</th>
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Tipo</th>
+                    <th class="hidden sm:table-cell px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Valor</th>
+                    <th class="hidden md:table-cell px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Pedido mín.</th>
+                    <th class="hidden lg:table-cell px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Validade</th>
+                    <th class="hidden md:table-cell px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Visib.</th>
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Status</th>
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Ações</th>
                 </tr>
-            @empty
-                <tr>
-                    <td colspan="8" class="px-6 py-6 text-center text-gray-500">Nenhum cupom encontrado.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
-</div>
+            </thead>
+            <tbody class="divide-y divide-gray-50">
+                @forelse($coupons as $coupon)
+                    <tr class="hover:bg-green-50/40 transition-colors">
+                        <td class="px-5 py-4 text-sm font-mono font-semibold text-gray-900 tracking-wider">{{ $coupon->code }}</td>
+                        <td class="px-5 py-4 text-sm">
+                            @if($coupon->discount_type === 'percent')
+                                <span class="inline-flex items-center gap-1 rounded-full bg-purple-100 px-2.5 py-1 text-xs font-medium text-purple-700">
+                                    <i class="fas fa-percent text-xs"></i> Percentual
+                                </span>
+                            @elseif($coupon->discount_type === 'fixed')
+                                <span class="inline-flex items-center gap-1 rounded-full bg-blue-100 px-2.5 py-1 text-xs font-medium text-blue-700">
+                                    <i class="fas fa-tag text-xs"></i> Fixo
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 rounded-full bg-cyan-100 px-2.5 py-1 text-xs font-medium text-cyan-700">
+                                    <i class="fas fa-truck text-xs"></i> Frete Grátis
+                                </span>
+                            @endif
+                        </td>
+                        <td class="hidden sm:table-cell px-5 py-4 text-sm text-gray-700">
+                            @if($coupon->discount_type === 'percent')
+                                {{ number_format($coupon->discount_value, 2, ',', '.') }}%
+                            @elseif($coupon->discount_type === 'fixed')
+                                R$ {{ number_format($coupon->discount_value, 2, ',', '.') }}
+                            @else
+                                —
+                            @endif
+                        </td>
+                        <td class="hidden md:table-cell px-5 py-4 text-sm text-gray-600">
+                            {{ $coupon->min_order_value ? 'R$ ' . number_format($coupon->min_order_value, 2, ',', '.') : '—' }}
+                        </td>
+                        <td class="hidden lg:table-cell px-5 py-4 text-sm text-gray-600">
+                            {{ $coupon->expires_at ? $coupon->expires_at->format('d/m/Y') : 'Sem validade' }}
+                        </td>
+                        <td class="hidden md:table-cell px-5 py-4">
+                            @if($coupon->is_public)
+                                <span class="inline-flex items-center rounded-full bg-indigo-100 px-2.5 py-1 text-xs font-medium text-indigo-700">Público</span>
+                            @else
+                                <span class="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">Privado</span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-4">
+                            @if($coupon->is_active)
+                                <span class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-1 text-xs font-semibold text-green-700">
+                                    <i class="fas fa-circle text-[6px]"></i> Ativo
+                                </span>
+                            @else
+                                <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-1 text-xs font-medium text-gray-500">
+                                    <i class="fas fa-circle text-[6px]"></i> Inativo
+                                </span>
+                            @endif
+                        </td>
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-1.5">
+                                <a href="{{ route('admin.coupons.edit', $coupon) }}"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 transition">
+                                    <i class="fas fa-pen-to-square text-xs"></i>
+                                </a>
+                                <form method="POST" action="{{ route('admin.coupons.toggle', $coupon) }}">
+                                    @csrf
+                                    <button type="submit"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg transition {{ $coupon->is_active ? 'text-orange-600 bg-orange-50 hover:bg-orange-100' : 'text-green-700 bg-green-50 hover:bg-green-100' }}"
+                                        title="{{ $coupon->is_active ? 'Desativar' : 'Ativar' }}">
+                                        <i class="fas {{ $coupon->is_active ? 'fa-toggle-on' : 'fa-toggle-off' }} text-sm"></i>
+                                    </button>
+                                </form>
+                                <form method="POST" action="{{ route('admin.coupons.destroy', $coupon) }}">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit"
+                                        class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-red-600 bg-red-50 hover:bg-red-100 transition"
+                                        onclick="return confirm('Tem certeza que deseja excluir o cupom {{ $coupon->code }}?')">
+                                        <i class="fas fa-trash text-xs"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="8" class="px-5 py-14 text-center">
+                            <i class="fas fa-ticket text-4xl text-gray-200 block mb-3"></i>
+                            <span class="text-sm text-gray-400">Nenhum cupom encontrado.</span>
+                        </td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
+    </div>
 
-<div class="mt-6">{{ $coupons->links() }}</div>
+    <div class="mt-5">{{ $coupons->links() }}</div>
 
 @endsection

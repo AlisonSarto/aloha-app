@@ -10,36 +10,59 @@
 @endphp
 
 @if (session('success'))
-<div class="mb-4 flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
-    <i class="fas fa-check-circle"></i>
-    {{ session('success') }}
-</div>
+    <div class="mb-5 flex items-center gap-2 rounded-xl bg-green-50 px-4 py-3 text-sm font-medium text-green-700 ring-1 ring-green-200">
+        <i class="fas fa-check-circle"></i> {{ session('success') }}
+    </div>
 @endif
 
-<div class="mb-6 flex items-center justify-between">
-    <h1 class="text-3xl font-bold">{{ $store->name }}</h1>
-    <div class="flex gap-2">
+{{-- Page header --}}
+<div class="mb-6 flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+
+    {{-- Left side --}}
+    <div class="flex items-center gap-3 min-w-0">
+        <div class="flex h-10 w-10 sm:h-11 sm:w-11 flex-shrink-0 items-center justify-center rounded-xl bg-green-100">
+            <i class="fas fa-store text-green-700"></i>
+        </div>
+
+        <div class="min-w-0">
+            <h1 class="text-lg sm:text-2xl font-bold text-gray-900 truncate">
+                {{ $store->name }}
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-500 mt-0.5">
+                {{ $store->cnpj ?: 'Comércio' }}
+            </p>
+        </div>
+    </div>
+
+    {{-- Actions --}}
+    <div class="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+
         <a href="/admin/stores"
-           class="inline-flex items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition-colors hover:bg-gray-50">
+           class="w-full sm:w-auto justify-center inline-flex items-center gap-2 rounded-xl border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-600 shadow-sm hover:bg-gray-50 transition">
             <i class="fas fa-arrow-left text-xs"></i> Voltar
         </a>
+
         <a href="/admin/stores/{{ $store->id }}/edit"
-           class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2 text-sm font-medium text-white shadow-sm transition-colors hover:bg-green-700">
+           class="w-full sm:w-auto justify-center inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-green-700 transition">
             <i class="fas fa-pen-to-square text-xs"></i> Editar
         </a>
+
     </div>
 </div>
 
-<div class="space-y-5">
+<div class="space-y-4">
 
     {{-- Identificação --}}
-    <div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-black/5">
-        <h2 class="mb-4 font-semibold text-gray-900">Identificação</h2>
+    <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 p-6">
+        <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-building text-green-600 text-sm"></i>
+            <h2 class="text-sm font-semibold text-gray-900">Identificação</h2>
+        </div>
         <div class="space-y-3">
 
             <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-store text-sm"></i>
+                <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                    <i class="fas fa-store text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Nome Fantasia</p>
@@ -49,7 +72,7 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-building text-sm"></i>
+                    <i class="fas fa-building text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Razão Social</p>
@@ -59,17 +82,17 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-id-card text-sm"></i>
+                    <i class="fas fa-id-card text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">CNPJ</p>
-                    <p class="text-sm font-medium text-gray-900">{{ $store->cnpj ?: '—' }}</p>
+                    <p class="text-sm font-medium text-gray-900 font-mono">{{ $store->cnpj ?: '—' }}</p>
                 </div>
             </div>
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-link text-sm"></i>
+                    <i class="fas fa-link text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">ID Gestão Click</p>
@@ -81,13 +104,16 @@
     </div>
 
     {{-- Configurações Comerciais --}}
-    <div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-black/5">
-        <h2 class="mb-4 font-semibold text-gray-900">Configurações Comerciais</h2>
+    <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 p-6">
+        <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-gear text-green-600 text-sm"></i>
+            <h2 class="text-sm font-semibold text-gray-900">Configurações Comerciais</h2>
+        </div>
         <div class="space-y-3">
 
             <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-truck text-sm"></i>
+                <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-600">
+                    <i class="fas fa-truck text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Frete</p>
@@ -97,11 +123,11 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-table text-sm"></i>
+                    <i class="fas fa-table text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Tabela de Preço</p>
-                    <a class="text-sm font-medium text-blue-600 hover:underline" href="../price-tables/{{ $store->priceTable->id }}">
+                    <a class="text-sm font-medium text-green-600 hover:underline" href="../price-tables/{{ $store->priceTable->id }}">
                         {{ $store->priceTable->name ?? 'Tabela padrão' }}
                     </a>
                 </div>
@@ -109,13 +135,13 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-file-invoice-dollar text-sm"></i>
+                    <i class="fas fa-file-invoice-dollar text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Aceita Boleto</p>
                     @if ($store->can_use_boleto)
                         <span class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
-                            <i class="fas fa-check text-xs"></i> Sim
+                            <i class="fas fa-check text-xs"></i> Sim — vence em {{ $store->boleto_due_days }} dias
                         </span>
                     @else
                         <span class="inline-flex items-center gap-1 rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
@@ -127,17 +153,7 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-calendar-days text-sm"></i>
-                </div>
-                <div class="min-w-0">
-                    <p class="text-xs text-gray-500">Dias para Vencimento do Boleto</p>
-                    <p class="text-sm font-medium text-gray-900">{{ $store->boleto_due_days }} dias</p>
-                </div>
-            </div>
-
-            <div class="flex items-center gap-3">
-                <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-box text-sm"></i>
+                    <i class="fas fa-box text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Total de Pedidos</p>
@@ -149,13 +165,16 @@
     </div>
 
     {{-- Endereço --}}
-    <div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-black/5">
-        <h2 class="mb-4 font-semibold text-gray-900">Endereço</h2>
+    <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 p-6">
+        <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-map-location-dot text-green-600 text-sm"></i>
+            <h2 class="text-sm font-semibold text-gray-900">Endereço</h2>
+        </div>
         <div class="space-y-3">
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-map-pin text-sm"></i>
+                    <i class="fas fa-map-pin text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">CEP</p>
@@ -165,7 +184,7 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-road text-sm"></i>
+                    <i class="fas fa-road text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Logradouro</p>
@@ -182,7 +201,7 @@
             @if ($store->address_complement)
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-info text-sm"></i>
+                    <i class="fas fa-info text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Complemento</p>
@@ -193,7 +212,7 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-location-dot text-sm"></i>
+                    <i class="fas fa-location-dot text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Bairro</p>
@@ -203,7 +222,7 @@
 
             <div class="flex items-center gap-3">
                 <div class="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-gray-100 text-gray-500">
-                    <i class="fas fa-city text-sm"></i>
+                    <i class="fas fa-city text-xs"></i>
                 </div>
                 <div class="min-w-0">
                     <p class="text-xs text-gray-500">Cidade / Estado</p>
@@ -221,24 +240,27 @@
     </div>
 
     {{-- Horário de Funcionamento --}}
-    <div class="rounded-xl bg-white p-5 shadow-sm ring-1 ring-black/5">
-        <h2 class="mb-4 font-semibold text-gray-900">Horário de Funcionamento</h2>
+    <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 p-6">
+        <div class="flex items-center gap-2 mb-4">
+            <i class="fas fa-clock text-green-600 text-sm"></i>
+            <h2 class="text-sm font-semibold text-gray-900">Horário de Funcionamento</h2>
+        </div>
 
         @if ($hours->isEmpty())
             <p class="text-sm text-gray-500">Horários não cadastrados.</p>
         @else
-            <div class="divide-y divide-gray-50">
+            <div class="divide-y divide-gray-100">
                 @foreach ($days as $index => $dayName)
                     @php $hour = $hours->get($index); @endphp
                     <div class="flex items-center justify-between py-2.5">
-                        <span class="w-8 text-sm font-medium text-gray-700">{{ $dayName }}</span>
+                        <span class="w-8 text-xs font-bold text-gray-500">{{ $dayName }}</span>
                         @if ($hour && $hour->is_open)
                             <span class="inline-flex items-center gap-1 rounded-full bg-green-100 px-2.5 py-0.5 text-xs font-medium text-green-700">
                                 <i class="fas fa-check text-xs"></i> Aberto
                             </span>
-                            <span class="text-sm text-gray-600">
+                            <span class="text-sm text-gray-700 font-medium">
                                 {{ \Carbon\Carbon::parse($hour->open_time)->format('H:i') }}
-                                às
+                                <span class="text-gray-400 font-normal">às</span>
                                 {{ \Carbon\Carbon::parse($hour->close_time)->format('H:i') }}
                             </span>
                         @elseif ($hour)

@@ -3,63 +3,63 @@
 @section('title', 'Comércios')
 
 @section('content')
-    <h1 class="text-3xl font-bold mb-4">
-        Comércios
-    </h1>
 
-    <!-- Busca -->
-    <form method="GET" class="mb-6">
-        <div class="flex gap-2">
-            <input
-                type="text"
-                name="search"
-                value="{{ $search }}"
-                placeholder="Pesquisar usuário..."
-                class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-            >
-
-            <button class="bg-indigo-600 text-white px-4 py-2 rounded-lg hover:bg-indigo-700">
-                Buscar
-            </button>
+    <div class="mb-6 flex items-start justify-between gap-4">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Comércios</h1>
+            <p class="text-sm text-gray-500 mt-0.5">Visualize e edite os dados dos comércios cadastrados.</p>
         </div>
-    </form>
+    </div>
 
-    <!-- Tabela -->
-    <div class="overflow-hidden">
-        <table class="min-w-full border border-gray-400 border-collapse">
-            <thead class="bg-gray-100">
-                <tr>
-                    <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Nome</th>
-                    <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">CNPJ</th>
-                    <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Ações</th>
+    <div class="mb-5 rounded-xl bg-white shadow-sm ring-1 ring-black/5 px-4 py-3">
+        <form method="GET" class="flex gap-2">
+            <div class="relative flex-1">
+                <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
+                <input type="text" name="search" value="{{ $search }}"
+                    placeholder="Pesquisar comércio..."
+                    class="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-4 py-2.5 text-sm text-gray-900 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-green-500 transition">
+            </div>
+            <button type="submit"
+                class="inline-flex items-center gap-2 rounded-lg bg-green-600 px-4 py-2.5 text-sm font-medium text-white hover:bg-green-700 transition shadow-sm">
+                <i class="fas fa-magnifying-glass text-xs"></i> Buscar
+            </button>
+        </form>
+    </div>
+
+    <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 overflow-hidden overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-100">
+            <thead>
+                <tr class="bg-green-50">
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Nome</th>
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">CNPJ</th>
+                    <th class="px-5 py-3.5 text-left text-xs font-semibold text-green-800 uppercase tracking-wide">Ações</th>
                 </tr>
             </thead>
-
-            <tbody class="divide-y divide-gray-200">
+            <tbody class="divide-y divide-gray-50">
                 @forelse ($stores as $store)
-                    <tr class="hover:bg-gray-50 transition">
-                        <td class="border border-gray-300 px-4 py-3 text-sm font-medium">{{ $store->name }}</td>
-                        <td class="border border-gray-300 px-4 py-3 text-sm text-gray-600">{{ $store->cnpj }}</td>
-                        <td class="border border-gray-300 px-4 py-3">
-                            <div class="flex items-center gap-2">
-
-                                <!-- Visualizar -->
+                    <tr class="hover:bg-green-50/40 transition-colors">
+                        <td class="px-5 py-4 text-sm font-medium text-gray-900">{{ $store->name }}</td>
+                        <td class="px-5 py-4 text-sm text-gray-500 font-mono">{{ $store->cnpj }}</td>
+                        <td class="px-5 py-4">
+                            <div class="flex items-center gap-1.5">
                                 <a href="./stores/{{ $store->id }}"
-                                    class="px-3 py-1.5 text-sm font-medium text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition">
-                                    <i class="fa-solid fa-eye"></i>
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-blue-700 bg-blue-50 hover:bg-blue-100 transition"
+                                    title="Visualizar">
+                                    <i class="fas fa-eye text-xs"></i>
                                 </a>
                                 <a href="./stores/{{ $store->id }}/edit"
-                                class="px-3 py-1.5 text-sm font-medium text-yellow-600 bg-yellow-50 rounded-lg hover:bg-yellow-100 transition">
-                                    <i class="fa-solid fa-pen-to-square"></i>
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-amber-700 bg-amber-50 hover:bg-amber-100 transition"
+                                    title="Editar">
+                                    <i class="fas fa-pen-to-square text-xs"></i>
                                 </a>
-
                             </div>
                         </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="px-6 py-6 text-center text-gray-500">
-                            Nenhum resultado encontrado.
+                        <td colspan="3" class="px-5 py-14 text-center">
+                            <i class="fas fa-store text-4xl text-gray-200 block mb-3"></i>
+                            <span class="text-sm text-gray-400">Nenhum comércio encontrado.</span>
                         </td>
                     </tr>
                 @endforelse
@@ -67,10 +67,6 @@
         </table>
     </div>
 
-    <!-- Paginação -->
-    <div class="mt-6">
-        {{ $stores->links() }}
-    </div>
-
+    <div class="mt-5">{{ $stores->links() }}</div>
 
 @endsection
