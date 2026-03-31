@@ -232,7 +232,15 @@ class GestaoClickService
         ])->sortByDesc('quantidade')->values()->toArray();
 
         $vlr_frete = (float) $store->shipping_amount;
-        $vlr_total = ($totalQty * $vlr_unitario) + $vlr_frete;
+        $coupon_discount = (float) ($data['coupon_discount'] ?? 0);
+
+        // For shipping coupons, zero out the freight in the order
+        if (($data['coupon_type'] ?? null) === 'shipping') {
+            $vlr_frete = 0.0;
+            $coupon_discount = 0.0;
+        }
+
+        $vlr_total = ($totalQty * $vlr_unitario) + $vlr_frete - $coupon_discount;
 
         if ($data['tipo_entrega'] === 'retirada') {
             $observacao = "\n>> RETIRADA NO LOCAL <<";
@@ -257,23 +265,38 @@ class GestaoClickService
             $observacao .= "\n\n=== Observação do Cliente ===\n" . $data['observacao'];
         }
 
+        $desconto_porcentagem = 0.00;
+        $desconto_valor = 0.00;
+
+        if ($data['coupon_type'] == 'percent') {
+            $desconto_porcentagem = $data['coupon_discount_value'];
+        }elseif ($data['coupon_type'] == 'fixed') {
+            $desconto_valor = $data['coupon_discount_value'];
+        }
+
+        if (!empty($data['coupon_observation'])) {
+            $observacao .= "\n\n=== Cupom Aplicado ===\n" . $data['coupon_observation'];
+        }
+
         $data_vencimento = $data['forma_pagamento'] === 'boleto'
             ? date('Y-m-d', strtotime($data['data_entrega'] . ' +' . $store->boleto_due_days . ' days'))
             : $data['data_entrega'];
 
         $response = $this->client()
             ->post('/vendas', [
-                'tipo'          => 'produto',
-                'cliente_id'    => $gestaoClickStoreId,
-                'situacao_id'   => 3395252,
-                'date'          => date('Y-m-d'),
-                'prazo_entrega' => $data['data_entrega'],
-                'produtos'      => $pedido_formatado,
-                'valor_frete'   => $vlr_frete,
-                'vendedor_id'   => 1052314,
-                'observacoes'   => $observacao,
-                'pagamentos'    => [
-                    'pagamento' => [
+                'tipo'                 => 'produto',
+                'cliente_id'           => $gestaoClickStoreId,
+                'situacao_id'          => 3395252,
+                'date'                 => date('Y-m-d'),
+                'prazo_entrega'        => $data['data_entrega'],
+                'produtos'             => $pedido_formatado,
+                'valor_frete'          => $vlr_frete,
+                'desconto_porcentagem' => $desconto_porcentagem,
+                'desconto_valor'       => $desconto_valor,
+                'vendedor_id'          => 1052314,
+                'observacoes'          => $observacao,
+                'pagamentos'           => [
+                    'pagamento'        => [
                         'forma_pagamento_id' => $forma_pagamento,
                         'valor'              => $vlr_total,
                         'parcelas'           => 1,

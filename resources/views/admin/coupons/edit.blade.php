@@ -22,10 +22,12 @@
             {{-- Tipo de desconto --}}
             <div>
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Tipo de desconto <span class="text-red-500">*</span></label>
-                <select name="discount_type"
-                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none">
-                    <option value="percent" {{ old('discount_type', $coupon->discount_type) === 'percent' ? 'selected' : '' }}>Percentual (%)</option>
-                    <option value="fixed" {{ old('discount_type', $coupon->discount_type) === 'fixed' ? 'selected' : '' }}>Fixo (R$)</option>
+                <select name="discount_type" id="discount_type"
+                    class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+                    onchange="toggleDiscountValue(this.value)">
+                    <option value="percent"  {{ old('discount_type', $coupon->discount_type) === 'percent'  ? 'selected' : '' }}>Percentual (%)</option>
+                    <option value="fixed"    {{ old('discount_type', $coupon->discount_type) === 'fixed'    ? 'selected' : '' }}>Fixo (R$)</option>
+                    <option value="shipping" {{ old('discount_type', $coupon->discount_type) === 'shipping' ? 'selected' : '' }}>Frete Grátis</option>
                 </select>
                 @error('discount_type')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
@@ -33,7 +35,7 @@
             </div>
 
             {{-- Valor do desconto --}}
-            <div>
+            <div id="discount_value_wrap">
                 <label class="block text-sm font-semibold text-gray-700 mb-1">Valor do desconto <span class="text-red-500">*</span></label>
                 <input type="number" name="discount_value" value="{{ old('discount_value', $coupon->discount_value) }}"
                     step="0.01" min="0"
@@ -41,6 +43,7 @@
                 @error('discount_value')
                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                 @enderror
+                <p class="text-gray-400 text-xs mt-1" id="discount_value_hint"></p>
             </div>
         </div>
 
@@ -116,12 +119,57 @@
             </div>
         </div>
 
-        {{-- Ativo --}}
-        <div class="flex items-center gap-3">
-            <input type="checkbox" name="is_active" id="is_active" value="1"
-                {{ old('is_active', $coupon->is_active) ? 'checked' : '' }}
-                class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-            <label for="is_active" class="text-sm font-semibold text-gray-700">Cupom ativo</label>
+        {{-- Flags --}}
+        <div class="flex flex-wrap items-center gap-6">
+            <div class="flex items-center gap-3">
+                <input type="checkbox" name="is_active" id="is_active" value="1"
+                    {{ old('is_active', $coupon->is_active) ? 'checked' : '' }}
+                    class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                <label for="is_active" class="text-sm font-semibold text-gray-700">Cupom ativo</label>
+            </div>
+            <div class="flex items-center gap-3">
+                <input type="checkbox" name="is_public" id="is_public" value="1"
+                    {{ old('is_public', $coupon->is_public) ? 'checked' : '' }}
+                    class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                <label for="is_public" class="text-sm font-semibold text-gray-700">Visível publicamente</label>
+                <span class="text-xs text-gray-400">(aparece na lista de cupons do cliente)</span>
+            </div>
+        </div>
+
+        {{-- Stores liberadas --}}
+        @php $linkedStores = $coupon->stores->keyBy('id'); @endphp
+        <div>
+            <label class="block text-sm font-semibold text-gray-700 mb-2">Stores com acesso</label>
+            <p class="text-xs text-gray-400 mb-3">Se nenhuma store for selecionada, o cupom ficará disponível para todas as stores.</p>
+            <div class="space-y-3">
+                @foreach($stores as $store)
+                    @php
+                        $isLinked  = $linkedStores->has($store->id);
+                        $oldIds    = old('store_ids', null);
+                        $checked   = $oldIds !== null ? in_array($store->id, $oldIds) : $isLinked;
+                        $oldLimit  = old('store_usage_limits.' . $store->id, $isLinked ? $linkedStores[$store->id]->pivot->usage_limit : '');
+                    @endphp
+                    <div class="flex items-center gap-4 p-3 border border-gray-200 rounded-lg">
+                        <input type="checkbox" name="store_ids[]" id="store_{{ $store->id }}" value="{{ $store->id }}"
+                            {{ $checked ? 'checked' : '' }}
+                            class="w-4 h-4 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500"
+                            onchange="toggleStoreLimit({{ $store->id }}, this.checked)">
+                        <label for="store_{{ $store->id }}" class="flex-1 text-sm font-medium text-gray-700">
+                            {{ $store->name }}
+                        </label>
+                        <div id="store_limit_{{ $store->id }}" class="{{ $checked ? '' : 'hidden' }} flex items-center gap-2">
+                            <label class="text-xs text-gray-500">Limite por store:</label>
+                            <input type="number" name="store_usage_limits[{{ $store->id }}]"
+                                value="{{ $oldLimit }}"
+                                min="1" placeholder="Sem limite"
+                                class="w-28 border border-gray-300 rounded px-2 py-1 text-sm focus:ring-1 focus:ring-indigo-500 focus:outline-none">
+                        </div>
+                    </div>
+                @endforeach
+            </div>
+            @error('store_ids')
+                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
     </div>
@@ -135,5 +183,29 @@
         </a>
     </div>
 </form>
+
+<script>
+function toggleDiscountValue(type) {
+    const wrap = document.getElementById('discount_value_wrap');
+    const hint = document.getElementById('discount_value_hint');
+    if (type === 'shipping') {
+        wrap.classList.add('opacity-40', 'pointer-events-none');
+        hint.textContent = 'Para cupom de frete grátis, o valor é ignorado.';
+    } else {
+        wrap.classList.remove('opacity-40', 'pointer-events-none');
+        hint.textContent = '';
+    }
+}
+
+function toggleStoreLimit(storeId, checked) {
+    const el = document.getElementById('store_limit_' + storeId);
+    el.classList.toggle('hidden', !checked);
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const sel = document.getElementById('discount_type');
+    if (sel) toggleDiscountValue(sel.value);
+});
+</script>
 
 @endsection

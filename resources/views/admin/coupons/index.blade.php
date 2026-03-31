@@ -47,6 +47,7 @@
                 <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Valor</th>
                 <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Pedido mínimo</th>
                 <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Validade</th>
+                <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Visib.</th>
                 <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Status</th>
                 <th class="border border-gray-300 px-4 py-3 text-left text-xs font-bold text-gray-600 uppercase">Ações</th>
             </tr>
@@ -56,13 +57,21 @@
                 <tr class="hover:bg-gray-50 transition">
                     <td class="border border-gray-300 px-4 py-3 text-sm font-mono font-semibold">{{ $coupon->code }}</td>
                     <td class="border border-gray-300 px-4 py-3 text-sm">
-                        {{ $coupon->discount_type === 'percent' ? 'Percentual' : 'Fixo' }}
+                        @if($coupon->discount_type === 'percent')
+                            Percentual
+                        @elseif($coupon->discount_type === 'fixed')
+                            Fixo
+                        @else
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">Frete Grátis</span>
+                        @endif
                     </td>
                     <td class="border border-gray-300 px-4 py-3 text-sm">
                         @if($coupon->discount_type === 'percent')
                             {{ number_format($coupon->discount_value, 2, ',', '.') }}%
-                        @else
+                        @elseif($coupon->discount_type === 'fixed')
                             R$ {{ number_format($coupon->discount_value, 2, ',', '.') }}
+                        @else
+                            —
                         @endif
                     </td>
                     <td class="border border-gray-300 px-4 py-3 text-sm">
@@ -73,6 +82,13 @@
                             {{ $coupon->expires_at->format('d/m/Y') }}
                         @else
                             Sem validade
+                        @endif
+                    </td>
+                    <td class="border border-gray-300 px-4 py-3 text-sm">
+                        @if($coupon->is_public)
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">Público</span>
+                        @else
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">Privado</span>
                         @endif
                     </td>
                     <td class="border border-gray-300 px-4 py-3 text-sm">
@@ -112,7 +128,7 @@
                 </tr>
             @empty
                 <tr>
-                    <td colspan="7" class="px-6 py-6 text-center text-gray-500">Nenhum cupom encontrado.</td>
+                    <td colspan="8" class="px-6 py-6 text-center text-gray-500">Nenhum cupom encontrado.</td>
                 </tr>
             @endforelse
         </tbody>

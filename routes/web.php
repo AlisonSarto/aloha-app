@@ -19,6 +19,7 @@ use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\FinancialController as ClientFinancialController;
 use App\Http\Controllers\Client\StoreController as ClientStoreController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
+use App\Http\Controllers\Client\CouponController as ClientCouponController;
 
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -184,6 +185,15 @@ Route::middleware(['auth'])->group(function() {
                         ->controller(ClientFinancialController::class)
                         ->group(function () {
                             Route::get('/', 'index')->name('index');
+                        });
+
+                    // Coupons
+                    Route::prefix('/coupons')
+                        ->name('coupons.')
+                        ->controller(ClientCouponController::class)
+                        ->group(function () {
+                            Route::get('/', 'index')->name('index');
+                            Route::post('/validate', 'validate')->name('validate');
                         });
 
                 });

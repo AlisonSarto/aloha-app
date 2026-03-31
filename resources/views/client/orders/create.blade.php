@@ -456,7 +456,7 @@
         <div class="absolute inset-0 bg-black/50" onclick="closeCouponModal()"></div>
 
         {{-- Bottom sheet --}}
-        <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl max-h-[85vh] flex flex-col shadow-2xl">
+        <div class="absolute bottom-0 inset-x-0 bg-white rounded-t-2xl max-h-[85vh] flex flex-col shadow-2xl pb-24">
 
             {{-- Handle --}}
             <div class="flex justify-center pt-3 pb-1 flex-shrink-0">
@@ -534,12 +534,8 @@
 
         const PAYMENT_LABELS = { pix: 'Pix ⚡', boleto: 'Boleto 📄', cash: 'Dinheiro 💵', card: 'Cartão 💳' };
 
-        // ── MOCK COUPONS ───────────────────────────────────────────────────────
-        const MOCK_COUPONS = [
-            { code: 'PROMO10',    label: '10% de desconto',     description: 'Desconto percentual no subtotal', condition: 'Sem pedido mínimo',     type: 'percent',  value: 10 },
-            { code: 'FRETEFREE',  label: 'Frete grátis',         description: 'Isenção total do frete',          condition: null,                     type: 'shipping', value: 0  },
-            { code: 'DESCONTO20', label: 'R$ 20,00 de desconto', description: 'Desconto fixo no total',          condition: 'Pedido mínimo de R$ 50', type: 'fixed',    value: 20 },
-        ];
+        // ── PUBLIC COUPONS CACHE ───────────────────────────────────────────────
+        let publicCouponsCache = null;
 
         let deferredInstallPrompt = null;
 
@@ -758,6 +754,11 @@
             if (fp) fp.clear();
             updateDateConstraints();
             validateStep2UI();
+
+            // Remove shipping coupon when switching to pickup
+            if (type === 'pickup' && state.coupon && state.coupon.discount_type === 'shipping') {
+                removeCoupon();
+            }
         }
 
         // ── DATE LOGIC ────────────────────────────────────────────────────────
@@ -918,7 +919,7 @@
             const shRow = document.getElementById('sum-shipping-row');
             if (state.deliveryType === 'delivery') {
                 shRow.classList.remove('hidden');
-                if (state.coupon && state.coupon.type === 'shipping' && shippingBase > 0) {
+                if (state.coupon && state.coupon.discount_type === 'shipping' && shippingBase > 0) {
                     document.getElementById('sum-shipping').innerHTML =
                         '<span class="line-through text-gray-400 mr-1">' + fmt(shippingBase) + '</span>' +
                         '<span class="text-green-600 font-bold">Grátis! 🎉</span>';
@@ -971,6 +972,8 @@
                     payment:       state.payment,
                     notes:         state.notes,
                     coupon_code:   state.coupon ? state.coupon.code : null,
+                    subtotal:      getCartSubtotal(),
+                    shipping:      getCartShipping(),
                 }),
             })
             .then(r => r.json())
@@ -1011,9 +1014,9 @@
         function calcDiscount(subtotal, shipping) {
             if (!state.coupon) return { discountOnSubtotal: 0, discountOnShipping: 0 };
             const c = state.coupon;
-            if (c.type === 'percent')  return { discountOnSubtotal: subtotal * c.value / 100, discountOnShipping: 0 };
-            if (c.type === 'fixed')    return { discountOnSubtotal: Math.min(c.value, subtotal), discountOnShipping: 0 };
-            if (c.type === 'shipping') return { discountOnSubtotal: 0, discountOnShipping: shipping };
+            if (c.discount_type === 'percent')  return { discountOnSubtotal: subtotal * c.discount_value / 100, discountOnShipping: 0 };
+            if (c.discount_type === 'fixed')    return { discountOnSubtotal: Math.min(c.discount_value, subtotal), discountOnShipping: 0 };
+            if (c.discount_type === 'shipping') return { discountOnSubtotal: 0, discountOnShipping: shipping };
             return { discountOnSubtotal: 0, discountOnShipping: 0 };
         }
 
@@ -1023,6 +1026,9 @@
             document.getElementById('coupon-error').classList.add('hidden');
             document.body.style.overflow = 'hidden';
             renderCouponList();
+            if (publicCouponsCache === null) {
+                loadPublicCoupons().then(() => renderCouponList());
+            }
         }
 
         function closeCouponModal() {
@@ -1030,71 +1036,127 @@
             document.body.style.overflow = '';
         }
 
+        async function loadPublicCoupons() {
+            try {
+                const res  = await fetch('{{ route("client.coupons.index") }}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const data = await res.json();
+                publicCouponsCache = data.coupons || [];
+            } catch (e) {
+                publicCouponsCache = [];
+            }
+        }
+
+        function getCartSubtotal() {
+            const qty = totalQty();
+            const range = getRange(qty);
+            return range ? range.unit_price * qty : 0;
+        }
+
+        function getCartShipping() {
+            return state.deliveryType === 'delivery' ? STORE.shipping_amount : 0;
+        }
+
         function renderCouponList() {
             const container = document.getElementById('coupon-list');
             container.innerHTML = '';
 
-            MOCK_COUPONS.forEach(c => {
-                const isActive = state.coupon && state.coupon.code === c.code;
+            if (publicCouponsCache === null) {
+                container.innerHTML =
+                    '<div class="text-center py-4 text-gray-400 text-sm">' +
+                    '<i class="fas fa-circle-notch fa-spin mr-2"></i>Carregando cupons...</div>';
+                return;
+            }
+
+            if (publicCouponsCache.length === 0) {
+                container.innerHTML =
+                    '<div class="text-center py-4 text-gray-400 text-sm">Nenhum cupom disponível no momento.</div>';
+                return;
+            }
+
+            publicCouponsCache.forEach(c => {
+                const isActive          = state.coupon && state.coupon.code === c.code;
+                const isShippingPickup  = c.discount_type === 'shipping' && state.deliveryType === 'pickup';
 
                 const div = document.createElement('div');
                 div.className = 'flex items-start justify-between rounded-xl border-2 p-3.5 transition-all ' +
-                    (isActive ? 'border-green-400 bg-green-50' : 'border-gray-200 bg-white');
+                    (isActive        ? 'border-green-400 bg-green-50' :
+                     isShippingPickup ? 'border-gray-100 bg-gray-50 opacity-60' :
+                                       'border-gray-200 bg-white');
+
+                let actionHtml;
+                if (isActive) {
+                    actionHtml =
+                        '<span class="flex-shrink-0 text-xs font-semibold text-green-600 flex items-center gap-1 pt-0.5">' +
+                        '<i class="fas fa-circle-check"></i> Aplicado</span>';
+                } else if (isShippingPickup) {
+                    actionHtml =
+                        '<span class="flex-shrink-0 text-xs font-semibold text-gray-400 flex items-center gap-1 pt-0.5">' +
+                        '<i class="fas fa-ban"></i> Indisponível</span>';
+                } else {
+                    actionHtml =
+                        '<button type="button" onclick="validateAndApplyCoupon(\'' + c.code + '\', this)" ' +
+                        'class="flex-shrink-0 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-all active:scale-95">' +
+                        'Aplicar</button>';
+                }
 
                 div.innerHTML =
                     '<div class="flex-1 min-w-0 mr-3">' +
                         '<p class="text-sm font-bold text-gray-900 font-mono tracking-wide">' + c.code + '</p>' +
                         '<p class="text-sm font-semibold text-green-700 mt-0.5">' + c.label + '</p>' +
                         '<p class="text-xs text-gray-400 mt-0.5">' + c.description + '</p>' +
-                        (c.condition ? '<p class="text-xs text-amber-600 mt-1"><i class="fas fa-circle-info mr-1"></i>' + c.condition + '</p>' : '') +
-                    '</div>' +
-                    (isActive
-                        ? '<span class="flex-shrink-0 text-xs font-semibold text-green-600 flex items-center gap-1 pt-0.5">' +
-                              '<i class="fas fa-circle-check"></i> Aplicado' +
-                          '</span>'
-                        : '<button type="button" onclick="applyCoupon(\'' + c.code + '\')" ' +
-                              'class="flex-shrink-0 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-all active:scale-95">' +
-                              'Aplicar' +
-                          '</button>');
+                        (c.min_order_value ? '<p class="text-xs text-amber-600 mt-1"><i class="fas fa-circle-info mr-1"></i>Pedido mínimo R$ ' +
+                            c.min_order_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + '</p>' : '') +
+                        (c.expires_at ? '<p class="text-xs text-gray-400 mt-1">Válido até ' + c.expires_at + '</p>' : '') +
+                        (isShippingPickup ? '<p class="text-xs text-red-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Indisponível para retirada</p>' : '') +
+                    '</div>' + actionHtml;
 
                 container.appendChild(div);
             });
         }
 
-        function applyCoupon(code) {
-            const coupon = MOCK_COUPONS.find(c => c.code === code);
-            if (!coupon) return;
-            state.coupon = coupon;
-            updateCouponUI();
-            closeCouponModal();
-            if (state.step === 3) renderSummary();
+        async function validateAndApplyCoupon(code, btn) {
+            const subtotal = getCartSubtotal();
+            const shipping = getCartShipping();
+            const errorEl  = document.getElementById('coupon-error');
+
+            if (btn) { btn.disabled = true; btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>'; }
+            errorEl.classList.add('hidden');
+
+            try {
+                const res  = await fetch('{{ route("client.coupons.validate") }}', {
+                    method:  'POST',
+                    headers: {
+                        'Content-Type':     'application/json',
+                        'X-CSRF-TOKEN':     '{{ csrf_token() }}',
+                        'X-Requested-With': 'XMLHttpRequest',
+                    },
+                    body: JSON.stringify({ code, subtotal, shipping, delivery_type: state.deliveryType }),
+                });
+                const data = await res.json();
+
+                if (data.valid) {
+                    state.coupon = data.coupon;
+                    updateCouponUI();
+                    closeCouponModal();
+                    if (state.step === 3) renderSummary();
+                } else {
+                    errorEl.classList.remove('hidden');
+                    document.getElementById('coupon-error-msg').textContent = data.message || 'Cupom inválido.';
+                }
+            } catch (e) {
+                errorEl.classList.remove('hidden');
+                document.getElementById('coupon-error-msg').textContent = 'Erro ao validar cupom. Tente novamente.';
+            } finally {
+                if (btn) { btn.disabled = false; btn.innerHTML = 'Aplicar'; }
+            }
         }
 
         function applyManualCoupon() {
-            const input  = document.getElementById('coupon-input');
-            const btn    = document.getElementById('coupon-apply-btn');
-            const errorEl = document.getElementById('coupon-error');
-            const code   = input.value.trim().toUpperCase();
-
+            const input = document.getElementById('coupon-input');
+            const btn   = document.getElementById('coupon-apply-btn');
+            const code  = input.value.trim().toUpperCase();
             if (!code) return;
-
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
-            errorEl.classList.add('hidden');
-
-            setTimeout(() => {
-                btn.disabled = false;
-                btn.innerHTML = 'Aplicar';
-
-                const coupon = MOCK_COUPONS.find(c => c.code === code);
-                if (coupon) {
-                    applyCoupon(code);
-                } else {
-                    errorEl.classList.remove('hidden');
-                    document.getElementById('coupon-error-msg').textContent =
-                        'Cupom "' + code + '" não encontrado ou inválido.';
-                }
-            }, 600);
+            validateAndApplyCoupon(code, btn);
         }
 
         function removeCoupon() {

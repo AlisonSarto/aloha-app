@@ -418,8 +418,53 @@
             </div>
         </div>
 
-        {{-- ══ SLIDE 4: Em breve — Pontos ══ --}}
-        <div class="slide bg-gradient-to-b from-green-50 to-white" data-slide="3">
+        {{-- ══ SLIDE 4: Cupons ══ --}}
+        <div class="slide bg-gradient-to-b from-white to-green-50" data-slide="3">
+            <div class="max-w-sm w-full text-center">
+
+                <div class="animate-item flex justify-center my-5">
+                    <div class="icon-float w-24 h-24 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center shadow-inner">
+                        <i class="fa-solid fa-ticket text-5xl text-orange-500"></i>
+                    </div>
+                </div>
+
+                <h2 class="animate-item text-2xl font-bold text-gray-900">Descontos exclusivos Aloha</h2>
+                <p class="animate-item mt-2 text-sm text-gray-500 mb-8">
+                    Benefícios que só clientes do app têm acesso.
+                </p>
+
+                <ul class="animate-item space-y-4 text-left">
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 w-6 h-6 rounded-full bg-orange-100 flex-shrink-0 flex items-center justify-center">
+                            <i class="fa-solid fa-percent text-xs text-orange-500"></i>
+                        </span>
+                        <span class="text-sm text-gray-700">
+                            <strong class="text-gray-900">Cupons especiais</strong> direto no aplicativo
+                        </span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 w-6 h-6 rounded-full bg-orange-100 flex-shrink-0 flex items-center justify-center">
+                            <i class="fa-solid fa-bolt text-xs text-orange-500"></i>
+                        </span>
+                        <span class="text-sm text-gray-700">
+                            <strong class="text-gray-900">Ofertas relâmpago</strong> por tempo limitado
+                        </span>
+                    </li>
+                    <li class="flex items-start gap-3">
+                        <span class="mt-0.5 w-6 h-6 rounded-full bg-orange-100 flex-shrink-0 flex items-center justify-center">
+                            <i class="fa-solid fa-layer-group text-xs text-orange-500"></i>
+                        </span>
+                        <span class="text-sm text-gray-700">
+                            <strong class="text-gray-900">Desconto por volume</strong> de pedidos
+                        </span>
+                    </li>
+                </ul>
+
+            </div>
+        </div>
+
+        {{-- ══ SLIDE 5: Em breve — Pontos ══ --}}
+        <div class="slide bg-gradient-to-b from-green-50 to-white" data-slide="4">
             <div class="max-w-sm w-full text-center">
 
                 <div class="animate-item flex justify-center mb-2">
@@ -462,57 +507,6 @@
                         </span>
                         <span class="text-sm text-gray-700">
                             <strong class="text-gray-900">Troque por recompensas</strong> exclusivas
-                        </span>
-                    </li>
-                </ul>
-
-            </div>
-        </div>
-
-        {{-- ══ SLIDE 5: Em breve — Cupons ══ --}}
-        <div class="slide bg-gradient-to-b from-white to-green-50" data-slide="4">
-            <div class="max-w-sm w-full text-center">
-
-                <div class="animate-item flex justify-center mb-2">
-                    <span class="badge-soon inline-flex items-center gap-1.5 rounded-full bg-green-100 px-4 py-1.5 text-xs font-bold text-green-700 uppercase tracking-wide">
-                        <i class="fa-solid fa-clock text-xs"></i> Em breve
-                    </span>
-                </div>
-
-                <div class="animate-item flex justify-center my-5">
-                    <div class="icon-float w-24 h-24 rounded-full bg-orange-50 border border-orange-100 flex items-center justify-center shadow-inner">
-                        <i class="fa-solid fa-ticket text-5xl text-orange-500"></i>
-                    </div>
-                </div>
-
-                <h2 class="animate-item text-2xl font-bold text-gray-900">Descontos exclusivos Aloha</h2>
-                <p class="animate-item mt-2 text-sm text-gray-500 mb-8">
-                    Benefícios que só clientes do app têm acesso.
-                </p>
-
-                <ul class="animate-item space-y-4 text-left">
-                    <li class="flex items-start gap-3">
-                        <span class="mt-0.5 w-6 h-6 rounded-full bg-orange-100 flex-shrink-0 flex items-center justify-center">
-                            <i class="fa-solid fa-percent text-xs text-orange-500"></i>
-                        </span>
-                        <span class="text-sm text-gray-700">
-                            <strong class="text-gray-900">Cupons especiais</strong> direto no aplicativo
-                        </span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="mt-0.5 w-6 h-6 rounded-full bg-orange-100 flex-shrink-0 flex items-center justify-center">
-                            <i class="fa-solid fa-bolt text-xs text-orange-500"></i>
-                        </span>
-                        <span class="text-sm text-gray-700">
-                            <strong class="text-gray-900">Ofertas relâmpago</strong> por tempo limitado
-                        </span>
-                    </li>
-                    <li class="flex items-start gap-3">
-                        <span class="mt-0.5 w-6 h-6 rounded-full bg-orange-100 flex-shrink-0 flex items-center justify-center">
-                            <i class="fa-solid fa-layer-group text-xs text-orange-500"></i>
-                        </span>
-                        <span class="text-sm text-gray-700">
-                            <strong class="text-gray-900">Desconto por volume</strong> de pedidos
                         </span>
                     </li>
                 </ul>
