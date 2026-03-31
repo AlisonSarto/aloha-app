@@ -1025,10 +1025,9 @@
             document.getElementById('coupon-input').value = '';
             document.getElementById('coupon-error').classList.add('hidden');
             document.body.style.overflow = 'hidden';
+            publicCouponsCache = null;
             renderCouponList();
-            if (publicCouponsCache === null) {
-                loadPublicCoupons().then(() => renderCouponList());
-            }
+            loadPublicCoupons().then(() => renderCouponList());
         }
 
         function closeCouponModal() {
@@ -1037,8 +1036,13 @@
         }
 
         async function loadPublicCoupons() {
+            const params = new URLSearchParams({
+                subtotal:      getCartSubtotal(),
+                shipping:      getCartShipping(),
+                delivery_type: state.deliveryType,
+            });
             try {
-                const res  = await fetch('{{ route("client.coupons.index") }}', { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+                const res  = await fetch('{{ route("client.coupons.index") }}?' + params, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
                 const data = await res.json();
                 publicCouponsCache = data.coupons || [];
             } catch (e) {
@@ -1073,45 +1077,64 @@
                 return;
             }
 
+            const available   = [];
+            const unavailable = [];
+
             publicCouponsCache.forEach(c => {
-                const isActive          = state.coupon && state.coupon.code === c.code;
-                const isShippingPickup  = c.discount_type === 'shipping' && state.deliveryType === 'pickup';
-
-                const div = document.createElement('div');
-                div.className = 'flex items-start justify-between rounded-xl border-2 p-3.5 transition-all ' +
-                    (isActive        ? 'border-green-400 bg-green-50' :
-                     isShippingPickup ? 'border-gray-100 bg-gray-50 opacity-60' :
-                                       'border-gray-200 bg-white');
-
-                let actionHtml;
-                if (isActive) {
-                    actionHtml =
-                        '<span class="flex-shrink-0 text-xs font-semibold text-green-600 flex items-center gap-1 pt-0.5">' +
-                        '<i class="fas fa-circle-check"></i> Aplicado</span>';
-                } else if (isShippingPickup) {
-                    actionHtml =
-                        '<span class="flex-shrink-0 text-xs font-semibold text-gray-400 flex items-center gap-1 pt-0.5">' +
-                        '<i class="fas fa-ban"></i> Indisponível</span>';
-                } else {
-                    actionHtml =
-                        '<button type="button" onclick="validateAndApplyCoupon(\'' + c.code + '\', this)" ' +
-                        'class="flex-shrink-0 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-all active:scale-95">' +
-                        'Aplicar</button>';
-                }
-
-                div.innerHTML =
-                    '<div class="flex-1 min-w-0 mr-3">' +
-                        '<p class="text-sm font-bold text-gray-900 font-mono tracking-wide">' + c.code + '</p>' +
-                        '<p class="text-sm font-semibold text-green-700 mt-0.5">' + c.label + '</p>' +
-                        '<p class="text-xs text-gray-400 mt-0.5">' + c.description + '</p>' +
-                        (c.min_order_value ? '<p class="text-xs text-amber-600 mt-1"><i class="fas fa-circle-info mr-1"></i>Pedido mínimo R$ ' +
-                            c.min_order_value.toLocaleString('pt-BR', { minimumFractionDigits: 2 }) + '</p>' : '') +
-                        (c.expires_at ? '<p class="text-xs text-gray-400 mt-1">Válido até ' + c.expires_at + '</p>' : '') +
-                        (isShippingPickup ? '<p class="text-xs text-red-500 mt-1"><i class="fas fa-info-circle mr-1"></i>Indisponível para retirada</p>' : '') +
-                    '</div>' + actionHtml;
-
-                container.appendChild(div);
+                const reason = getCouponUnavailableReason(c);
+                (reason ? unavailable : available).push({ coupon: c, reason });
             });
+
+            available.forEach(({ coupon }) => container.appendChild(buildCouponCard(coupon, null)));
+
+            if (unavailable.length > 0) {
+                if (available.length > 0) {
+                    const sep = document.createElement('div');
+                    sep.className = 'mt-3 pt-3 border-t border-gray-100';
+                    container.appendChild(sep);
+                }
+                unavailable.forEach(({ coupon, reason }) => container.appendChild(buildCouponCard(coupon, reason)));
+            }
+        }
+
+        function getCouponUnavailableReason(c) {
+            return c.unavailable_reason || null;
+        }
+
+        function buildCouponCard(c, reason) {
+            const isActive      = state.coupon && state.coupon.code === c.code;
+            const isUnavailable = !!reason;
+
+            let actionHtml;
+            if (isActive) {
+                actionHtml =
+                    '<span class="flex-shrink-0 text-xs font-semibold text-green-600 flex items-center gap-1 pt-0.5">' +
+                    '<i class="fas fa-circle-check"></i> Aplicado</span>';
+            } else if (isUnavailable) {
+                actionHtml =
+                    '<span class="flex-shrink-0 text-gray-300 pt-0.5"><i class="fas fa-ban"></i></span>';
+            } else {
+                actionHtml =
+                    '<button type="button" onclick="validateAndApplyCoupon(\'' + c.code + '\', this)" ' +
+                    'class="flex-shrink-0 text-xs font-semibold text-white bg-green-600 hover:bg-green-700 px-3 py-1.5 rounded-lg transition-all active:scale-95">' +
+                    'Aplicar</button>';
+            }
+
+            const div = document.createElement('div');
+            div.className = 'flex items-start justify-between rounded-xl border-2 p-3.5 transition-all ' +
+                (isActive      ? 'border-green-400 bg-green-50' :
+                 isUnavailable ? 'border-gray-100 bg-gray-50' :
+                                 'border-gray-200 bg-white');
+            div.innerHTML =
+                '<div class="flex-1 min-w-0 mr-3' + (isUnavailable ? ' opacity-50' : '') + '">' +
+                    '<p class="text-sm font-bold text-gray-900 font-mono tracking-wide">' + c.code + '</p>' +
+                    '<p class="text-sm font-semibold ' + (isUnavailable ? 'text-gray-400' : 'text-green-700') + ' mt-0.5">' + c.label + '</p>' +
+                    '<p class="text-xs text-gray-400 mt-0.5">' + c.description + '</p>' +
+                    (c.expires_at ? '<p class="text-xs text-gray-400 mt-1">Válido até ' + c.expires_at + '</p>' : '') +
+                    (reason ? '<p class="text-xs text-red-400 mt-1.5 not-italic"><i class="fas fa-circle-xmark mr-1"></i>' + reason + '</p>' : '') +
+                '</div>' + actionHtml;
+
+            return div;
         }
 
         async function validateAndApplyCoupon(code, btn) {

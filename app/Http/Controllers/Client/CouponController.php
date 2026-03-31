@@ -10,24 +10,39 @@ use Illuminate\Http\Request;
 class CouponController extends Controller
 {
     /**
-     * List public coupons available for the active store.
+     * List public coupons available for the active store, with per-coupon validity check.
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        $store = activeStore();
+        $request->validate([
+            'subtotal'      => 'nullable|numeric|min:0',
+            'shipping'      => 'nullable|numeric|min:0',
+            'delivery_type' => 'nullable|in:delivery,pickup',
+        ]);
+
+        $store        = activeStore();
+        $subtotal     = (float) ($request->subtotal ?? 0);
+        $shipping     = (float) ($request->shipping ?? (float) $store->shipping_amount);
+        $deliveryType = $request->delivery_type ?? 'delivery';
+        $userId       = auth()->id();
 
         $coupons = Coupon::where('is_active', true)
             ->where('is_public', true)
-            ->where(fn($q) => $q->whereNull('starts_at')->orWhere('starts_at', '<=', now()))
-            ->where(fn($q) => $q->whereNull('expires_at')->orWhere('expires_at', '>=', now()))
             ->get()
             ->filter(function (Coupon $coupon) use ($store) {
-                // If the coupon has store restrictions, only include if this store is listed
                 $storeIds = $coupon->stores()->pluck('stores.id');
 
                 return $storeIds->isEmpty() || $storeIds->contains($store->id);
             })
-            ->map(fn(Coupon $c) => $this->formatCoupon($c))
+            ->map(function (Coupon $c) use ($store, $subtotal, $shipping, $deliveryType, $userId) {
+                $error = $c->validate($store, $subtotal, $deliveryType, $userId);
+
+                return array_merge($this->formatCoupon($c), [
+                    'available'          => $error === null,
+                    'unavailable_reason' => $error,
+                ]);
+            })
+            ->sortByDesc('available')
             ->values();
 
         return response()->json(['coupons' => $coupons]);
