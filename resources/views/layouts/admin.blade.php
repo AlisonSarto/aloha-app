@@ -121,6 +121,10 @@
                         {
                             "name": "Usuários",
                             "url": "/admin/users",
+                        },
+                        {
+                            "name": "Cupons",
+                            "url": "/admin/coupons",
                         }
                     ]
                 };

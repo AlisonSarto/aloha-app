@@ -13,11 +13,13 @@ use App\Http\Controllers\Admin\SellerController as AdminSellerController;
 use App\Http\Controllers\Admin\PriceTableController as AdminPriceTableController;
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\DeliveryConfigController as AdminDeliveryConfigController;
+use App\Http\Controllers\Admin\CouponController as AdminCouponController;
 
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\FinancialController as ClientFinancialController;
 use App\Http\Controllers\Client\StoreController as ClientStoreController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
+use App\Http\Controllers\Client\CouponController as ClientCouponController;
 
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -112,6 +114,20 @@ Route::middleware(['auth'])->group(function() {
                     Route::get('/', 'edit')->name('edit');
                     Route::put('/', 'update')->name('update');
                 });
+
+            // Coupons
+            Route::prefix('/coupons')
+                ->name('coupons.')
+                ->controller(AdminCouponController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
+                    Route::get('/{coupon}/edit', 'edit')->name('edit');
+                    Route::put('/{coupon}', 'update')->name('update');
+                    Route::post('/{coupon}/toggle', 'toggle')->name('toggle');
+                    Route::delete('/{coupon}', 'destroy')->name('destroy');
+                });
         });
 
     Route::middleware(['role:client'])
@@ -169,6 +185,15 @@ Route::middleware(['auth'])->group(function() {
                         ->controller(ClientFinancialController::class)
                         ->group(function () {
                             Route::get('/', 'index')->name('index');
+                        });
+
+                    // Coupons
+                    Route::prefix('/coupons')
+                        ->name('coupons.')
+                        ->controller(ClientCouponController::class)
+                        ->group(function () {
+                            Route::get('/', 'index')->name('index');
+                            Route::post('/validate', 'validate')->name('validate');
                         });
 
                 });

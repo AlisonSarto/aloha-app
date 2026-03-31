@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Models\CouponUsage;
+use App\Models\Coupon;
 use App\Models\DeliveryConfig;
 use App\Services\GestaoClickService;
 use App\Services\BotconversaService;
@@ -82,9 +84,39 @@ class OrderController extends Controller
             'delivery_date' => 'required|date|after_or_equal:today',
             'payment'       => 'required|in:pix,boleto,cash,card',
             'notes'         => 'nullable|string|max:500',
+            'coupon_code'   => 'nullable|string|max:50',
+            'subtotal'      => 'nullable|numeric|min:0',
+            'shipping'      => 'nullable|numeric|min:0',
         ]);
 
         $store = activeStore();
+
+        // ── Coupon handling ────────────────────────────────────────────────────
+        $couponData = null;
+
+        if (! empty($validated['coupon_code'])) {
+            $coupon = Coupon::where('code', strtoupper($validated['coupon_code']))->first();
+
+            if ($coupon) {
+                $subtotal = (float) ($validated['subtotal'] ?? 0);
+                $shipping = (float) ($validated['shipping'] ?? (float) $store->shipping_amount);
+                $error    = $coupon->validate($store, $subtotal, $validated['delivery_type'], auth()->id());
+
+                if (! $error) {
+                    $discount = $coupon->calculateDiscount($subtotal, $shipping);
+                    $discount_value = (float) $coupon->discount_value;
+
+                    $couponData = [
+                        'coupon'         => $coupon,
+                        'discount'       => $discount,
+                        'discount_value' => $discount_value,
+                        'subtotal'       => $subtotal,
+                        'shipping'       => $shipping,
+                        'description'    => $this->couponObservation($coupon, $subtotal, $shipping, $discount),
+                    ];
+                }
+            }
+        }
 
         $result = $this->gestaoClick->createOrder($store->gestao_click_id, [
             'data_entrega'    => $validated['delivery_date'],
@@ -95,7 +127,21 @@ class OrderController extends Controller
                 'produto_id' => $f['id'],
                 'quantidade' => $f['qty'],
             ])->toArray(),
+            'coupon_discount'       => $couponData ? $couponData['discount'] : 0.0,
+            'coupon_discount_value' => $couponData ? $couponData['discount_value'] : 0.0,
+            'coupon_type'           => $couponData ? $couponData['coupon']->discount_type : null,
+            'coupon_observation'    => $couponData ? $couponData['description'] : null,
         ]);
+
+        // ── Record coupon usage ────────────────────────────────────────────────
+        if ($couponData) {
+            CouponUsage::create([
+                'coupon_id'              => $couponData['coupon']->id,
+                'user_id'                => auth()->id(),
+                'store_id'               => $store->id,
+                'gestao_click_order_id'  => $result['data']['id'] ?? null,
+            ]);
+        }
 
         $botconversaResult = null;
         $phone = (string) (auth()->user()?->client?->phone ?? '');
@@ -128,6 +174,18 @@ class OrderController extends Controller
             'result'   => $result,
             'botconversa' => $botconversaResult,
         ]);
+    }
+
+    private function couponObservation(Coupon $coupon, float $subtotal, float $shipping, float $discount): string
+    {
+        $typeLabel = match ($coupon->discount_type) {
+            'percent'  => $coupon->discount_value . '% de desconto sobre R$ ' . number_format($subtotal, 2, ',', '.'),
+            'fixed'    => 'R$ ' . number_format($coupon->discount_value, 2, ',', '.') . ' de desconto fixo',
+            'shipping' => 'Frete grátis (frete de R$ ' . number_format($shipping, 2, ',', '.') . ')',
+            default    => $coupon->discount_type,
+        };
+
+        return 'Cupom: ' . $coupon->code . ' (' . $typeLabel . ') — R$ ' . number_format($discount, 2, ',', '.');
     }
 
     // ── Flavor appearance helpers ──────────────────────────────────────────────
