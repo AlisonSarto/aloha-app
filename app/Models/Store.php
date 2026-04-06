@@ -27,13 +27,22 @@ class Store extends Model
         'address_district',
         'address_city',
         'address_state',
+        'seller_id',
+        'seller_assignment_status',
+        'seller_assignment_approved_by',
+        'seller_assignment_approved_at',
+        'seller_assignment_reason',
+        'seller_assignment_requested_by',
+        'seller_assignment_requested_at',
     ];
 
     protected $casts = [
-        'shipping_amount' => 'decimal:2',
-        'orders_count' => 'integer',
-        'can_use_boleto' => 'boolean',
-        'boleto_due_days' => 'integer',
+        'shipping_amount'                 => 'decimal:2',
+        'orders_count'                    => 'integer',
+        'can_use_boleto'                  => 'boolean',
+        'boleto_due_days'                 => 'integer',
+        'seller_assignment_approved_at'   => 'datetime',
+        'seller_assignment_requested_at'  => 'datetime',
     ];
 
     public function clients(): BelongsToMany
@@ -58,6 +67,31 @@ class Store extends Model
         return $this->belongsToMany(Coupon::class, 'coupon_store')
                     ->withPivot('usage_limit')
                     ->withTimestamps();
+    }
+
+    public function seller(): \Illuminate\Database\Eloquent\Relations\BelongsTo
+    {
+        return $this->belongsTo(Seller::class);
+    }
+
+    public function sellerClaims(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(SellerStoreClaim::class);
+    }
+
+    public function commissions(): \Illuminate\Database\Eloquent\Relations\HasMany
+    {
+        return $this->hasMany(CommissionLedger::class);
+    }
+
+    public function isSellerApproved(): bool
+    {
+        return $this->seller_assignment_status === 'approved' && $this->seller_id !== null;
+    }
+
+    public function hasLinkedClients(): bool
+    {
+        return $this->clients()->exists();
     }
 
 }

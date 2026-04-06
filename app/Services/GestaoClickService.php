@@ -68,33 +68,6 @@ class GestaoClickService
             ->json();
     }
 
-    public function syncStores(): void
-    {
-        $page = 1;
-
-        do {
-
-            $response = $this->client()
-                ->get('/clientes', [
-                    'pagina' => $page,
-                ])
-                ->throw()
-                ->json();
-
-            foreach ($response['data'] as $store) {
-
-                Store::updateOrCreate(
-                    ['gestao_click_id' => $store['id']],
-                    ['name' => $store['nome']]
-                );
-
-            }
-
-            $page = $response['meta']['proxima_pagina'];
-
-        } while ($page !== null);
-    }
-
     public function firstOrCreateStore(array $store): array
     {
         $client = $this->client();

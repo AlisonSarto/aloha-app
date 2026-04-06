@@ -14,12 +14,18 @@ use App\Http\Controllers\Admin\PriceTableController as AdminPriceTableController
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Admin\DeliveryConfigController as AdminDeliveryConfigController;
 use App\Http\Controllers\Admin\CouponController as AdminCouponController;
+use App\Http\Controllers\Admin\CommissionController as AdminCommissionController;
+use App\Http\Controllers\Admin\SellerStoreClaimController as AdminSellerStoreClaimController;
 
 use App\Http\Controllers\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Client\FinancialController as ClientFinancialController;
 use App\Http\Controllers\Client\StoreController as ClientStoreController;
 use App\Http\Controllers\Client\ProfileController as ClientProfileController;
 use App\Http\Controllers\Client\CouponController as ClientCouponController;
+
+use App\Http\Controllers\Seller\HomeController as SellerHomeController;
+use App\Http\Controllers\Seller\StoreController as SellerStoreController;
+use App\Http\Controllers\Seller\ReportController as SellerReportController;
 
 // Home
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -74,15 +80,37 @@ Route::middleware(['auth'])->group(function() {
             // Sellers
             Route::prefix('/sellers')
                 ->name('sellers.')
-                ->controller(AdminSellerController::class)
                 ->group(function () {
-                    Route::get('/', 'index')->name('index');
-                    Route::get('/create', 'create')->name('create');
-                    Route::post('/', 'store')->name('store');
-                    Route::get('/{seller}', 'show')->name('show');
-                    Route::get('/{seller}/edit', 'edit')->name('edit');
-                    Route::put('/{seller}', 'update')->name('update');
-                    Route::delete('/{seller}', 'destroy')->name('destroy');
+                    Route::get('/',        [AdminSellerController::class, 'index'])->name('index');
+                    Route::get('/create',  [AdminSellerController::class, 'create'])->name('create');
+                    Route::post('/',       [AdminSellerController::class, 'store'])->name('store');
+
+                    // Claims/approvals (static paths must come before /{seller})
+                    Route::get('/claims',                    [AdminSellerStoreClaimController::class, 'index'])->name('claims');
+                    Route::post('/claims/{claim}/approve',   [AdminSellerStoreClaimController::class, 'approveClaim'])->name('claims.approve');
+                    Route::post('/claims/{claim}/reject',    [AdminSellerStoreClaimController::class, 'rejectClaim'])->name('claims.reject');
+                    Route::post('/stores/{store}/approve',   [AdminSellerStoreClaimController::class, 'approveStore'])->name('stores.approve');
+                    Route::post('/stores/{store}/reject',    [AdminSellerStoreClaimController::class, 'rejectStore'])->name('stores.reject');
+
+                    // Parametric routes
+                    Route::get('/{seller}',          [AdminSellerController::class, 'show'])->name('show');
+                    Route::get('/{seller}/edit',     [AdminSellerController::class, 'edit'])->name('edit');
+                    Route::put('/{seller}',          [AdminSellerController::class, 'update'])->name('update');
+                    Route::delete('/{seller}',       [AdminSellerController::class, 'destroy'])->name('destroy');
+                    Route::get('/{seller}/goals',    [AdminSellerStoreClaimController::class, 'goals'])->name('goals.edit');
+                    Route::put('/{seller}/goals',    [AdminSellerStoreClaimController::class, 'updateGoals'])->name('goals.update');
+                });
+
+            // Commissions
+            Route::prefix('/commissions')
+                ->name('commissions.')
+                ->group(function () {
+                    Route::get('/',               [AdminCommissionController::class, 'index'])->name('index');
+                    Route::get('/dashboard',      [AdminCommissionController::class, 'sellerDashboard'])->name('dashboard');
+                    Route::post('/mark-paid',     [AdminCommissionController::class, 'markPaid'])->name('mark-paid');
+                    Route::post('/adjust',        [AdminCommissionController::class, 'standaloneAdjust'])->name('standalone-adjust');
+                    Route::post('/{commission}/adjust',  [AdminCommissionController::class, 'adjust'])->name('adjust');
+                    Route::delete('/{commission}',       [AdminCommissionController::class, 'destroy'])->name('destroy');
                 });
 
             // Price Tables
@@ -210,10 +238,34 @@ Route::middleware(['auth'])->group(function() {
 
     Route::middleware(['role:seller'])
         ->prefix('/seller')
-        ->name('seller')
+        ->name('seller.')
         ->group(function() {
 
+            Route::get('/home', [SellerHomeController::class, 'index'])->name('home');
 
+            // Stores
+            Route::prefix('/stores')
+                ->name('stores.')
+                ->controller(SellerStoreController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/register', 'registerForm')->name('register');
+                    Route::post('/verify-cnpj', 'verifyCNPJ')->name('verify-cnpj');
+                    Route::post('/step1', 'confirmStep1')->name('step1');
+                    Route::post('/step2', 'confirmStep2')->name('step2');
+                    Route::post('/step3', 'confirmStep3')->name('step3');
+                    Route::get('/{store}/edit', 'edit')->name('edit');
+                    Route::put('/{store}', 'update')->name('update');
+                });
+
+            // Reports
+            Route::prefix('/reports')
+                ->name('reports.')
+                ->group(function () {
+                    Route::get('/commissions', [SellerReportController::class, 'commissions'])->name('commissions');
+                    Route::get('/stores',      [SellerReportController::class, 'stores'])->name('stores');
+                    Route::get('/goals',       [SellerReportController::class, 'goals'])->name('goals');
+                });
 
         });
 });

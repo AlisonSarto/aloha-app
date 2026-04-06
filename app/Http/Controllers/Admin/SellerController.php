@@ -41,7 +41,6 @@ class SellerController extends Controller
             'phone' => 'required|string|max:20|unique:sellers,phone',
             'commission_new_client' => 'required|numeric|min:0|max:100',
             'commission_recurring' => 'required|numeric|min:0|max:100',
-            'monthly_package_target' => 'required|integer|min:0',
         ]);
 
         $user = User::create([
@@ -57,7 +56,6 @@ class SellerController extends Controller
             'phone' => $request->phone,
             'commission_new_client' => $request->commission_new_client,
             'commission_recurring' => $request->commission_recurring,
-            'monthly_package_target' => $request->monthly_package_target,
         ]);
 
         return redirect()->route('admin.sellers.index')->with('success', 'Vendedor criado com sucesso.');
@@ -83,7 +81,6 @@ class SellerController extends Controller
             'phone' => 'required|string|max:20|unique:sellers,phone,' . $seller->id,
             'commission_new_client' => 'required|numeric|min:0|max:100',
             'commission_recurring' => 'required|numeric|min:0|max:100',
-            'monthly_package_target' => 'required|integer|min:0',
         ]);
 
         $seller->user->name = $request->name;
@@ -99,7 +96,6 @@ class SellerController extends Controller
             'phone' => $request->phone,
             'commission_new_client' => $request->commission_new_client,
             'commission_recurring' => $request->commission_recurring,
-            'monthly_package_target' => $request->monthly_package_target,
         ]);
 
         return redirect()->route('admin.sellers.show', $seller)->with('success', 'Vendedor atualizado com sucesso.');

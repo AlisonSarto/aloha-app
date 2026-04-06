@@ -17,7 +17,6 @@ return new class extends Migration
             $table->string('phone', 20)->unique();
             $table->decimal('commission_new_client', 5, 2)->default(5);
             $table->decimal('commission_recurring', 5, 2)->default(2);
-            $table->integer('monthly_package_target');
             $table->timestamps();
         });
     }

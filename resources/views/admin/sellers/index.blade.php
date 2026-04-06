@@ -76,6 +76,10 @@
                                         <i class="fas fa-trash text-xs"></i>
                                     </button>
                                 </form>
+                                <a href="{{ route('admin.sellers.goals.edit', $seller) }}"
+                                    class="inline-flex items-center justify-center w-8 h-8 rounded-lg text-green-700 bg-green-50 hover:bg-green-100 transition">
+                                    <i class="fas fa-bullseye text-xs"></i>
+                                </a>
                             </div>
                         </td>
                     </tr>
