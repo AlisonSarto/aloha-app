@@ -26,6 +26,10 @@
                 class="inline-flex items-center gap-2 rounded-xl bg-green-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-green-700 transition">
                 <i class="fas fa-pen-to-square text-xs"></i> Editar
             </a>
+            <a href="{{ route('admin.sellers.goals.edit', $seller) }}"
+                class="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-700 transition">
+                <i class="fas fa-bullseye text-xs"></i> Metas
+            </a>
         </div>
     </div>
 
@@ -55,11 +59,6 @@
         <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 p-5">
             <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Comissão Recorrente</p>
             <p class="text-base font-semibold text-gray-900">{{ $seller->commission_recurring }}%</p>
-        </div>
-
-        <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 p-5">
-            <p class="text-xs font-medium text-gray-400 uppercase tracking-wide mb-1">Meta Pacote Mensal</p>
-            <p class="text-base font-semibold text-gray-900">{{ $seller->monthly_package_target }}</p>
         </div>
 
         <div class="rounded-xl bg-white shadow-sm ring-1 ring-black/5 p-5">

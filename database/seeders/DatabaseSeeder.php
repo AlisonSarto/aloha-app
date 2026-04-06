@@ -24,7 +24,8 @@ class DatabaseSeeder extends Seeder
 
         if (app()->environment('local') && env('SEED_FAKE_DATA')) {
             $this->call([
-                Local\ClientSeeder::class
+                Local\ClientSeeder::class,
+                Local\SellerSeeder::class,
             ]);
         }
     }

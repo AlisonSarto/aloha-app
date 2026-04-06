@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\CouponUsage;
 use App\Models\Coupon;
 use App\Models\DeliveryConfig;
+use App\Services\CommissionService;
 use App\Services\GestaoClickService;
 use App\Services\BotconversaService;
 use Illuminate\Http\JsonResponse;
@@ -17,6 +18,7 @@ class OrderController extends Controller
     public function __construct(
         private GestaoClickService $gestaoClick,
         private BotconversaService $botconversa,
+        private CommissionService  $commission,
     ) {}
 
     public function index(Request $request)
@@ -141,6 +143,24 @@ class OrderController extends Controller
                 'store_id'               => $store->id,
                 'gestao_click_order_id'  => $result['data']['id'] ?? null,
             ]);
+        }
+
+        // ── Record seller commission ───────────────────────────────────────────
+        if (!empty($result['data']['id'])) {
+            try {
+                $this->commission->recordOrderCommission(
+                    store:               $store,
+                    gestaoClickOrderId:  (string) $result['data']['id'],
+                    saleValue:           (float)  ($result['data']['valor_total'] ?? 0),
+                    packagesCount:       (int)    collect($validated['flavors'])->sum('qty'),
+                    orderDate:           now(),
+                );
+            } catch (\Throwable $e) {
+                // Commission failure must never block order creation.
+                \Log::warning('Commission recording failed for order ' . $result['data']['id'], [
+                    'error' => $e->getMessage(),
+                ]);
+            }
         }
 
         $botconversaResult = null;
