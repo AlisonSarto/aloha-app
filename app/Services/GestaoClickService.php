@@ -175,6 +175,83 @@ class GestaoClickService
         ];
     }
 
+    /**
+     * Busca recebimentos (boletos) de um cliente no GestãoClick.
+     * $liquidado: 'ab' = em aberto, 'at' = em atraso
+     */
+    public function getRecebimentos(string $gestaoClickId, string $liquidado): array
+    {
+        $page = 1;
+        $items = [];
+
+        do {
+            $response = $this->client()
+                ->get('/recebimentos', [
+                    'data_inicio'        => '2023-01-01',
+                    'cliente_id'         => $gestaoClickId,
+                    'liquidado'          => $liquidado,
+                    'forma_pagamento_id' => 2219792,
+                    'pagina'             => $page,
+                ])
+                ->throw()
+                ->json();
+
+            $items = array_merge($items, $response['data'] ?? []);
+            $page  = $response['meta']['proxima_pagina'] ?? null;
+        } while ($page !== null);
+
+        return $items;
+    }
+
+    /**
+     * Calls the public cobrança API to retrieve individual boleto hashes.
+     * Returns an array of boleto URLs: https://gestaoclick.com/boleto/{hash}
+     */
+    public function getBoletosFromCobranca(string $cobrancaHash): array
+    {
+        $response = Http::withOptions(['verify' => storage_path('certs/cacert.pem')])
+            ->get("https://app.api.click.app/cobranca/{$cobrancaHash}")
+            ->throw()
+            ->json();
+
+        $cobrancas = $response['data']['cobrancas'] ?? [];
+
+        $links = [];
+        foreach ($cobrancas as $cobranca) {
+            $financeiro = $cobranca['MovimentacoesFinanceira'] ?? [];
+            $formaPagamento = $cobranca['FormasPagamento'] ?? [];
+
+            // Only boleto type payments
+            if (($formaPagamento['boleto'] ?? '0') !== '1') {
+                continue;
+            }
+
+            $hash = $financeiro['hash'] ?? null;
+            if ($hash) {
+                $links[] = [
+                    'url'             => "https://gestaoclick.com/boleto/{$hash}",
+                    'data_vencimento' => $financeiro['data_vencimento'] ?? null,
+                    'valor'           => $financeiro['valor_total'] ?? null,
+                ];
+            }
+        }
+
+        return $links;
+    }
+
+    /**
+     * Busca uma venda pelo código (número) para obter o hash de cobrança.
+     */
+    public function getOrderByCode(string $code): ?array
+    {
+        $response = $this->client()
+            ->get('/vendas', ['codigo' => $code])
+            ->throw()
+            ->json();
+
+        return $response['data'][0] ?? null;
+    }
+
     public function createOrder(string $gestaoClickStoreId, array $data): array
     {
         $store = Store::where('gestao_click_id', $gestaoClickStoreId)->firstOrFail();

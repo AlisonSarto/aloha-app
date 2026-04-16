@@ -210,7 +210,7 @@ Route::middleware(['auth'])->group(function() {
                         ->controller(ClientOrderController::class)
                         ->group(function () {
                             Route::get('/', 'index')->name('index');
-                            Route::get('/create', 'create')->name('create');
+                            Route::get('/create', 'create')->name('create')->middleware('no_overdue_invoices');
                             Route::get('/{id}', 'show')->name('show');
                             Route::post('/', 'store')->name('store');
                         });

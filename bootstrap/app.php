@@ -18,6 +18,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
             'has_store' => \App\Http\Middleware\EnsureUserHasStore::class,
             'active_store' => \App\Http\Middleware\EnsureActiveStore::class,
+            'no_overdue_invoices' => \App\Http\Middleware\EnsureNoOverdueInvoices::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
