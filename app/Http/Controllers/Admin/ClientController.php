@@ -14,8 +14,10 @@ class ClientController extends Controller
         $search = $request->search;
 
         $clients = Client::when($search, function ($query) use ($search) {
-                $query->where('name', 'like', "%{$search}%")
-                      ->orWhere('phone', 'like', "%{$search}%");
+            $query->whereHas('user', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            })
+            ->orWhere('phone', 'like', "%{$search}%");
             })
             ->orderBy('id', 'desc')
             ->paginate(10)
