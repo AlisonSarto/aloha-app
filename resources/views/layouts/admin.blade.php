@@ -103,6 +103,12 @@
                         ]
                     },
                     {
+                        group: 'ERP',
+                        items: [
+                            { name: 'Unidades', url: '/admin/tenants', icon: 'Unidades', icon: 'fa-building' }
+                        ]
+                    },
+                    {
                         group: 'Pessoas',
                         items: [
                             { name: 'Clientes',   url: '/admin/clients',  icon: 'fa-users' },

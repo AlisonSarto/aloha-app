@@ -7,6 +7,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\HomeController;
 
 use App\Http\Controllers\Admin\HomeController as AdminHomeController;
+use App\Http\Controllers\Admin\TenantController as AdminTenantController;
 use App\Http\Controllers\Admin\ClientController as AdminClientController;
 use App\Http\Controllers\Admin\StoreController as AdminStoreController;
 use App\Http\Controllers\Admin\SellerController as AdminSellerController;
@@ -53,6 +54,16 @@ Route::middleware(['auth'])->group(function() {
                 ->controller(AdminHomeController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
+                });
+
+            // Tenants
+            Route::prefix('/tenants')
+                ->name('tenants.')
+                ->controller(AdminTenantController::class)
+                ->group(function () {
+                    Route::get('/', 'index')->name('index');
+                    Route::get('/create', 'create')->name('create');
+                    Route::post('/', 'store')->name('store');
                 });
 
 
@@ -266,6 +277,17 @@ Route::middleware(['auth'])->group(function() {
                     Route::get('/stores',      [SellerReportController::class, 'stores'])->name('stores');
                     Route::get('/goals',       [SellerReportController::class, 'goals'])->name('goals');
                 });
+
+        });
+
+    Route::middleware(['role:erp'])
+        ->prefix('/erp')
+        ->name('erp.')
+        ->group(function() {
+
+            Route::get('/tenants', function() {
+                return 'ERP';
+            })->name('home.index');
 
         });
 });

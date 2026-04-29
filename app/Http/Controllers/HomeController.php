@@ -19,6 +19,9 @@ class HomeController extends Controller
             if (auth()->user()->hasRole('seller')) {
                 return redirect()->route('seller.home');
             }
+            if (auth()->user()->hasRole('erp')) {
+                return redirect()->route('erp.home.index');
+            }
         }
 
         return view('index');
