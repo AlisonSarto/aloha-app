@@ -42,7 +42,7 @@
                                 } }}
                             </span>
                         </div>
-                        <p class="text-xs text-gray-400 mt-1">{{ $store->address_city }}/{{ $store->address_state }} · CNPJ: {{ substr($store->cnpj, 0, 2) }}.{{ substr($store->cnpj, 2, 3) }}.{{ substr($store->cnpj, 5, 3) }}/{{ substr($store->cnpj, 8, 4) }}-{{ substr($store->cnpj, 12) }}</p>
+                        <p class="text-xs text-gray-400 mt-1">{{ $store->address_city }}/{{ $store->address_state }} · {{ formatIdentifier($store) }}</p>
                         @if($store->seller_assignment_status === 'rejected' && $store->seller_assignment_reason)
                             <p class="text-xs text-red-600 mt-1"><i class="fas fa-exclamation-circle mr-1"></i>{{ $store->seller_assignment_reason }}</p>
                         @endif

@@ -68,13 +68,16 @@ class GestaoClickService
             ->json();
     }
 
-    public function firstOrCreateStore(array $store): array
+    public function firstOrCreateStore(array $store, string $modo = 'PJ'): array
     {
         $client = $this->client();
 
+        // Determine which field to use for lookup
+        $document = $modo === 'PF' ? $store['cpf'] : $store['cnpj'];
+
         $existing = $client
             ->get('/clientes', [
-                'cpf_cnpj' => $store['cnpj'],
+                'cpf_cnpj' => $document,
             ])
             ->throw()
             ->json();
@@ -83,23 +86,31 @@ class GestaoClickService
             return $existing;
         }
 
-        return $client
-            ->post('/clientes', [
-                'tipo_pessoa' => 'PJ',
-                'nome' => $store['name'],
-                'razao_social' => $store['legal_name'],
-                'cnpj' => $store['cnpj'],
-                'enderecos' => [
-                    'endereco' => [
-                        'cep' => $store['address_cep'],
-                        'logradouro' => $store['address_street'],
-                        'numero' => $store['address_number'],
-                        'bairro' => $store['address_district'],
-                        'nome_cidade' => $store['address_city'],
-                        'estado' => $store['address_state'],
-                    ],
+        // Build payload based on tipo_pessoa
+        $payload = [
+            'tipo_pessoa' => $modo,
+            'nome' => $store['name'],
+            'enderecos' => [
+                'endereco' => [
+                    'cep' => $store['address_cep'],
+                    'logradouro' => $store['address_street'],
+                    'numero' => $store['address_number'],
+                    'bairro' => $store['address_district'],
+                    'nome_cidade' => $store['address_city'],
+                    'estado' => $store['address_state'],
                 ],
-            ])
+            ],
+        ];
+
+        if ($modo === 'PJ') {
+            $payload['razao_social'] = $store['legal_name'];
+            $payload['cnpj'] = $store['cnpj'];
+        } else {
+            $payload['cpf'] = $store['cpf'];
+        }
+
+        return $client
+            ->post('/clientes', $payload)
             ->throw()
             ->json();
     }

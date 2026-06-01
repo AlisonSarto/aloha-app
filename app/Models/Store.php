@@ -15,6 +15,8 @@ class Store extends Model
         'name',
         'gestao_click_id',
         'cnpj',
+        'cpf',
+        'pessoa_tipo',
         'legal_name',
         'shipping_amount',
         'price_table_id',

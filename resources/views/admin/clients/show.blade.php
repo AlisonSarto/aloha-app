@@ -23,7 +23,7 @@
             <div class="relative flex-1">
                 <i class="fas fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none"></i>
                 <input type="text" id="storeSearch"
-                    placeholder="Pesquisar comércios..."
+                    placeholder="Pesquisar por nome, CNPJ (14 dígitos) ou CPF (11 dígitos)..."
                     class="w-full rounded-lg border border-gray-200 bg-gray-50 pl-9 pr-4 py-2.5 text-sm text-gray-900 focus:border-green-500 focus:bg-white focus:outline-none focus:ring-1 focus:ring-green-500 transition">
             </div>
             <div class="flex gap-2">
@@ -45,11 +45,18 @@
             {{-- Stores list --}}
             <div id="storesList" class="max-h-80 overflow-auto divide-y divide-gray-50 rounded-xl border border-gray-100">
                 @foreach($stores as $store)
-                    <label class="store-item flex items-center gap-3 px-4 py-3 hover:bg-green-50/50 cursor-pointer transition">
+                    <label class="store-item flex items-center gap-3 px-4 py-3 hover:bg-green-50/50 cursor-pointer transition"
+                        data-store-id="{{ $store->id }}"
+                        data-store-name="{{ strtolower($store->name) }}"
+                        data-store-cnpj="{{ $store->cnpj ? preg_replace('/\D/', '', $store->cnpj) : '' }}"
+                        data-store-cpf="{{ $store->cpf ? preg_replace('/\D/', '', $store->cpf) : '' }}">
                         <input type="checkbox" name="stores[]" value="{{ $store->id }}"
                             {{ $client->stores->contains($store) ? 'checked' : '' }}
                             class="h-4 w-4 rounded border-gray-300 text-green-600 focus:ring-green-500">
-                        <span class="text-sm text-gray-800">{{ $store->name }}</span>
+                        <div class="flex flex-col flex-1">
+                            <span class="text-sm font-medium text-gray-800">{{ $store->name }}</span>
+                            <span class="text-xs text-gray-500 mt-0.5">{{ formatIdentifier($store) }}</span>
+                        </div>
                     </label>
                 @endforeach
             </div>
@@ -73,9 +80,31 @@
             const items  = document.querySelectorAll('#storesList .store-item');
 
             search.addEventListener('input', function (e) {
-                const term = e.target.value.toLowerCase();
+                const term = e.target.value.toLowerCase().trim();
+                const cleanTerm = term.replace(/\D/g, ''); // Remove non-digits for CNPJ/CPF search
+
                 items.forEach(function (label) {
-                    label.style.display = label.textContent.toLowerCase().includes(term) ? 'flex' : 'none';
+                    const name = label.dataset.storeName || '';
+                    const cnpj = label.dataset.storeCnpj || '';
+                    const cpf = label.dataset.storeCpf || '';
+                    const fullText = label.textContent.toLowerCase();
+
+                    let matches = false;
+
+                    // Match by name or full text
+                    if (fullText.includes(term)) {
+                        matches = true;
+                    }
+                    // Match by CNPJ (14 digits)
+                    else if (cleanTerm.length === 14 && cnpj.includes(cleanTerm)) {
+                        matches = true;
+                    }
+                    // Match by CPF (11 digits)
+                    else if (cleanTerm.length === 11 && cpf.includes(cleanTerm)) {
+                        matches = true;
+                    }
+
+                    label.style.display = matches ? 'flex' : 'none';
                 });
             });
 

@@ -26,12 +26,13 @@
 
         <div class="mx-auto w-full max-w-sm mt-8">
 
-            <!-- ESTADO INICIAL - Input de CNPJ -->
+            <!-- ESTADO INICIAL - Input de CNPJ ou CPF -->
             <div id="initial-state">
                 <form id="store-form" action="{{ route('client.stores.register') }}" method="POST" class="space-y-4">
                     @csrf
 
-                    <div>
+                    <!-- CNPJ Mode -->
+                    <div id="cnpj-section">
                         <label for="cnpj" class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
                         <input id="cnpj" name="cnpj" type="text" value="{{ old('cnpj') }}" required autofocus
                             class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
@@ -39,6 +40,31 @@
                         @error('cnpj')
                             <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                         @enderror
+                        <button type="button" id="toggle-mode-link" class="mt-3 text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
+                            não tem CNPJ? Clique aqui →
+                        </button>
+                    </div>
+
+                    <!-- CPF Mode (hidden by default) -->
+                    <div id="cpf-section" class="hidden space-y-4">
+                        <div>
+                            <label for="cpf" class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                            <input id="cpf" name="cpf" type="text"
+                                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
+                                placeholder="XXX.XXX.XXX-XX" />
+                            <p id="cpf-error" class="mt-1 text-sm text-red-600 hidden"></p>
+                        </div>
+
+                        <div>
+                            <label for="cpf-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+                            <input id="cpf-name" name="cpf_name" type="text" required
+                                class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
+                                placeholder="Seu nome completo" />
+                        </div>
+
+                        <button type="button" id="toggle-mode-back-link" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
+                            ← Usar CNPJ
+                        </button>
                     </div>
 
                     <div class="pt-2">
@@ -445,9 +471,17 @@
     </div>
 
     <script>
+        let registrationMode = 'cnpj'; // Track current mode: 'cnpj' or 'cpf'
+
         const storeForm = document.getElementById('store-form');
         const cnpjInput = document.getElementById('cnpj');
+        const cpfInput = document.getElementById('cpf');
+        const cpfNameInput = document.getElementById('cpf-name');
         const submitBtn = document.getElementById('submit-btn');
+        const cnpjSection = document.getElementById('cnpj-section');
+        const cpfSection = document.getElementById('cpf-section');
+        const toggleModeLink = document.getElementById('toggle-mode-link');
+        const toggleModeBackLink = document.getElementById('toggle-mode-back-link');
 
         const initialState = document.getElementById('initial-state');
         const loadingState = document.getElementById('loading-state');
@@ -458,6 +492,34 @@
         const errorState = document.getElementById('error-state');
 
         const cepInput = document.getElementById('address-cep');
+
+        // Toggle registration mode
+        toggleModeLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            registrationMode = 'cpf';
+            cnpjSection.classList.add('hidden');
+            cpfSection.classList.remove('hidden');
+            cnpjInput.value = '';
+            cnpjInput.removeAttribute('required');
+            cpfInput.setAttribute('required', '');
+            cpfNameInput.setAttribute('required', '');
+            cpfInput.focus();
+            submitBtn.textContent = 'Verificar CPF';
+        });
+
+        toggleModeBackLink.addEventListener('click', function(e) {
+            e.preventDefault();
+            registrationMode = 'cnpj';
+            cpfSection.classList.add('hidden');
+            cnpjSection.classList.remove('hidden');
+            cpfInput.value = '';
+            cpfNameInput.value = '';
+            cpfInput.removeAttribute('required');
+            cpfNameInput.removeAttribute('required');
+            cnpjInput.setAttribute('required', '');
+            cnpjInput.focus();
+            submitBtn.textContent = 'Verificar CNPJ';
+        });
 
         cepInput.addEventListener('blur', async function () {
             const cep = cepInput.value.replace(/\D/g, '');
@@ -492,7 +554,9 @@
         });
 
         let currentFlowData = {
+            modo: 'cnpj',
             cnpj: '',
+            cpf: '',
             legal_name: '',
             name: '',
             exists_in_database: false,
@@ -525,6 +589,21 @@
             e.target.value = value;
         });
 
+        // CPF formatting
+        cpfInput.addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            if (value.length <= 11) {
+                if (value.length <= 3) {
+                    value = value;
+                } else if (value.length <= 6) {
+                    value = `${value.slice(0, 3)}.${value.slice(3)}`;
+                } else {
+                    value = `${value.slice(0, 3)}.${value.slice(3, 6)}.${value.slice(6, 9)}-${value.slice(9)}`;
+                }
+            }
+            e.target.value = value;
+        });
+
         // CEP formatting
         document.getElementById('address-cep').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
@@ -542,55 +621,121 @@
         storeForm.addEventListener('submit', async function(e) {
             e.preventDefault();
 
-            const cnpj = cnpjInput.value.replace(/\D/g, '');
+            if (registrationMode === 'cnpj') {
+                const cnpj = cnpjInput.value.replace(/\D/g, '');
 
-            if (cnpj.length !== 14) {
-                showError('CNPJ inválido. Digite um CNPJ com 14 dígitos.');
-                return;
-            }
-
-            // Show loading state
-            initialState.classList.add('hidden');
-            loadingState.classList.remove('hidden');
-            submitBtn.disabled = true;
-
-            try {
-                const response = await fetch('{{ route('client.stores.verify-cnpj') }}', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                        'X-Requested-With': 'XMLHttpRequest',
-                        'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
-                    },
-                    body: JSON.stringify({ cnpj: cnpj })
-                });
-
-                const contentType = response.headers.get('content-type') || '';
-                const data = contentType.includes('application/json') ? await response.json() : {
-                    message: 'Erro inesperado no servidor. Tente novamente.'
-                };
-
-                if (!response.ok) {
-                    throw new Error(data.message || 'Erro ao verificar CNPJ');
+                if (cnpj.length !== 14) {
+                    showError('CNPJ inválido. Digite um CNPJ com 14 dígitos.');
+                    return;
                 }
 
-                currentFlowData.cnpj = data.store.cnpj;
-                currentFlowData.legal_name = data.store.legal_name || '';
-                currentFlowData.name = data.store.name || '';
-                currentFlowData.exists_in_database = data.exists_in_database || false;
+                // Show loading state
+                initialState.classList.add('hidden');
+                loadingState.classList.remove('hidden');
+                submitBtn.disabled = true;
 
-                // Se store já existe no banco, mostrar estado específico
-                if (data.exists_in_database) {
-                    showExistingStore(data.store, data.message);
-                } else {
-                    showStep1(data.store);
+                try {
+                    const response = await fetch('{{ route('client.stores.verify-cnpj') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                        },
+                        body: JSON.stringify({ cnpj: cnpj, modo: 'cnpj' })
+                    });
+
+                    const contentType = response.headers.get('content-type') || '';
+                    const data = contentType.includes('application/json') ? await response.json() : {
+                        message: 'Erro inesperado no servidor. Tente novamente.'
+                    };
+
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Erro ao verificar CNPJ');
+                    }
+
+                    currentFlowData.modo = 'cnpj';
+                    currentFlowData.cnpj = data.store.cnpj;
+                    currentFlowData.legal_name = data.store.legal_name || '';
+                    currentFlowData.name = data.store.name || '';
+                    currentFlowData.exists_in_database = data.exists_in_database || false;
+
+                    // Se store já existe no banco, mostrar estado específico
+                    if (data.exists_in_database) {
+                        showExistingStore(data.store, data.message);
+                    } else {
+                        showStep1(data.store);
+                    }
+
+                } catch (error) {
+                    showError(error.message || 'Erro ao verificar CNPJ. Tente novamente.');
+                } finally {
+                    submitBtn.disabled = false;
                 }
 
-            } catch (error) {
-                showError(error.message || 'Erro ao verificar CNPJ. Tente novamente.');
-            } finally {
-                submitBtn.disabled = false;
+            } else if (registrationMode === 'cpf') {
+                const cpf = cpfInput.value.replace(/\D/g, '');
+                const name = cpfNameInput.value.trim();
+
+                const cpfError = document.getElementById('cpf-error');
+
+                if (cpf.length !== 11) {
+                    cpfError.textContent = 'CPF inválido. Digite um CPF com 11 dígitos.';
+                    cpfError.classList.remove('hidden');
+                    return;
+                }
+
+                if (!name) {
+                    showError('Nome completo é obrigatório.');
+                    return;
+                }
+
+                cpfError.classList.add('hidden');
+
+                // Show loading state
+                initialState.classList.add('hidden');
+                loadingState.classList.remove('hidden');
+                submitBtn.disabled = true;
+
+                try {
+                    const response = await fetch('{{ route('client.stores.verify-cnpj') }}', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                            'X-Requested-With': 'XMLHttpRequest',
+                            'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
+                        },
+                        body: JSON.stringify({ cpf: cpf, name: name, modo: 'cpf' })
+                    });
+
+                    const contentType = response.headers.get('content-type') || '';
+                    const data = contentType.includes('application/json') ? await response.json() : {
+                        message: 'Erro inesperado no servidor. Tente novamente.'
+                    };
+
+                    if (!response.ok) {
+                        throw new Error(data.message || 'Erro ao verificar CPF');
+                    }
+
+                    currentFlowData.modo = 'cpf';
+                    currentFlowData.cpf = cpf;
+                    currentFlowData.legal_name = name;
+                    currentFlowData.name = data.store?.name || name;
+                    currentFlowData.exists_in_database = data.exists_in_database || false;
+
+                    if (data.exists_in_database) {
+                        showExistingStore(data.store, data.message);
+                    } else {
+                        showStep1(data.store);
+                    }
+
+                } catch (error) {
+                    showError(error.message || 'Erro ao verificar CPF. Tente novamente.');
+                } finally {
+                    submitBtn.disabled = false;
+                }
             }
         });
 
@@ -601,7 +746,11 @@
 
             document.getElementById('existing-store-message').textContent = message || 'Encontramos esse CNPJ no nosso sistema! Confirme se os dados estão corretos.';
             document.getElementById('existing-legal-name').textContent = storeData.legal_name || '-';
-            document.getElementById('existing-cnpj').textContent = formatCNPJ(storeData.cnpj);
+            if (registrationMode === 'cnpj') {
+                document.getElementById('existing-cnpj').textContent = formatCNPJ(storeData.cnpj);
+            } else {
+                document.getElementById('existing-cnpj').textContent = formatCPF(currentFlowData.cpf);
+            }
             document.getElementById('existing-fantasy-name').textContent = storeData.name || '-';
         }
 
@@ -611,7 +760,11 @@
             step1State.classList.remove('hidden');
 
             document.getElementById('step1-legal-name').textContent = storeData.legal_name || '-';
-            document.getElementById('step1-cnpj').textContent = formatCNPJ(storeData.cnpj);
+            if (registrationMode === 'cnpj') {
+                document.getElementById('step1-cnpj').textContent = formatCNPJ(storeData.cnpj);
+            } else {
+                document.getElementById('step1-cnpj').textContent = formatCPF(currentFlowData.cpf);
+            }
             document.getElementById('fantasy-name').value = storeData.name || '';
         }
 
@@ -639,7 +792,9 @@
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({
+                        modo: currentFlowData.modo,
                         cnpj: currentFlowData.cnpj,
+                        cpf: currentFlowData.cpf,
                         legal_name: currentFlowData.legal_name,
                         name: currentFlowData.name,
                         exists_in_database: currentFlowData.exists_in_database
@@ -673,7 +828,9 @@
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({
+                        modo: currentFlowData.modo,
                         cnpj: currentFlowData.cnpj,
+                        cpf: currentFlowData.cpf,
                         legal_name: currentFlowData.legal_name,
                         name: currentFlowData.name,
                         exists_in_database: true
@@ -708,7 +865,9 @@
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({
+                        modo: currentFlowData.modo,
                         cnpj: currentFlowData.cnpj,
+                        cpf: currentFlowData.cpf,
                         legal_name: currentFlowData.legal_name,
                         name: currentFlowData.name,
                         address_cep: '00000000', // Dados dummy para stores existentes
@@ -914,7 +1073,9 @@
                         'X-CSRF-TOKEN': document.querySelector('input[name="_token"]').value
                     },
                     body: JSON.stringify({
+                        modo: currentFlowData.modo,
                         cnpj: currentFlowData.cnpj,
+                        cpf: currentFlowData.cpf,
                         legal_name: currentFlowData.legal_name,
                         name: currentFlowData.name,
                         address_cep: currentFlowData.address.cep,
@@ -952,13 +1113,21 @@
         document.getElementById('step1-back-btn').addEventListener('click', function() {
             step1State.classList.add('hidden');
             initialState.classList.remove('hidden');
-            cnpjInput.focus();
+            if (registrationMode === 'cnpj') {
+                cnpjInput.focus();
+            } else {
+                cpfInput.focus();
+            }
         });
 
         document.getElementById('existing-store-back-btn').addEventListener('click', function() {
             existingStoreState.classList.add('hidden');
             initialState.classList.remove('hidden');
-            cnpjInput.focus();
+            if (registrationMode === 'cnpj') {
+                cnpjInput.focus();
+            } else {
+                cpfInput.focus();
+            }
         });
 
         document.getElementById('step2-back-btn').addEventListener('click', function() {
@@ -986,9 +1155,17 @@
             errorState.classList.add('hidden');
             initialState.classList.remove('hidden');
             cnpjInput.value = '';
-            cnpjInput.focus();
+            cpfInput.value = '';
+            cpfNameInput.value = '';
+            if (registrationMode === 'cnpj') {
+                cnpjInput.focus();
+            } else {
+                cpfInput.focus();
+            }
             currentFlowData = {
+                modo: 'cnpj',
                 cnpj: '',
+                cpf: '',
                 legal_name: '',
                 name: '',
                 exists_in_database: false,
@@ -1008,6 +1185,11 @@
         function formatCNPJ(cnpj) {
             const cleaned = cnpj.replace(/\D/g, '');
             return `${cleaned.slice(0, 2)}.${cleaned.slice(2, 5)}.${cleaned.slice(5, 8)}/${cleaned.slice(8, 12)}-${cleaned.slice(12)}`;
+        }
+
+        function formatCPF(cpf) {
+            const cleaned = cpf.replace(/\D/g, '');
+            return `${cleaned.slice(0, 3)}.${cleaned.slice(3, 6)}.${cleaned.slice(6, 9)}-${cleaned.slice(9)}`;
         }
     </script>
 @endsection

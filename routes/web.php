@@ -62,6 +62,7 @@ Route::middleware(['auth'])->group(function() {
                 ->controller(AdminClientController::class)
                 ->group(function () {
                     Route::get('/', 'index')->name('index');
+                    Route::get('/search-stores', 'searchStores')->name('search-stores');
                     Route::get('/{client}', 'show')->name('show');
                     Route::put('/{client}/stores', 'updateStores')->name('stores.update');
                 });

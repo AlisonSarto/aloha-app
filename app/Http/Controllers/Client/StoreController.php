@@ -42,44 +42,70 @@ class StoreController extends Controller
 
     public function verifyCNPJ(Request $request, OpenCNPJ $openCnpj): JsonResponse
     {
-        $request->validate([
-            'cnpj' => 'required|regex:/^\d{14}$/'
-        ], [
-            'cnpj.regex' => 'O CNPJ deve conter 14 dígitos.'
-        ]);
+        $modo = $request->input('modo', 'cnpj');
 
-        $cnpj = str_replace(['.', '-'], '', $request->input('cnpj'));
+        if ($modo === 'cpf') {
+            // Validar CPF (11 dígitos)
+            $request->validate([
+                'cpf' => 'required|regex:/^\d{11}$/'
+            ], [
+                'cpf.regex' => 'O CPF deve conter 11 dígitos.'
+            ]);
 
-        // Primeiro, verificar se a store já existe no banco de dados
-        $existingStore = Store::where('cnpj', $cnpj)->first();
+            $cpf = str_replace(['.', '-'], '', $request->input('cpf'));
 
-        if ($existingStore) {
+            // Verificar se já existe no banco
+            $existingStore = Store::where('cpf', $cpf)->first();
+
+            if ($existingStore) {
+                return response()->json([
+                    'success' => true,
+                    'store' => [
+                        'cpf' => $existingStore->cpf,
+                        'name' => $existingStore->name,
+                    ],
+                    'exists_in_database' => true,
+                    'message' => 'Encontramos esse CPF no nosso sistema! Confirme se os dados estão corretos.'
+                ]);
+            }
+
+            // CPF não requer API externa, apenas verificar se é novo
             return response()->json([
                 'success' => true,
                 'store' => [
-                    'cnpj' => $existingStore->cnpj,
-                    'legal_name' => $existingStore->legal_name,
-                    'name' => $existingStore->name,
+                    'cpf' => $cpf,
                 ],
-                'exists_in_database' => true,
-                'message' => 'Encontramos esse CNPJ no nosso sistema! Confirme se os dados estão corretos.'
+                'exists_in_database' => false,
+                'message' => 'CPF validado! Prossiga com os dados.'
             ]);
-        }
+        } else {
+            // Validação CNPJ (existente)
+            $request->validate([
+                'cnpj' => 'required|regex:/^\d{14}$/'
+            ], [
+                'cnpj.regex' => 'O CNPJ deve conter 14 dígitos.'
+            ]);
 
-        // Se não existe no banco, buscar na API externa
-        try {
-            $response = $openCnpj->getCNPJ($cnpj);
+            $cnpj = str_replace(['.', '-'], '', $request->input('cnpj'));
 
-            if ($response['status'] === 404) {
+            // Primeiro, verificar se a store já existe no banco de dados
+            $existingStore = Store::where('cnpj', $cnpj)->first();
+
+            if ($existingStore) {
                 return response()->json([
-                    'success' => false,
-                    'message' => 'CNPJ não encontrado. Verifique o número e tente novamente.'
-                ], 404);
+                    'success' => true,
+                    'store' => [
+                        'cnpj' => $existingStore->cnpj,
+                        'legal_name' => $existingStore->legal_name,
+                        'name' => $existingStore->name,
+                    ],
+                    'exists_in_database' => true,
+                    'message' => 'Encontramos esse CNPJ no nosso sistema! Confirme se os dados estão corretos.'
+                ]);
             }
 
-            if ($response['status'] === 429) {
-                //espera 1s e tenta novamente
-                sleep(1);
+            // Se não existe no banco, buscar na API externa
+            try {
                 $response = $openCnpj->getCNPJ($cnpj);
 
                 if ($response['status'] === 404) {
@@ -90,103 +116,173 @@ class StoreController extends Controller
                 }
 
                 if ($response['status'] === 429) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Limite de requisições atingido. Por favor, tente novamente mais tarde.'
-                    ], 429);
+                    //espera 1s e tenta novamente
+                    sleep(1);
+                    $response = $openCnpj->getCNPJ($cnpj);
+
+                    if ($response['status'] === 404) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'CNPJ não encontrado. Verifique o número e tente novamente.'
+                        ], 404);
+                    }
+
+                    if ($response['status'] === 429) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Limite de requisições atingido. Por favor, tente novamente mais tarde.'
+                        ], 429);
+                    }
                 }
+
+                $data = $response['data'] ?? [];
+
+                $storeData = [
+                    'cnpj' => $cnpj,
+                    'legal_name' => $data['razao_social'] ?? '',
+                    'name' => $data['nome_fantasia'] ?? '',
+                ];
+
+                return response()->json([
+                    'success' => true,
+                    'store' => $storeData,
+                    'exists_in_database' => false
+                ]);
+
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Loja não encontrada. Verifique o CNPJ e tente novamente.'
+                ], 404);
             }
-
-            $data = $response['data'] ?? [];
-
-            $storeData = [
-                'cnpj' => $cnpj,
-                'legal_name' => $data['razao_social'] ?? '',
-                'name' => $data['nome_fantasia'] ?? '',
-            ];
-
-            return response()->json([
-                'success' => true,
-                'store' => $storeData,
-                'exists_in_database' => false
-            ]);
-
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Loja não encontrada. Verifique o CNPJ e tente novamente.'
-            ], 404);
         }
     }
 
     public function confirmStep1(Request $request): JsonResponse
     {
-        $request->validate([
-            'cnpj' => 'required|regex:/^\d{14}$/',
-            'legal_name' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'exists_in_database' => 'sometimes|boolean'
-        ]);
+        $modo = $request->input('modo', 'cnpj');
 
-        $cnpj = str_replace(['.', '-'], '', $request->input('cnpj'));
-        $existsInDatabase = $request->input('exists_in_database', false);
+        if ($modo === 'cpf') {
+            $request->validate([
+                'cpf' => 'required|regex:/^\d{11}$/',
+                'name' => 'required|string|max:255',
+                'exists_in_database' => 'sometimes|boolean'
+            ]);
 
-        try {
-            // Se já existe no banco, verificar se os dados enviados coincidem com os do banco
-            if ($existsInDatabase) {
-                $existingStore = Store::where('cnpj', $cnpj)->first();
+            $cpf = str_replace(['.', '-'], '', $request->input('cpf'));
+            $existsInDatabase = $request->input('exists_in_database', false);
 
-                if (!$existingStore) {
+            try {
+                if ($existsInDatabase) {
+                    $existingStore = Store::where('cpf', $cpf)->first();
+
+                    if (!$existingStore) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Loja não encontrada no sistema.'
+                        ], 404);
+                    }
+
+                    if ($existingStore->name !== $request->input('name')) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Os dados não correspondem aos cadastrados no sistema. Entre em contato com o suporte.'
+                        ], 400);
+                    }
+
                     return response()->json([
-                        'success' => false,
-                        'message' => 'Loja não encontrada no sistema.'
-                    ], 404);
+                        'success' => true,
+                        'message' => 'Dados confirmados! Esta loja já está cadastrada no sistema.',
+                        'data' => [
+                            'cpf' => $existingStore->cpf,
+                            'name' => $existingStore->name,
+                            'exists_in_database' => true
+                        ]
+                    ]);
                 }
 
-                // Verificar se os dados enviados coincidem exatamente com os do banco
-                if ($existingStore->legal_name !== $request->input('legal_name') ||
-                    $existingStore->name !== $request->input('name')) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'Os dados não correspondem aos cadastrados no sistema. Entre em contato com o suporte.'
-                    ], 400);
-                }
-
+                // Store nova (CPF)
                 return response()->json([
                     'success' => true,
-                    'message' => 'Dados confirmados! Esta loja já está cadastrada no sistema.',
+                    'message' => 'Dados básicos confirmados!',
                     'data' => [
-                        'cnpj' => $existingStore->cnpj,
-                        'legal_name' => $existingStore->legal_name,
-                        'name' => $existingStore->name,
-                        'exists_in_database' => true
+                        'cpf' => $request->input('cpf'),
+                        'name' => $request->input('name'),
+                        'exists_in_database' => false
                     ]
                 ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao confirmar dados: ' . $e->getMessage()
+                ], 500);
             }
-
-            // Para lojas novas (não existem no banco)
-            return response()->json([
-                'success' => true,
-                'message' => 'Dados básicos confirmados!',
-                'data' => [
-                    'cnpj' => $request->input('cnpj'),
-                    'legal_name' => $request->input('legal_name'),
-                    'name' => $request->input('name'),
-                    'exists_in_database' => false
-                ]
+        } else {
+            // CNPJ flow (existing)
+            $request->validate([
+                'cnpj' => 'required|regex:/^\d{14}$/',
+                'legal_name' => 'required|string|max:255',
+                'name' => 'required|string|max:255',
+                'exists_in_database' => 'sometimes|boolean'
             ]);
-        } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Erro ao confirmar dados: ' . $e->getMessage()
-            ], 500);
+
+            $cnpj = str_replace(['.', '-'], '', $request->input('cnpj'));
+            $existsInDatabase = $request->input('exists_in_database', false);
+
+            try {
+                if ($existsInDatabase) {
+                    $existingStore = Store::where('cnpj', $cnpj)->first();
+
+                    if (!$existingStore) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Loja não encontrada no sistema.'
+                        ], 404);
+                    }
+
+                    if ($existingStore->legal_name !== $request->input('legal_name') ||
+                        $existingStore->name !== $request->input('name')) {
+                        return response()->json([
+                            'success' => false,
+                            'message' => 'Os dados não correspondem aos cadastrados no sistema. Entre em contato com o suporte.'
+                        ], 400);
+                    }
+
+                    return response()->json([
+                        'success' => true,
+                        'message' => 'Dados confirmados! Esta loja já está cadastrada no sistema.',
+                        'data' => [
+                            'cnpj' => $existingStore->cnpj,
+                            'legal_name' => $existingStore->legal_name,
+                            'name' => $existingStore->name,
+                            'exists_in_database' => true
+                        ]
+                    ]);
+                }
+
+                // Para lojas novas (não existem no banco)
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Dados básicos confirmados!',
+                    'data' => [
+                        'cnpj' => $request->input('cnpj'),
+                        'legal_name' => $request->input('legal_name'),
+                        'name' => $request->input('name'),
+                        'exists_in_database' => false
+                    ]
+                ]);
+            } catch (\Exception $e) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao confirmar dados: ' . $e->getMessage()
+                ], 500);
+            }
         }
     }
 
     public function confirmStep2(Request $request): JsonResponse
     {
         $request->validate([
-            'cnpj' => 'required|regex:/^\d{14}$/',
             'address_cep' => 'required|regex:/^\d{8}$/',
             'address_street' => 'required|string|max:255',
             'address_number' => 'required|string|max:20',
@@ -222,44 +318,79 @@ class StoreController extends Controller
 
     public function confirmStep3(Request $request, GestaoClickService $gestaoClick): JsonResponse
     {
+        $modo = $request->input('modo', 'cnpj');
         $existsInDatabase = $request->input('exists_in_database', false);
 
-        // Validações mais flexíveis para stores existentes
-        $rules = [
-            'cnpj' => 'required|regex:/^\d{14}$/',
-            'legal_name' => 'required|string|max:255',
-            'name' => 'required|string|max:255',
-            'exists_in_database' => 'sometimes|boolean'
-        ];
+        if ($modo === 'cpf') {
+            // Validação para CPF
+            $rules = [
+                'cpf' => 'required|regex:/^\d{11}$/',
+                'name' => 'required|string|max:255',
+                'exists_in_database' => 'sometimes|boolean'
+            ];
 
-        if (!$existsInDatabase) {
-            // Para stores novas, todos os campos são obrigatórios
-            $rules = array_merge($rules, [
-                'address_cep' => 'required|regex:/^\d{8}$/',
-                'address_street' => 'required|string|max:255',
-                'address_number' => 'required|string|max:20',
-                'address_district' => 'required|string|max:100',
-                'address_city' => 'required|string|max:100',
-                'address_state' => 'required|regex:/^[A-Z]{2}$/',
-                'hours' => 'required|array'
+            if (!$existsInDatabase) {
+                $rules = array_merge($rules, [
+                    'address_cep' => 'required|regex:/^\d{8}$/',
+                    'address_street' => 'required|string|max:255',
+                    'address_number' => 'required|string|max:20',
+                    'address_district' => 'required|string|max:100',
+                    'address_city' => 'required|string|max:100',
+                    'address_state' => 'required|regex:/^[A-Z]{2}$/',
+                    'hours' => 'required|array'
+                ]);
+            } else {
+                $rules = array_merge($rules, [
+                    'address_cep' => 'sometimes|regex:/^\d{8}$/',
+                    'address_street' => 'sometimes|string|max:255',
+                    'address_number' => 'sometimes|string|max:20',
+                    'address_district' => 'sometimes|string|max:100',
+                    'address_city' => 'sometimes|string|max:100',
+                    'address_state' => 'sometimes|regex:/^[A-Z]{2}$/',
+                    'hours' => 'sometimes|array'
+                ]);
+            }
+
+            $validated = $request->validate($rules, [
+                'address_cep.regex' => 'CEP deve conter 8 dígitos.',
+                'address_state.regex' => 'Estado deve ser uma sigla válida (ex: SP).'
             ]);
         } else {
-            // Para stores existentes, campos de endereço são opcionais/dummy
-            $rules = array_merge($rules, [
-                'address_cep' => 'sometimes|regex:/^\d{8}$/',
-                'address_street' => 'sometimes|string|max:255',
-                'address_number' => 'sometimes|string|max:20',
-                'address_district' => 'sometimes|string|max:100',
-                'address_city' => 'sometimes|string|max:100',
-                'address_state' => 'sometimes|regex:/^[A-Z]{2}$/',
-                'hours' => 'sometimes|array'
+            // Validação para CNPJ (existente)
+            $rules = [
+                'cnpj' => 'required|regex:/^\d{14}$/',
+                'legal_name' => 'required|string|max:255',
+                'name' => 'required|string|max:255',
+                'exists_in_database' => 'sometimes|boolean'
+            ];
+
+            if (!$existsInDatabase) {
+                $rules = array_merge($rules, [
+                    'address_cep' => 'required|regex:/^\d{8}$/',
+                    'address_street' => 'required|string|max:255',
+                    'address_number' => 'required|string|max:20',
+                    'address_district' => 'required|string|max:100',
+                    'address_city' => 'required|string|max:100',
+                    'address_state' => 'required|regex:/^[A-Z]{2}$/',
+                    'hours' => 'required|array'
+                ]);
+            } else {
+                $rules = array_merge($rules, [
+                    'address_cep' => 'sometimes|regex:/^\d{8}$/',
+                    'address_street' => 'sometimes|string|max:255',
+                    'address_number' => 'sometimes|string|max:20',
+                    'address_district' => 'sometimes|string|max:100',
+                    'address_city' => 'sometimes|string|max:100',
+                    'address_state' => 'sometimes|regex:/^[A-Z]{2}$/',
+                    'hours' => 'sometimes|array'
+                ]);
+            }
+
+            $validated = $request->validate($rules, [
+                'address_cep.regex' => 'CEP deve conter 8 dígitos.',
+                'address_state.regex' => 'Estado deve ser uma sigla válida (ex: SP).'
             ]);
         }
-
-        $validated = $request->validate($rules, [
-            'address_cep.regex' => 'CEP deve conter 8 dígitos.',
-            'address_state.regex' => 'Estado deve ser uma sigla válida (ex: SP).'
-        ]);
 
         $client = auth()->user()->client;
 
@@ -271,11 +402,14 @@ class StoreController extends Controller
         }
 
         try {
-            $cnpj = str_replace(['.', '-', '/'], '', $request->input('cnpj'));
-            $existsInDatabase = $request->input('exists_in_database', false);
+            $document = $modo === 'cpf' ? str_replace(['.', '-'], '', $request->input('cpf')) : str_replace(['.', '-', '/'], '', $request->input('cnpj'));
 
-            $store = DB::transaction(function () use ($cnpj, $validated, $client, $gestaoClick, $existsInDatabase) {
-                $store = Store::where('cnpj', $cnpj)->first();
+            $store = DB::transaction(function () use ($modo, $document, $validated, $client, $gestaoClick, $existsInDatabase) {
+                if ($modo === 'cpf') {
+                    $store = Store::where('cpf', $document)->first();
+                } else {
+                    $store = Store::where('cnpj', $document)->first();
+                }
 
                 if ($existsInDatabase && $store) {
                     // Store já existe no banco - apenas vincular ao cliente
@@ -285,51 +419,62 @@ class StoreController extends Controller
                         throw new \Exception('Esta loja já está vinculada à sua conta.');
                     }
 
-                    // Vincular a loja existente ao cliente
                     $client->stores()->attach($store->id);
-
                     return $store;
                 } else {
                     // Store nova - criar no Gestão Click e no banco
-                    $gcStore = $gestaoClick->firstOrCreateStore($validated);
+                    $gcStore = $gestaoClick->firstOrCreateStore($validated, $modo === 'cpf' ? 'PF' : 'PJ');
                     $gestaoClickId = $gcStore['data'][0]['id'] ?? $gcStore['data']['id'];
 
-                    $store = Store::firstOrNew(['cnpj' => $cnpj]);
+                    if ($modo === 'cpf') {
+                        $store = Store::firstOrNew(['cpf' => $document]);
+                    } else {
+                        $store = Store::firstOrNew(['cnpj' => $document]);
+                    }
 
                     $store->gestao_click_id = $gestaoClickId;
+                    $store->pessoa_tipo = $modo === 'cpf' ? 'PF' : 'PJ';
 
-                    $store->fill([
+                    $fillData = [
                         'name' => $validated['name'],
-                        'legal_name' => $validated['legal_name'],
-                        'name' => $validated['name'],
-                        'address_cep' => $validated['address_cep'],
-                        'address_street' => $validated['address_street'],
-                        'address_number' => $validated['address_number'],
+                        'address_cep' => $validated['address_cep'] ?? '',
+                        'address_street' => $validated['address_street'] ?? '',
+                        'address_number' => $validated['address_number'] ?? '',
                         'address_complement' => $validated['address_complement'] ?? '',
-                        'address_district' => $validated['address_district'],
-                        'address_city' => $validated['address_city'],
-                        'address_state' => $validated['address_state'],
-                    ]);
+                        'address_district' => $validated['address_district'] ?? '',
+                        'address_city' => $validated['address_city'] ?? '',
+                        'address_state' => $validated['address_state'] ?? '',
+                    ];
 
+                    if ($modo === 'cpf') {
+                        $fillData['cpf'] = $document;
+                    } else {
+                        $fillData['cnpj'] = $document;
+                        $fillData['legal_name'] = $validated['legal_name'];
+                    }
+
+                    $store->fill($fillData);
                     $store->save();
 
                     // Sincronizar horários (deletar antigos e criar novos)
                     $store->storeHours()->delete();
 
-                    $hoursData = [];
-                    foreach ($validated['hours'] as $dayOfWeek => $hourData) {
-                        $hoursData[] = [
-                            'day_of_week' => $dayOfWeek,
-                            'open_time' => $hourData['is_open'] ? $hourData['open_time'] : null,
-                            'close_time' => $hourData['is_open'] ? $hourData['close_time'] : null,
-                            'is_open' => $hourData['is_open'] ?? true,
-                            'created_at' => now(),
-                            'updated_at' => now(),
-                        ];
-                    }
+                    if (!empty($validated['hours'])) {
+                        $hoursData = [];
+                        foreach ($validated['hours'] as $dayOfWeek => $hourData) {
+                            $hoursData[] = [
+                                'day_of_week' => $dayOfWeek,
+                                'open_time' => $hourData['is_open'] ? $hourData['open_time'] : null,
+                                'close_time' => $hourData['is_open'] ? $hourData['close_time'] : null,
+                                'is_open' => $hourData['is_open'] ?? true,
+                                'created_at' => now(),
+                                'updated_at' => now(),
+                            ];
+                        }
 
-                    if (!empty($hoursData)) {
-                        $store->storeHours()->createMany($hoursData);
+                        if (!empty($hoursData)) {
+                            $store->storeHours()->createMany($hoursData);
+                        }
                     }
 
                     // Vincular a loja ao cliente
@@ -339,7 +484,7 @@ class StoreController extends Controller
                 }
             });
 
-            $message = $existsInDatabase && Store::where('cnpj', $cnpj)->exists()
+            $message = $existsInDatabase && (($modo === 'cpf' ? Store::where('cpf', $document)->exists() : Store::where('cnpj', $document)->exists()))
                 ? 'Loja vinculada com sucesso! Esta loja já estava cadastrada no sistema.'
                 : 'Loja vinculada com sucesso!';
 
@@ -350,7 +495,6 @@ class StoreController extends Controller
             ]);
 
         } catch (\Exception $e) {
-            // Se a mensagem for sobre loja já vinculada, retornar como erro controlado
             if (strpos($e->getMessage(), 'já está vinculada') !== false) {
                 return response()->json([
                     'success' => false,
@@ -358,7 +502,7 @@ class StoreController extends Controller
                 ], 400);
             }
 
-            \Illuminate\Support\Facades\Log::error('Erro ao vincular loja', [
+            Log::error('Erro ao vincular loja', [
                 'message' => $e->getMessage(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),

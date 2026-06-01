@@ -20,12 +20,39 @@
         <div id="initial-state">
             <form id="store-form">
                 @csrf
-                <div class="mb-4">
+                <!-- CNPJ Mode -->
+                <div id="cnpj-section" class="mb-4">
                     <label for="cnpj" class="block text-sm font-medium text-gray-700 mb-1">CNPJ</label>
                     <input id="cnpj" name="cnpj" type="text" required autofocus
                         class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
                         placeholder="XX.XXX.XXX/XXXX-XX" />
+                    <button type="button" id="toggle-mode-link" class="mt-3 text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
+                        não tem CNPJ? Clique aqui →
+                    </button>
                 </div>
+
+                <!-- CPF Mode (hidden by default) -->
+                <div id="cpf-section" class="hidden space-y-4 mb-4">
+                    <div>
+                        <label for="cpf" class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
+                        <input id="cpf" name="cpf" type="text"
+                            class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
+                            placeholder="XXX.XXX.XXX-XX" />
+                        <p id="cpf-error" class="mt-1 text-sm text-red-600 hidden"></p>
+                    </div>
+
+                    <div>
+                        <label for="cpf-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
+                        <input id="cpf-name" name="cpf_name" type="text" required
+                            class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
+                            placeholder="Seu nome completo" />
+                    </div>
+
+                    <button type="button" id="toggle-mode-back-link" class="text-sm text-green-600 hover:text-green-700 font-medium transition-colors">
+                        ← Usar CNPJ
+                    </button>
+                </div>
+
                 <button type="submit" id="submit-btn"
                     class="w-full flex justify-center rounded-lg bg-green-600 px-4 py-3 text-base font-semibold text-white hover:bg-green-700 shadow-sm transition-colors disabled:opacity-50">
                     Verificar CNPJ
@@ -220,6 +247,8 @@
     </div>
 
     <script>
+        let registrationMode = 'cnpj'; // Track current mode: 'cnpj' or 'cpf'
+
         const CSRF = '{{ csrf_token() }}';
         const VERIFY_URL = '{{ route('seller.stores.verify-cnpj') }}';
         const STEP1_URL  = '{{ route('seller.stores.step1') }}';
@@ -243,7 +272,7 @@
             states[name].classList.remove('hidden');
         }
 
-        let flow = { cnpj:'', legal_name:'', name:'', exists_in_database:false, already_has_seller:false, address:{}, hours:{} };
+        let flow = { modo: 'cnpj', cnpj:'', cpf:'', legal_name:'', name:'', exists_in_database:false, already_has_seller:false, address:{}, hours:{} };
 
         function headers() {
             return { 'Content-Type':'application/json', 'Accept':'application/json', 'X-Requested-With':'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF };
@@ -256,6 +285,34 @@
             return data;
         }
 
+        // Toggle registration mode
+        document.getElementById('toggle-mode-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            registrationMode = 'cpf';
+            document.getElementById('cnpj-section').classList.add('hidden');
+            document.getElementById('cpf-section').classList.remove('hidden');
+            document.getElementById('cnpj').value = '';
+            document.getElementById('cnpj').removeAttribute('required');
+            document.getElementById('cpf').setAttribute('required', '');
+            document.getElementById('cpf-name').setAttribute('required', '');
+            document.getElementById('cpf').focus();
+            document.getElementById('submit-btn').textContent = 'Verificar CPF';
+        });
+
+        document.getElementById('toggle-mode-back-link').addEventListener('click', function(e) {
+            e.preventDefault();
+            registrationMode = 'cnpj';
+            document.getElementById('cpf-section').classList.add('hidden');
+            document.getElementById('cnpj-section').classList.remove('hidden');
+            document.getElementById('cpf').value = '';
+            document.getElementById('cpf-name').value = '';
+            document.getElementById('cpf').removeAttribute('required');
+            document.getElementById('cpf-name').removeAttribute('required');
+            document.getElementById('cnpj').setAttribute('required', '');
+            document.getElementById('cnpj').focus();
+            document.getElementById('submit-btn').textContent = 'Verificar CNPJ';
+        });
+
         // CNPJ mask
         document.getElementById('cnpj').addEventListener('input', function(e) {
             let v = e.target.value.replace(/\D/g,'');
@@ -264,6 +321,17 @@
                 else if (v.length > 8) v = v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5,8)+'/'+v.slice(8);
                 else if (v.length > 5) v = v.slice(0,2)+'.'+v.slice(2,5)+'.'+v.slice(5);
                 else if (v.length > 2) v = v.slice(0,2)+'.'+v.slice(2);
+            }
+            e.target.value = v;
+        });
+
+        // CPF mask
+        document.getElementById('cpf').addEventListener('input', function(e) {
+            let v = e.target.value.replace(/\D/g,'');
+            if (v.length <= 11) {
+                if (v.length > 9) v = v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6,9)+'-'+v.slice(9);
+                else if (v.length > 6) v = v.slice(0,3)+'.'+v.slice(3,6)+'.'+v.slice(6);
+                else if (v.length > 3) v = v.slice(0,3)+'.'+v.slice(3);
             }
             e.target.value = v;
         });
@@ -288,39 +356,92 @@
             } catch {}
         });
 
-        // Submit CNPJ
+        // Submit CNPJ/CPF
         document.getElementById('store-form').addEventListener('submit', async function(e) {
             e.preventDefault();
-            const cnpj = document.getElementById('cnpj').value.replace(/\D/g,'');
-            if (cnpj.length !== 14) { showState('error'); document.getElementById('error-message').textContent = 'CNPJ inválido.'; return; }
-            showState('loading');
-            try {
-                const data = await postJSON(VERIFY_URL, { cnpj });
-                flow.cnpj = data.store.cnpj;
-                flow.legal_name = data.store.legal_name;
-                flow.name = data.store.name;
-                flow.exists_in_database = data.exists_in_database;
-                flow.already_has_seller = data.already_has_seller;
 
-                if (!data.exists_in_database) {
-                    showState('step1');
-                    document.getElementById('step1-legal-name').textContent = flow.legal_name;
-                    document.getElementById('step1-cnpj').textContent = formatCNPJ(flow.cnpj);
-                    document.getElementById('fantasy-name').value = flow.name;
-                } else if (data.already_has_seller) {
-                    showState('exHasSeller');
-                    document.getElementById('exhs-legal-name').textContent = flow.legal_name;
-                    document.getElementById('exhs-cnpj').textContent = formatCNPJ(flow.cnpj);
-                    document.getElementById('exhs-name').textContent = flow.name;
-                } else {
-                    showState('exNoSeller');
-                    document.getElementById('exns-legal-name').textContent = flow.legal_name;
-                    document.getElementById('exns-cnpj').textContent = formatCNPJ(flow.cnpj);
-                    document.getElementById('exns-name').textContent = flow.name;
+            if (registrationMode === 'cnpj') {
+                const cnpj = document.getElementById('cnpj').value.replace(/\D/g,'');
+                if (cnpj.length !== 14) { showState('error'); document.getElementById('error-message').textContent = 'CNPJ inválido.'; return; }
+                showState('loading');
+                try {
+                    const data = await postJSON(VERIFY_URL, { cnpj, modo: 'cnpj' });
+                    flow.modo = 'cnpj';
+                    flow.cnpj = data.store.cnpj;
+                    flow.legal_name = data.store.legal_name;
+                    flow.name = data.store.name;
+                    flow.exists_in_database = data.exists_in_database;
+                    flow.already_has_seller = data.already_has_seller;
+
+                    if (!data.exists_in_database) {
+                        showState('step1');
+                        document.getElementById('step1-legal-name').textContent = flow.legal_name;
+                        document.getElementById('step1-cnpj').textContent = formatCNPJ(flow.cnpj);
+                        document.getElementById('fantasy-name').value = flow.name;
+                    } else if (data.already_has_seller) {
+                        showState('exHasSeller');
+                        document.getElementById('exhs-legal-name').textContent = flow.legal_name;
+                        document.getElementById('exhs-cnpj').textContent = formatCNPJ(flow.cnpj);
+                        document.getElementById('exhs-name').textContent = flow.name;
+                    } else {
+                        showState('exNoSeller');
+                        document.getElementById('exns-legal-name').textContent = flow.legal_name;
+                        document.getElementById('exns-cnpj').textContent = formatCNPJ(flow.cnpj);
+                        document.getElementById('exns-name').textContent = flow.name;
+                    }
+                } catch(err) {
+                    showState('error');
+                    document.getElementById('error-message').textContent = err.message;
                 }
-            } catch(err) {
-                showState('error');
-                document.getElementById('error-message').textContent = err.message;
+            } else if (registrationMode === 'cpf') {
+                const cpf = document.getElementById('cpf').value.replace(/\D/g,'');
+                const name = document.getElementById('cpf-name').value.trim();
+                const cpfError = document.getElementById('cpf-error');
+
+                if (cpf.length !== 11) {
+                    cpfError.textContent = 'CPF inválido. Digite um CPF com 11 dígitos.';
+                    cpfError.classList.remove('hidden');
+                    return;
+                }
+
+                if (!name) {
+                    showState('error');
+                    document.getElementById('error-message').textContent = 'Nome completo é obrigatório.';
+                    return;
+                }
+
+                cpfError.classList.add('hidden');
+                showState('loading');
+
+                try {
+                    const data = await postJSON(VERIFY_URL, { cpf, name, modo: 'cpf' });
+                    flow.modo = 'cpf';
+                    flow.cpf = cpf;
+                    flow.legal_name = name;
+                    flow.name = data.store?.name || name;
+                    flow.exists_in_database = data.exists_in_database;
+                    flow.already_has_seller = data.already_has_seller;
+
+                    if (!data.exists_in_database) {
+                        showState('step1');
+                        document.getElementById('step1-legal-name').textContent = flow.legal_name;
+                        document.getElementById('step1-cnpj').textContent = formatCPF(flow.cpf);
+                        document.getElementById('fantasy-name').value = flow.name;
+                    } else if (data.already_has_seller) {
+                        showState('exHasSeller');
+                        document.getElementById('exhs-legal-name').textContent = flow.legal_name;
+                        document.getElementById('exhs-cnpj').textContent = formatCPF(flow.cpf);
+                        document.getElementById('exhs-name').textContent = flow.name;
+                    } else {
+                        showState('exNoSeller');
+                        document.getElementById('exns-legal-name').textContent = flow.legal_name;
+                        document.getElementById('exns-cnpj').textContent = formatCPF(flow.cpf);
+                        document.getElementById('exns-name').textContent = flow.name;
+                    }
+                } catch(err) {
+                    showState('error');
+                    document.getElementById('error-message').textContent = err.message;
+                }
             }
         });
 
@@ -331,7 +452,7 @@
             document.getElementById('fantasy-name-error').classList.add('hidden');
             flow.name = name;
             try {
-                await postJSON(STEP1_URL, { cnpj: flow.cnpj, legal_name: flow.legal_name, name: flow.name });
+                await postJSON(STEP1_URL, { modo: flow.modo, cnpj: flow.cnpj, cpf: flow.cpf, legal_name: flow.legal_name, name: flow.name });
                 showState('step2');
             } catch(err) { showState('error'); document.getElementById('error-message').textContent = err.message; }
         });
@@ -341,7 +462,7 @@
         document.getElementById('exns-btn').addEventListener('click', async function() {
             this.disabled=true; this.textContent='Enviando...';
             try {
-                const data = await postJSON(STEP3_URL, { cnpj: flow.cnpj, legal_name: flow.legal_name, name: flow.name, exists_in_database: true, already_has_seller: false, address_cep:'00000000', address_street:'N/A', address_number:'N/A', address_district:'N/A', address_city:'N/A', address_state:'SP' });
+                const data = await postJSON(STEP3_URL, { modo: flow.modo, cnpj: flow.cnpj, cpf: flow.cpf, legal_name: flow.legal_name, name: flow.name, exists_in_database: true, already_has_seller: false, address_cep:'00000000', address_street:'N/A', address_number:'N/A', address_district:'N/A', address_city:'N/A', address_state:'SP' });
                 showState('success');
                 document.getElementById('success-message').textContent = data.message;
             } catch(err) { showState('error'); document.getElementById('error-message').textContent = err.message; }
@@ -353,7 +474,7 @@
         document.getElementById('exhs-btn').addEventListener('click', async function() {
             this.disabled=true; this.textContent='Enviando...';
             try {
-                const data = await postJSON(STEP3_URL, { cnpj: flow.cnpj, legal_name: flow.legal_name, name: flow.name, exists_in_database: true, already_has_seller: true, address_cep:'00000000', address_street:'N/A', address_number:'N/A', address_district:'N/A', address_city:'N/A', address_state:'SP' });
+                const data = await postJSON(STEP3_URL, { modo: flow.modo, cnpj: flow.cnpj, cpf: flow.cpf, legal_name: flow.legal_name, name: flow.name, exists_in_database: true, already_has_seller: true, address_cep:'00000000', address_street:'N/A', address_number:'N/A', address_district:'N/A', address_city:'N/A', address_state:'SP' });
                 showState('success');
                 document.getElementById('success-message').textContent = data.message;
             } catch(err) { showState('error'); document.getElementById('error-message').textContent = err.message; }
@@ -390,7 +511,7 @@
             this.disabled=true; this.textContent='Cadastrando...';
             try {
                 const data = await postJSON(STEP3_URL, {
-                    cnpj: flow.cnpj, legal_name: flow.legal_name, name: flow.name,
+                    modo: flow.modo, cnpj: flow.cnpj, cpf: flow.cpf, legal_name: flow.legal_name, name: flow.name,
                     address_cep: flow.address.cep, address_street: flow.address.street, address_number: flow.address.number,
                     address_complement: flow.address.complement, address_district: flow.address.district,
                     address_city: flow.address.city, address_state: flow.address.state,
@@ -434,6 +555,11 @@
         function formatCNPJ(v) {
             const c = v.replace(/\D/g,'');
             return `${c.slice(0,2)}.${c.slice(2,5)}.${c.slice(5,8)}/${c.slice(8,12)}-${c.slice(12)}`;
+        }
+
+        function formatCPF(v) {
+            const c = v.replace(/\D/g,'');
+            return `${c.slice(0,3)}.${c.slice(3,6)}.${c.slice(6,9)}-${c.slice(9)}`;
         }
     </script>
 
