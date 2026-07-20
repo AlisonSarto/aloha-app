@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\DB;
 
 class CommissionService
 {
+    public function __construct(private GestaoClickService $gestaoClick) {}
+
     /**
      * Record a commission for an order.
      * Idempotent: does nothing if gestao_click_order_id already has an entry for this seller.
@@ -58,6 +60,66 @@ class CommissionService
             'commission_value'       => $commissionValue,
             'status'                 => 'pending',
         ]);
+    }
+
+    /**
+     * Creates commissions for orders placed while the seller link awaited review.
+     * It is safe to run more than once: recordOrderCommission prevents duplicates.
+     */
+    public function recordHistoricalOrderCommissions(Store $store): int
+    {
+        if (! $store->isSellerApproved() || ! $store->gestao_click_id) {
+            return 0;
+        }
+
+        $recorded = 0;
+        $page = 1;
+
+        do {
+            $result = $this->gestaoClick->getOrders($store->gestao_click_id, $page);
+
+            foreach ($result['data'] as $order) {
+                $orderId = $order['id'] ?? null;
+                if (! $orderId) {
+                    continue;
+                }
+
+                $packagesCount = collect($order['produtos'] ?? [])
+                    ->sum(fn ($item) => (int) data_get($item, 'produto.quantidade', 0));
+
+                $orderDate = ! empty($order['data'])
+                    ? Carbon::parse($order['data'])
+                    : now();
+
+                if ($this->recordOrderCommission(
+                    $store,
+                    (string) $orderId,
+                    (float) ($order['valor_total'] ?? 0),
+                    $packagesCount,
+                    $orderDate,
+                )) {
+                    $recorded++;
+                }
+            }
+
+            $nextPage = $result['meta']['proxima_pagina'] ?? null;
+            $page = is_numeric($nextPage) ? (int) $nextPage : 0;
+        } while ($page > 0);
+
+        return $recorded;
+    }
+
+    /** Cancel unpaid commissions if the seller link is rejected. */
+    public function cancelStoreCommissions(Store $store, int $sellerId, string $reason, int $adminUserId): int
+    {
+        return CommissionLedger::where('store_id', $store->id)
+            ->where('seller_id', $sellerId)
+            ->whereIn('status', ['pending', 'confirmed'])
+            ->update([
+                'status'        => 'canceled',
+                'canceled_by'   => $adminUserId,
+                'cancel_reason' => $reason,
+            ]);
     }
 
     /**

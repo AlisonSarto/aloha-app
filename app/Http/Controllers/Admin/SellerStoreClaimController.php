@@ -7,11 +7,14 @@ use App\Models\Seller;
 use App\Models\SellerGoal;
 use App\Models\SellerStoreClaim;
 use App\Models\Store;
+use App\Services\CommissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class SellerStoreClaimController extends Controller
 {
+    public function __construct(private CommissionService $commission) {}
+
     /** List all pending claims + recently reviewed */
     public function index(Request $request)
     {
@@ -53,7 +56,9 @@ class SellerStoreClaimController extends Controller
             ]);
         });
 
-        return back()->with('success', 'Solicitação aprovada. Loja vinculada ao vendedor e comissões ativadas.');
+        $recorded = $this->commission->recordHistoricalOrderCommissions($claim->store->fresh());
+
+        return back()->with('success', "Solicitação aprovada. {$recorded} comissão(ões) retroativa(s) foram geradas.");
     }
 
     /** Reject a claim */
@@ -69,6 +74,13 @@ class SellerStoreClaimController extends Controller
             'rejection_reason' => $request->rejection_reason,
         ]);
 
+        $this->commission->cancelStoreCommissions(
+            $claim->store,
+            $claim->seller_id,
+            $request->rejection_reason,
+            auth()->id(),
+        );
+
         return back()->with('success', 'Solicitação rejeitada.');
     }
 
@@ -83,7 +95,9 @@ class SellerStoreClaimController extends Controller
             'seller_assignment_approved_at' => now(),
         ]);
 
-        return back()->with('success', 'Loja aprovada para o vendedor. Comissões ativadas a partir de agora.');
+        $recorded = $this->commission->recordHistoricalOrderCommissions($store->fresh());
+
+        return back()->with('success', "Loja aprovada para o vendedor. {$recorded} comissão(ões) retroativa(s) foram geradas.");
     }
 
     /** Reject a store's seller link */
@@ -98,6 +112,13 @@ class SellerStoreClaimController extends Controller
             'seller_assignment_approved_by' => auth()->id(),
             'seller_assignment_approved_at' => now(),
         ]);
+
+        $this->commission->cancelStoreCommissions(
+            $store,
+            $store->seller_id,
+            $request->rejection_reason,
+            auth()->id(),
+        );
 
         return back()->with('success', 'Vínculo rejeitado.');
     }
