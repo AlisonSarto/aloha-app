@@ -10,6 +10,7 @@ use App\Services\OpenCNPJ;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StoreController extends Controller
 {
@@ -101,9 +102,14 @@ class StoreController extends Controller
             try {
                 $response = $openCnpj->getCNPJ($cnpj);
                 if (in_array($response['status'] ?? 0, [404, 429])) {
-                    return response()->json(['success' => false, 'message' => 'CNPJ não encontrado.'], 404);
+                    return $this->manualCnpjEntryResponse($cnpj, 'Não foi possível consultar os dados deste CNPJ. Preencha-os manualmente para continuar.');
                 }
                 $data = $response['data'] ?? [];
+
+                if (empty($data) || (empty($data['razao_social']) && empty($data['nome_fantasia']))) {
+                    return $this->manualCnpjEntryResponse($cnpj, 'A consulta de CNPJ não retornou dados. Preencha-os manualmente para continuar.');
+                }
+
                 return response()->json([
                     'success'            => true,
                     'exists_in_database' => false,
@@ -114,10 +120,31 @@ class StoreController extends Controller
                         'name'       => $data['nome_fantasia'] ?? '',
                     ],
                 ]);
-            } catch (\Exception) {
-                return response()->json(['success' => false, 'message' => 'Erro ao consultar CNPJ.'], 404);
+            } catch (\Exception $e) {
+                Log::warning('Consulta de CNPJ indisponível no cadastro do seller; usando cadastro manual.', [
+                    'cnpj' => $cnpj,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return $this->manualCnpjEntryResponse($cnpj, 'Não foi possível consultar o CNPJ agora. Preencha os dados manualmente para continuar.');
             }
         }
+    }
+
+    private function manualCnpjEntryResponse(string $cnpj, string $message): JsonResponse
+    {
+        return response()->json([
+            'success'            => true,
+            'exists_in_database' => false,
+            'already_has_seller' => false,
+            'manual_entry'       => true,
+            'message'            => $message,
+            'store'              => [
+                'cnpj'       => $cnpj,
+                'legal_name' => '',
+                'name'       => '',
+            ],
+        ]);
     }
 
     public function confirmStep1(Request $request): JsonResponse

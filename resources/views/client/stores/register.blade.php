@@ -97,6 +97,13 @@
                     <div>
                         <label class="block text-xs font-medium text-gray-500 uppercase">Razão Social</label>
                         <p id="step1-legal-name" class="text-gray-900 font-medium mt-1"></p>
+                        <input id="legal-name" type="text"
+                            class="hidden mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
+                            placeholder="Informe a razão social" />
+                        <p id="manual-cnpj-notice" class="hidden mt-2 text-sm text-amber-700">
+                            Não foi possível preencher os dados automaticamente. Informe a razão social da empresa.
+                        </p>
+                        <p id="legal-name-error" class="mt-1 text-sm text-red-600 hidden"></p>
                     </div>
 
                     <div>
@@ -666,6 +673,7 @@
                     currentFlowData.legal_name = data.store.legal_name || '';
                     currentFlowData.name = data.store.name || '';
                     currentFlowData.exists_in_database = data.exists_in_database || false;
+                    currentFlowData.manual_entry = data.manual_entry || false;
 
                     // Se store já existe no banco, mostrar estado específico
                     if (data.exists_in_database) {
@@ -765,7 +773,20 @@
             loadingState.classList.add('hidden');
             step1State.classList.remove('hidden');
 
-            document.getElementById('step1-legal-name').textContent = storeData.legal_name || '-';
+            const legalNameText = document.getElementById('step1-legal-name');
+            const legalNameInput = document.getElementById('legal-name');
+            const legalNameError = document.getElementById('legal-name-error');
+            const manualCnpjNotice = document.getElementById('manual-cnpj-notice');
+            const requiresManualEntry = registrationMode === 'cnpj' && currentFlowData.manual_entry;
+
+            legalNameText.textContent = storeData.legal_name || '-';
+            legalNameText.classList.toggle('hidden', requiresManualEntry);
+            legalNameInput.classList.toggle('hidden', !requiresManualEntry);
+            legalNameInput.value = storeData.legal_name || '';
+            legalNameInput.required = requiresManualEntry;
+            manualCnpjNotice.classList.toggle('hidden', !requiresManualEntry);
+            legalNameError.classList.add('hidden');
+
             if (registrationMode === 'cnpj') {
                 document.getElementById('step1-cnpj').textContent = formatCNPJ(storeData.cnpj);
             } else {
@@ -777,6 +798,19 @@
         document.getElementById('step1-btn').addEventListener('click', async function() {
             const fantasyName = document.getElementById('fantasy-name').value.trim();
             const fantasyError = document.getElementById('fantasy-name-error');
+            const legalName = document.getElementById('legal-name').value.trim();
+            const legalNameError = document.getElementById('legal-name-error');
+
+            if (registrationMode === 'cnpj' && currentFlowData.manual_entry) {
+                if (!legalName) {
+                    legalNameError.textContent = 'Razão Social é obrigatória';
+                    legalNameError.classList.remove('hidden');
+                    return;
+                }
+
+                currentFlowData.legal_name = legalName;
+                legalNameError.classList.add('hidden');
+            }
 
             if (!fantasyName) {
                 fantasyError.textContent = 'Nome Fantasia é obrigatório';

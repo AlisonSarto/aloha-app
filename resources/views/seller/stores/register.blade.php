@@ -76,6 +76,12 @@
                 <div>
                     <p class="text-xs font-medium text-gray-500 uppercase">Razão Social</p>
                     <p id="step1-legal-name" class="text-gray-900 font-medium mt-0.5"></p>
+                    <input id="legal-name" type="text" placeholder="Informe a razão social"
+                        class="hidden mt-1 block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base shadow-sm focus:border-green-500 focus:ring-green-500"/>
+                    <p id="manual-cnpj-notice" class="hidden mt-2 text-sm text-amber-700">
+                        Não foi possível preencher os dados automaticamente. Informe a razão social da empresa.
+                    </p>
+                    <p id="legal-name-error" class="mt-1 text-sm text-red-600 hidden"></p>
                 </div>
                 <div>
                     <p class="text-xs font-medium text-gray-500 uppercase">CNPJ</p>
@@ -272,7 +278,7 @@
             states[name].classList.remove('hidden');
         }
 
-        let flow = { modo: 'cnpj', cnpj:'', cpf:'', legal_name:'', name:'', exists_in_database:false, already_has_seller:false, address:{}, hours:{} };
+        let flow = { modo: 'cnpj', cnpj:'', cpf:'', legal_name:'', name:'', exists_in_database:false, already_has_seller:false, manual_entry:false, address:{}, hours:{} };
 
         function headers() {
             return { 'Content-Type':'application/json', 'Accept':'application/json', 'X-Requested-With':'XMLHttpRequest', 'X-CSRF-TOKEN': CSRF };
@@ -378,10 +384,18 @@
                     flow.name = data.store.name;
                     flow.exists_in_database = data.exists_in_database;
                     flow.already_has_seller = data.already_has_seller;
+                    flow.manual_entry = data.manual_entry || false;
 
                     if (!data.exists_in_database) {
                         showState('step1');
-                        document.getElementById('step1-legal-name').textContent = flow.legal_name;
+                        const legalNameText = document.getElementById('step1-legal-name');
+                        const legalNameInput = document.getElementById('legal-name');
+                        const manualNotice = document.getElementById('manual-cnpj-notice');
+                        legalNameText.textContent = flow.legal_name || '-';
+                        legalNameText.classList.toggle('hidden', flow.manual_entry);
+                        legalNameInput.classList.toggle('hidden', !flow.manual_entry);
+                        legalNameInput.value = flow.legal_name || '';
+                        manualNotice.classList.toggle('hidden', !flow.manual_entry);
                         document.getElementById('step1-cnpj').textContent = formatCNPJ(flow.cnpj);
                         document.getElementById('fantasy-name').value = flow.name;
                     } else if (data.already_has_seller) {
@@ -427,10 +441,14 @@
                     flow.name = data.store?.name || name;
                     flow.exists_in_database = data.exists_in_database;
                     flow.already_has_seller = data.already_has_seller;
+                    flow.manual_entry = false;
 
                     if (!data.exists_in_database) {
                         showState('step1');
                         document.getElementById('step1-legal-name').textContent = flow.legal_name;
+                        document.getElementById('step1-legal-name').classList.remove('hidden');
+                        document.getElementById('legal-name').classList.add('hidden');
+                        document.getElementById('manual-cnpj-notice').classList.add('hidden');
                         document.getElementById('step1-cnpj').textContent = formatCPF(flow.cpf);
                         document.getElementById('fantasy-name').value = flow.name;
                     } else if (data.already_has_seller) {
@@ -454,6 +472,20 @@
         // Step 1 → Step 2
         document.getElementById('step1-btn').addEventListener('click', async function() {
             const name = document.getElementById('fantasy-name').value.trim();
+            const legalName = document.getElementById('legal-name').value.trim();
+            const legalNameError = document.getElementById('legal-name-error');
+
+            if (registrationMode === 'cnpj' && flow.manual_entry) {
+                if (!legalName) {
+                    legalNameError.textContent = 'Razão Social é obrigatória';
+                    legalNameError.classList.remove('hidden');
+                    return;
+                }
+
+                flow.legal_name = legalName;
+                legalNameError.classList.add('hidden');
+            }
+
             if (!name) { document.getElementById('fantasy-name-error').classList.remove('hidden'); document.getElementById('fantasy-name-error').textContent='Obrigatório'; return; }
             document.getElementById('fantasy-name-error').classList.add('hidden');
             flow.name = name;

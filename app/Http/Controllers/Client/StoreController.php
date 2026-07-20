@@ -109,10 +109,7 @@ class StoreController extends Controller
                 $response = $openCnpj->getCNPJ($cnpj);
 
                 if ($response['status'] === 404) {
-                    return response()->json([
-                        'success' => false,
-                        'message' => 'CNPJ não encontrado. Verifique o número e tente novamente.'
-                    ], 404);
+                    return $this->manualCnpjEntryResponse($cnpj, 'Não foi possível localizar dados para este CNPJ. Preencha-os manualmente para continuar.');
                 }
 
                 if ($response['status'] === 429) {
@@ -121,21 +118,19 @@ class StoreController extends Controller
                     $response = $openCnpj->getCNPJ($cnpj);
 
                     if ($response['status'] === 404) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'CNPJ não encontrado. Verifique o número e tente novamente.'
-                        ], 404);
+                        return $this->manualCnpjEntryResponse($cnpj, 'Não foi possível localizar dados para este CNPJ. Preencha-os manualmente para continuar.');
                     }
 
                     if ($response['status'] === 429) {
-                        return response()->json([
-                            'success' => false,
-                            'message' => 'Limite de requisições atingido. Por favor, tente novamente mais tarde.'
-                        ], 429);
+                        return $this->manualCnpjEntryResponse($cnpj, 'A consulta de CNPJ está indisponível no momento. Preencha os dados manualmente para continuar.');
                     }
                 }
 
                 $data = $response['data'] ?? [];
+
+                if (empty($data) || (empty($data['razao_social']) && empty($data['nome_fantasia']))) {
+                    return $this->manualCnpjEntryResponse($cnpj, 'A consulta de CNPJ não retornou dados. Preencha-os manualmente para continuar.');
+                }
 
                 $storeData = [
                     'cnpj' => $cnpj,
@@ -150,12 +145,29 @@ class StoreController extends Controller
                 ]);
 
             } catch (\Exception $e) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Loja não encontrada. Verifique o CNPJ e tente novamente.'
-                ], 404);
+                Log::warning('Consulta de CNPJ indisponível; usando cadastro manual.', [
+                    'cnpj' => $cnpj,
+                    'error' => $e->getMessage(),
+                ]);
+
+                return $this->manualCnpjEntryResponse($cnpj, 'Não foi possível consultar o CNPJ agora. Preencha os dados manualmente para continuar.');
             }
         }
+    }
+
+    private function manualCnpjEntryResponse(string $cnpj, string $message): JsonResponse
+    {
+        return response()->json([
+            'success' => true,
+            'store' => [
+                'cnpj' => $cnpj,
+                'legal_name' => '',
+                'name' => '',
+            ],
+            'exists_in_database' => false,
+            'manual_entry' => true,
+            'message' => $message,
+        ]);
     }
 
     public function confirmStep1(Request $request): JsonResponse
