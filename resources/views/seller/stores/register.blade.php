@@ -35,7 +35,7 @@
                 <div id="cpf-section" class="hidden space-y-4 mb-4">
                     <div>
                         <label for="cpf" class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
-                        <input id="cpf" name="cpf" type="text"
+                        <input id="cpf" name="cpf" type="text" disabled
                             class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
                             placeholder="XXX.XXX.XXX-XX" />
                         <p id="cpf-error" class="mt-1 text-sm text-red-600 hidden"></p>
@@ -43,7 +43,7 @@
 
                     <div>
                         <label for="cpf-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
-                        <input id="cpf-name" name="cpf_name" type="text" required
+                        <input id="cpf-name" name="cpf_name" type="text" disabled
                             class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
                             placeholder="Seu nome completo" />
                     </div>
@@ -293,6 +293,9 @@
             document.getElementById('cpf-section').classList.remove('hidden');
             document.getElementById('cnpj').value = '';
             document.getElementById('cnpj').removeAttribute('required');
+            document.getElementById('cnpj').disabled = true;
+            document.getElementById('cpf').disabled = false;
+            document.getElementById('cpf-name').disabled = false;
             document.getElementById('cpf').setAttribute('required', '');
             document.getElementById('cpf-name').setAttribute('required', '');
             document.getElementById('cpf').focus();
@@ -306,8 +309,11 @@
             document.getElementById('cnpj-section').classList.remove('hidden');
             document.getElementById('cpf').value = '';
             document.getElementById('cpf-name').value = '';
+            document.getElementById('cpf').disabled = true;
+            document.getElementById('cpf-name').disabled = true;
             document.getElementById('cpf').removeAttribute('required');
             document.getElementById('cpf-name').removeAttribute('required');
+            document.getElementById('cnpj').disabled = false;
             document.getElementById('cnpj').setAttribute('required', '');
             document.getElementById('cnpj').focus();
             document.getElementById('submit-btn').textContent = 'Verificar CNPJ';

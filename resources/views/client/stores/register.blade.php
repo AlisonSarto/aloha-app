@@ -49,7 +49,7 @@
                     <div id="cpf-section" class="hidden space-y-4">
                         <div>
                             <label for="cpf" class="block text-sm font-medium text-gray-700 mb-1">CPF</label>
-                            <input id="cpf" name="cpf" type="text"
+                            <input id="cpf" name="cpf" type="text" disabled
                                 class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
                                 placeholder="XXX.XXX.XXX-XX" />
                             <p id="cpf-error" class="mt-1 text-sm text-red-600 hidden"></p>
@@ -57,7 +57,7 @@
 
                         <div>
                             <label for="cpf-name" class="block text-sm font-medium text-gray-700 mb-1">Nome Completo *</label>
-                            <input id="cpf-name" name="cpf_name" type="text" required
+                            <input id="cpf-name" name="cpf_name" type="text" disabled
                                 class="block w-full rounded-lg border border-gray-300 bg-white px-4 py-3 text-base text-gray-900 placeholder-gray-400 focus:border-green-500 focus:ring-green-500 shadow-sm"
                                 placeholder="Seu nome completo" />
                         </div>
@@ -501,6 +501,9 @@
             cpfSection.classList.remove('hidden');
             cnpjInput.value = '';
             cnpjInput.removeAttribute('required');
+            cnpjInput.disabled = true;
+            cpfInput.disabled = false;
+            cpfNameInput.disabled = false;
             cpfInput.setAttribute('required', '');
             cpfNameInput.setAttribute('required', '');
             cpfInput.focus();
@@ -514,8 +517,11 @@
             cnpjSection.classList.remove('hidden');
             cpfInput.value = '';
             cpfNameInput.value = '';
+            cpfInput.disabled = true;
+            cpfNameInput.disabled = true;
             cpfInput.removeAttribute('required');
             cpfNameInput.removeAttribute('required');
+            cnpjInput.disabled = false;
             cnpjInput.setAttribute('required', '');
             cnpjInput.focus();
             submitBtn.textContent = 'Verificar CNPJ';
