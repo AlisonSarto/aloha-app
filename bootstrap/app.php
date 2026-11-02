@@ -11,6 +11,8 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Trust the HTTPS headers forwarded by Traefik/Dockploy.
+        $middleware->trustProxies(at: '*');
         $middleware->redirectGuestsTo('/');
         $middleware->alias([
             'role' => \Spatie\Permission\Middleware\RoleMiddleware::class,
