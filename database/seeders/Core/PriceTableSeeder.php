@@ -10,9 +10,10 @@ class PriceTableSeeder extends Seeder
 {
     public function run(): void
     {
-        $table = PriceTable::create([
+        $table = PriceTable::firstOrCreate([
             'name' => 'Tabela Padrão',
-            'is_default' => true
+        ], [
+            'is_default' => true,
         ]);
 
         $ranges = [
@@ -34,7 +35,9 @@ class PriceTableSeeder extends Seeder
         ];
 
         foreach ($ranges as $range) {
-            $table->ranges()->create($range);
+            $table->ranges()->updateOrCreate([
+                'min_quantity' => $range['min_quantity'],
+            ], $range);
         }
     }
 }

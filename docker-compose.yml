@@ -1,0 +1,46 @@
+services:
+  app:
+    image: aloha-app-app:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    ports:
+      - "${APP_PORT:-8000}:80"
+    env_file:
+      - .env
+    environment:
+      APP_URL: ${APP_URL:-http://localhost:8000}
+      DB_CONNECTION: mysql
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_DATABASE: ${COMPOSE_DB_DATABASE:-aloha_app}
+      DB_USERNAME: ${COMPOSE_DB_USERNAME:-aloha}
+      DB_PASSWORD: ${COMPOSE_DB_PASSWORD:-aloha}
+    depends_on:
+      db:
+        condition: service_healthy
+    volumes:
+      - aloha_storage:/var/www/html/storage
+
+  db:
+    image: mysql:8.4
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: ${COMPOSE_DB_DATABASE:-aloha_app}
+      MYSQL_USER: ${COMPOSE_DB_USERNAME:-aloha}
+      MYSQL_PASSWORD: ${COMPOSE_DB_PASSWORD:-aloha}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-root}
+    ports:
+      - "${DB_FORWARD_PORT:-3306}:3306"
+    volumes:
+      - aloha_mysql:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  aloha_mysql:
+  aloha_storage:

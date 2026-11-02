@@ -44,6 +44,8 @@ class AuthController extends Controller
             'phone' => 'required|string|max:20',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
+        ], [
+            'email.unique' => 'Este e-mail já está cadastrado. Faça login ou use outro e-mail.',
         ]);
 
         $user = User::create([

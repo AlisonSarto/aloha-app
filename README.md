@@ -72,33 +72,43 @@ O **Aloha App** é uma plataforma B2B de gerenciamento e pedidos de gelos sabori
 
 ## 🛠️ Instalação
 
+### Rodando com Docker Compose
+
+Com Docker e Docker Compose instalados:
+
 ```bash
-# 1. Clone o repositório
-git clone https://github.com/AlisonSarto/aloha-app.git
-cd aloha-app
-
-# 2. Instale as dependências PHP
-composer install
-
-# 3. Copie o arquivo de ambiente
 cp .env.example .env
-
-# 4. Gere a chave da aplicação
-php artisan key:generate
-
-# 5. Configure o banco de dados no .env
-# DB_HOST=127.0.0.1
-# DB_DATABASE=aloha_app
-# DB_USERNAME=seu_usuario
-# DB_PASSWORD=sua_senha
-
-# 6. Execute as migrations e os seeders
-php artisan migrate --seed
+docker compose up --build -d
 ```
 
-> **Atalho:** rode `composer run setup` para instalar as dependências PHP + gerar a chave em um único comando.
+A aplicação estará disponível em <http://localhost:8000>. O container executa as migrations automaticamente e os dados do MySQL ficam no volume `aloha_mysql`.
 
----
+As migrations e os seeders são executados automaticamente na inicialização do
+container. O usuário administrador padrão é:
+
+```text
+E-mail: admin@email.com
+Senha: 123
+```
+
+Se precisar executar novamente manualmente:
+
+```bash
+docker compose exec app php artisan db:seed --force
+```
+
+Comandos úteis:
+
+```bash
+docker compose logs -f app
+docker compose exec app php artisan migrate:status
+docker compose down
+```
+
+Para apagar também os dados persistidos do banco, use `docker compose down -v`.
+
+### Instalação local
+
 
 ## 🔧 Configuração do Ambiente
 
