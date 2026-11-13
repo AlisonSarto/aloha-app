@@ -40,7 +40,3 @@ services:
       interval: 5s
       timeout: 5s
       retries: 20
-
-volumes:
-  aloha_mysql:
-  aloha_storage:

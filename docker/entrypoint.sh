@@ -33,7 +33,13 @@ if [ -z "${APP_KEY:-}" ]; then
 fi
 
 php artisan migrate --force
-php artisan db:seed --force
+
+# Seeders contain development defaults, including demo pricing and an admin
+# account. Never run them implicitly on a production restart or deployment.
+if [ "${APP_ENV:-local}" = "local" ]; then
+    php artisan db:seed --force
+fi
+
 php artisan optimize:clear
 
 exec "$@"

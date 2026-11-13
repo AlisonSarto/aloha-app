@@ -81,21 +81,45 @@ cp .env.example .env
 docker compose up --build -d
 ```
 
-A aplicação estará disponível em <http://localhost:8000>. O container executa as migrations automaticamente e os dados do MySQL ficam no volume `aloha_mysql`.
+A aplicação estará disponível em <http://localhost:8000>. O container executa as migrations automaticamente. Os dados persistentes ficam em `.volumes/db` (MySQL) e `.volumes/app` (storage do Laravel).
 
-As migrations e os seeders são executados automaticamente na inicialização do
-container. O usuário administrador padrão é:
+As migrations são executadas automaticamente na inicialização do container.
+Em `APP_ENV=local`, os seeders também rodam automaticamente. O usuário abaixo
+é apenas para desenvolvimento local:
 
 ```text
 E-mail: admin@email.com
 Senha: 123
 ```
 
-Se precisar executar novamente manualmente:
+Em produção, os seeders não rodam no deploy, evitando sobrescrever configurações
+de preço ou criar a conta administrativa padrão. Se precisar executar seeders
+em produção pela primeira vez, faça isso manualmente e de forma controlada.
+
+Se precisar executar novamente manualmente em desenvolvimento:
 
 ```bash
 docker compose exec app php artisan db:seed --force
 ```
+
+### Deploy no servidor
+
+O workflow `.github/workflows/deploy.yml` atualiza a aplicação ao receber push
+na branch `main` e também pode ser executado manualmente pelo GitHub Actions.
+Ele prepara a nova versão antes da manutenção, cria um backup do `.env` e dos
+volumes, gera um dump do banco e testa a restauração em um MySQL temporário.
+Só depois coloca o app em manutenção e troca o código.
+
+Configure estes secrets no GitHub Environment `production`:
+
+- `DEPLOY_HOST`
+- `DEPLOY_PORT`
+- `DEPLOY_USER`
+- `DEPLOY_SSH_PRIVATE_KEY` — chave privada dedicada para o deploy; deve ser um secret
+- `DEPLOY_SSH_KNOWN_HOSTS` — linha `known_hosts` com a chave pública do host já verificada
+
+Os backups ficam em `~/Dev/aloha-app-backups/` no servidor. A versão anterior
+do código fica em `~/Dev/aloha-app.rollback-*` para facilitar a recuperação.
 
 Comandos úteis:
 
