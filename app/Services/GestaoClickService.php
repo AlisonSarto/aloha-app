@@ -17,9 +17,6 @@ class GestaoClickService
     private function client()
     {
         return Http::baseUrl($this->baseUrl)
-            ->withOptions([
-                'verify' => storage_path('certs/cacert.pem'),
-            ])
             ->withHeaders([
                 'Content-Type' => 'application/json',
                 'access-token' => config('services.gestaoclick.token'),
@@ -115,10 +112,13 @@ class GestaoClickService
             ->json();
     }
 
-    public function getProducts(): array
+    public function getProducts(string $gestaoClickStoreId): array
     {
+        // Loja 63013433 pertence à operação Gelos RM; as demais usam Aloha.
+        $groupId = $gestaoClickStoreId === Store::GELOS_RM_GESTAO_CLICK_ID ? '3608887' : '2571246';
+
         $response = $this->client()
-            ->get('/produtos', ['grupo_id' => 2571246])
+            ->get('/produtos', ['grupo_id' => $groupId])
             ->throw()
             ->json();
 
@@ -220,8 +220,7 @@ class GestaoClickService
      */
     public function getBoletosFromCobranca(string $cobrancaHash): array
     {
-        $response = Http::withOptions(['verify' => storage_path('certs/cacert.pem')])
-            ->get("https://app.api.click.app/cobranca/{$cobrancaHash}")
+        $response = Http::get("https://app.api.click.app/cobranca/{$cobrancaHash}")
             ->throw()
             ->json();
 
@@ -284,7 +283,9 @@ class GestaoClickService
             ->orderByDesc('min_quantity')
             ->first();
 
-        $vlr_unitario = $priceRange ? (float) $priceRange->unit_price * 28 : 0.0;
+        $vlr_unitario = $priceRange
+            ? (float) $priceRange->unit_price * $store->unitsPerPack()
+            : 0.0;
 
         $pedido_formatado = collect($data['itens'])->map(fn($item) => [
             'produto_id'  => $item['produto_id'],

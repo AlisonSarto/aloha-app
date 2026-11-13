@@ -37,10 +37,7 @@ class BotconversaService
         ];
 
         try {
-            $response = Http::withOptions([
-                    'verify' => storage_path('certs/cacert.pem'),
-                ])
-                ->asJson()
+            $response = Http::asJson()
                 ->post($webhookUrl, $payload)
                 ->throw();
 

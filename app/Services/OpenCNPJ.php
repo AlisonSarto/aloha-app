@@ -16,9 +16,6 @@ class OpenCNPJ
     private function client()
     {
         return Http::baseUrl($this->baseUrl)
-            ->withOptions([
-                'verify' => storage_path('certs/cacert.pem'),
-            ])
             ->withHeaders([
                 'Content-Type' => 'application/json',
             ]);

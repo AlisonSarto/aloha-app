@@ -22,11 +22,11 @@ class PrincingService
             throw new \Exception('Nenhuma faixa de preço encontrada.');
         }
 
-        $unit_price = $range->unit_price;
+        $unit_price = (float) $range->unit_price * $store->unitsPerPack();
 
         return [
             'unit_price' => $unit_price,
-            'total_price' => ($unit_price * 28) * $quantity // 28 units for each pack
+            'total_price' => $unit_price * $quantity,
         ];
     }
 }

@@ -11,6 +11,10 @@ class Store extends Model
 {
     use HasFactory;
 
+    public const GELOS_RM_GESTAO_CLICK_ID = '63013433';
+    public const ALOHA_UNITS_PER_PACK = 28;
+    public const GELOS_RM_UNITS_PER_PACK = 30;
+
     protected $fillable = [
         'name',
         'gestao_click_id',
@@ -89,6 +93,13 @@ class Store extends Model
     public function isSellerApproved(): bool
     {
         return $this->seller_assignment_status === 'approved' && $this->seller_id !== null;
+    }
+
+    public function unitsPerPack(): int
+    {
+        return $this->gestao_click_id === self::GELOS_RM_GESTAO_CLICK_ID
+            ? self::GELOS_RM_UNITS_PER_PACK
+            : self::ALOHA_UNITS_PER_PACK;
     }
 
     public function hasLinkedClients(): bool

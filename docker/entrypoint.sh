@@ -3,6 +3,11 @@ set -eu
 
 echo "Aguardando o banco de dados em ${DB_HOST}:${DB_PORT}..."
 
+# The host bind mount can be empty on first startup and hides the image's
+# pre-created storage directories. Recreate Laravel's runtime paths in it.
+mkdir -p storage/app/public storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs
+chown -R www-data:www-data storage
+
 if [ ! -f vendor/autoload.php ]; then
     echo "Instalando dependências PHP..."
     for attempt in 1 2 3; do

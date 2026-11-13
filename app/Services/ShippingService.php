@@ -11,9 +11,7 @@ class ShippingService
         $apiKey = config('services.google_maps.key');
         $origin = config('services.google_maps.origin');
 
-        $response = Http::withOptions([
-            'verify' => base_path('storage/certs/cacert.pem'),
-        ])->get(
+        $response = Http::get(
             "https://maps.googleapis.com/maps/api/distancematrix/json",
             [
                 'origins' => $origin,

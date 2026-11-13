@@ -66,7 +66,7 @@ class OrderController extends Controller
             ->map(fn($r) => [
                 'min_quantity' => $r->min_quantity,
                 'max_quantity' => $r->max_quantity,
-                'unit_price'   => (float) $r->unit_price * 28,
+                'unit_price'   => (float) $r->unit_price * $store->unitsPerPack(),
             ])
             ->values()
             ->toArray();

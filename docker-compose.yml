@@ -1,6 +1,6 @@
 services:
   app:
-    image: aloha-app-app:local
+    image: aloha-app:local
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,7 +21,7 @@ services:
       db:
         condition: service_healthy
     volumes:
-      - aloha_storage:/var/www/html/storage
+      - ./.volumes/app:/var/www/html/storage
 
   db:
     image: mysql:8.4
@@ -34,7 +34,7 @@ services:
     ports:
       - "${DB_FORWARD_PORT:-3306}:3306"
     volumes:
-      - aloha_mysql:/var/lib/mysql
+      - ./.volumes/db:/var/lib/mysql
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u$${MYSQL_USER} -p$${MYSQL_PASSWORD} --silent"]
       interval: 5s
