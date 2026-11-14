@@ -210,6 +210,7 @@
                 <input type="text" id="delivery-date" readonly
                        placeholder="Selecione uma data..."
                        class="w-full rounded-lg border border-gray-300 px-4 py-3 text-sm text-gray-900 focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors cursor-pointer">
+                <p id="date-hint" class="mt-2 text-xs text-gray-500"></p>
             </div>
 
             {{-- Pagamento --}}
@@ -963,6 +964,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Accept': 'application/json',
                     'X-CSRF-TOKEN': '{{ csrf_token() }}',
                 },
                 body: JSON.stringify({
@@ -976,10 +978,15 @@
                     shipping:      getCartShipping(),
                 }),
             })
-            .then(r => r.json())
+            .then(async r => {
+                const data = await r.json();
+                if (!r.ok || !data.success) {
+                    const validationMessages = Object.values(data.errors || {}).flat();
+                    throw new Error(validationMessages.join('\n') || data.message || 'Falha ao criar pedido.');
+                }
+                return data;
+            })
             .then(data => {
-                if (!data.success) throw new Error('Falha ao criar pedido');
-
                 console.log(data);
 
                 document.getElementById('step-3').innerHTML =
@@ -1003,10 +1010,10 @@
 
                 syncPwaInstallButtonVisibility();
             })
-            .catch(() => {
+            .catch(error => {
                 btn.disabled = false;
                 btn.innerHTML = '<i class="fas fa-check mr-1.5"></i> Confirmar pedido';
-                alert('Erro ao enviar o pedido. Tente novamente.');
+                alert(error.message || 'Erro ao enviar o pedido. Tente novamente.');
             });
         }
 
