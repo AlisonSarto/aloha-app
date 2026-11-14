@@ -31,8 +31,19 @@ compose_exec() {
 cleanup() {
     local status=$?
     docker rm -f "$test_name" >/dev/null 2>&1 || true
-    if [ "$status" -ne 0 ] && [ "$maintenance" -eq 1 ] && [ "$services_stopped" -eq 0 ] && [ "$swapped" -eq 0 ]; then
-        compose_exec "$project" app php artisan up >/dev/null 2>&1 || true
+    if [ "$status" -ne 0 ] && [ "$swapped" -eq 0 ]; then
+        if [ "$services_stopped" -eq 1 ]; then
+            compose_in "$project" up -d >/dev/null 2>&1 || true
+        fi
+        if [ "$maintenance" -eq 1 ]; then
+            for attempt in $(seq 1 90); do
+                if compose_exec "$project" app php artisan --version >/dev/null 2>&1; then
+                    compose_exec "$project" app php artisan up >/dev/null 2>&1 || true
+                    break
+                fi
+                sleep 2
+            done
+        fi
     fi
     if [ "$swapped" -eq 0 ] && [ -d "$staging" ]; then
         rm -rf "$staging"
@@ -63,6 +74,7 @@ cp -p "$project/.env" "$staging/.env"
 chmod 600 "$backup/.env" "$staging/.env"
 compose_in "$staging" config --quiet
 compose_in "$staging" build app
+mkdir -p "$staging/.volumes"
 
 # Keep the backup and restore verification inside the maintenance window so
 # no order or customer update can land after the database snapshot.
