@@ -32,7 +32,14 @@ cleanup() {
     local status=$?
     docker rm -f "$test_name" >/dev/null 2>&1 || true
     if [ "$status" -ne 0 ] && [ "$swapped" -eq 0 ]; then
+        if [ ! -e "$project" ] && [ -d "$rollback" ]; then
+            mv "$rollback" "$project" || true
+        fi
+        if [ -d "$staging/.volumes" ] && [ ! -e "$project/.volumes" ]; then
+            mv "$staging/.volumes" "$project/.volumes" || true
+        fi
         if [ "$services_stopped" -eq 1 ]; then
+            docker tag "$old_image" aloha-app:local >/dev/null 2>&1 || true
             compose_in "$project" up -d >/dev/null 2>&1 || true
         fi
         if [ "$maintenance" -eq 1 ]; then
@@ -46,7 +53,11 @@ cleanup() {
         fi
     fi
     if [ "$swapped" -eq 0 ] && [ -d "$staging" ]; then
-        rm -rf "$staging"
+        if [ -e "$staging/.volumes" ]; then
+            echo "Preserving staging with volume data at $staging" >&2
+        else
+            rm -rf "$staging"
+        fi
     fi
     return "$status"
 }
@@ -64,18 +75,25 @@ mkdir -p "$backup_root" "$backup"
 chmod 700 "$backup_root" "$backup"
 
 old_image="$(docker inspect aloha-app-app-1 --format '{{.Image}}')"
-docker tag "$old_image" "aloha-app:rollback-$stamp"
+docker tag "$old_image" "aloha-app:rollback-base-$stamp"
 
 # Prepare and build the exact commit before interrupting production traffic.
-git clone --branch main https://github.com/alisonsarto/aloha-app.git "$staging"
-git -C "$staging" checkout --detach "$DEPLOY_SHA"
+(
+    umask 022
+    git clone --branch main https://github.com/alisonsarto/aloha-app.git "$staging"
+    git -C "$staging" checkout --detach "$DEPLOY_SHA"
+)
 cp -p "$project/.env" "$backup/.env"
 cp -p "$project/.env" "$staging/.env"
 chmod 600 "$backup/.env" "$staging/.env"
 compose_in "$staging" config --quiet
+docker build \
+    --build-arg "BASE_IMAGE=aloha-app:rollback-base-$stamp" \
+    -f "$staging/docker/rollback.Dockerfile" \
+    -t "aloha-app:rollback-$stamp" \
+    "$staging"
+old_image="$(docker inspect "aloha-app:rollback-$stamp" --format '{{.Id}}')"
 compose_in "$staging" build app
-mkdir -p "$staging/.volumes"
-
 # Keep the backup and restore verification inside the maintenance window so
 # no order or customer update can land after the database snapshot.
 compose_exec "$project" app php artisan down --retry=60
@@ -112,11 +130,11 @@ if [ "$table_count" -lt 1 ]; then
     echo "Database restore test produced no tables." >&2
     exit 1
 fi
-cleanup
+docker rm -f "$test_name" >/dev/null
 
 # Stop cleanly before archiving the raw MySQL data directory.
-compose_in "$project" stop app db
 services_stopped=1
+compose_in "$project" stop app db
 docker run --rm --entrypoint sh \
     -v "$project/.volumes:/source:ro" \
     -v "$backup:/backup" \
@@ -129,6 +147,7 @@ sha256sum "$backup/database.sql.gz" "$backup/volumes.tar.gz" "$backup/.env"
 echo "Verified SQL restore: $table_count tables. Backup: $backup"
 
 # Keep the existing bind-mounted database and storage data at the same path.
+test ! -e "$staging/.volumes"
 mv "$project/.volumes" "$staging/.volumes"
 mv "$project" "$rollback"
 mv "$staging" "$project"
