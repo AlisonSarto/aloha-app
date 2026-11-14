@@ -21,11 +21,18 @@ compose_in() {
     (cd "$directory" && APP_PORT=5310 docker compose --project-name aloha-app "$@")
 }
 
+compose_exec() {
+    local directory="$1"
+    local service="$2"
+    shift 2
+    compose_in "$directory" exec --interactive=false -T "$service" "$@"
+}
+
 cleanup() {
     local status=$?
     docker rm -f "$test_name" >/dev/null 2>&1 || true
     if [ "$status" -ne 0 ] && [ "$maintenance" -eq 1 ] && [ "$services_stopped" -eq 0 ] && [ "$swapped" -eq 0 ]; then
-        compose_in "$project" exec -T app php artisan up >/dev/null 2>&1 || true
+        compose_exec "$project" app php artisan up >/dev/null 2>&1 || true
     fi
     if [ "$swapped" -eq 0 ] && [ -d "$staging" ]; then
         rm -rf "$staging"
@@ -59,7 +66,7 @@ compose_in "$staging" build app
 
 # Keep the backup and restore verification inside the maintenance window so
 # no order or customer update can land after the database snapshot.
-compose_in "$project" exec -T app php artisan down --retry=60
+compose_exec "$project" app php artisan down --retry=60
 maintenance=1
 db_name="$(docker exec aloha-app-db-1 sh -c 'printf %s "$MYSQL_DATABASE"')"
 test -n "$db_name"
@@ -120,7 +127,7 @@ compose_in "$project" up -d --no-build
 
 ready=0
 for attempt in $(seq 1 90); do
-    if compose_in "$project" exec -T app php artisan migrate:status >/dev/null 2>&1; then
+    if compose_exec "$project" app php artisan migrate:status >/dev/null 2>&1; then
         ready=1
         break
     fi
@@ -134,7 +141,7 @@ if [ "$ready" -ne 1 ]; then
     exit 1
 fi
 
-compose_in "$project" exec -T app php artisan up
+compose_exec "$project" app php artisan up
 curl --fail --silent --show-error --max-time 15 http://127.0.0.1:5310/ -o /dev/null
 
 echo "Deployment succeeded: $DEPLOY_SHA"

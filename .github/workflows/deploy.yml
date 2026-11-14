@@ -48,11 +48,29 @@ jobs:
           test -n "$DEPLOY_PORT"
           test -n "$DEPLOY_USER"
           [[ "$DEPLOY_SHA" =~ ^[0-9a-f]{40}$ ]]
-          ssh -i "$HOME/.ssh/aloha_deploy" \
-            -p "$DEPLOY_PORT" \
+          ssh_args=(
+            -i "$HOME/.ssh/aloha_deploy"
+            -p "$DEPLOY_PORT"
+            -o BatchMode=yes \
+            -o IdentitiesOnly=yes \
+            -o StrictHostKeyChecking=yes \
+            -o UserKnownHostsFile="$HOME/.ssh/known_hosts"
+          )
+          remote="$DEPLOY_USER@$DEPLOY_HOST"
+          remote_script=".cache/aloha-deploy/deploy-$DEPLOY_SHA.sh"
+          ssh "${ssh_args[@]}" "$remote" "mkdir -p .cache/aloha-deploy"
+          scp -i "$HOME/.ssh/aloha_deploy" \
+            -P "$DEPLOY_PORT" \
             -o BatchMode=yes \
             -o IdentitiesOnly=yes \
             -o StrictHostKeyChecking=yes \
             -o UserKnownHostsFile="$HOME/.ssh/known_hosts" \
-            "$DEPLOY_USER@$DEPLOY_HOST" \
-            "DEPLOY_SHA=$DEPLOY_SHA bash -s" < docker/deploy-server.sh
+            docker/deploy-server.sh "$remote:$remote_script"
+          if ssh "${ssh_args[@]}" "$remote" \
+            "DEPLOY_SHA=$DEPLOY_SHA bash $remote_script"; then
+            ssh "${ssh_args[@]}" "$remote" "rm -f $remote_script"
+          else
+            status=$?
+            ssh "${ssh_args[@]}" "$remote" "rm -f $remote_script" || true
+            exit "$status"
+          fi
