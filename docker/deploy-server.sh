@@ -113,7 +113,7 @@ docker exec "$test_name" sh -c 'umask 077; printf "[client]\nuser=root\npassword
 
 ready=0
 for attempt in $(seq 1 300); do
-    if docker exec "$test_name" sh -c 'mysql --defaults-extra-file=/tmp/restore-test.cnf --batch --skip-column-names "$MYSQL_DATABASE" -e "SELECT 1"' >/dev/null 2>&1; then
+    if docker exec "$test_name" sh -c 'mysql --defaults-extra-file=/tmp/restore-test.cnf --protocol=TCP --host=127.0.0.1 --port=3306 --batch --skip-column-names "$MYSQL_DATABASE" -e "SELECT 1"' >/dev/null 2>&1; then
         ready=1
         break
     fi
@@ -125,8 +125,8 @@ if [ "$ready" -ne 1 ]; then
     exit 1
 fi
 
-gzip -dc "$backup/database.sql.gz" | docker exec -i "$test_name" sh -c 'exec mysql --defaults-extra-file=/tmp/restore-test.cnf "$MYSQL_DATABASE"'
-table_count="$(docker exec "$test_name" sh -c 'mysql --defaults-extra-file=/tmp/restore-test.cnf --batch --skip-column-names "$MYSQL_DATABASE" -e "SHOW TABLES"' | wc -l)"
+gzip -dc "$backup/database.sql.gz" | docker exec -i "$test_name" sh -c 'exec mysql --defaults-extra-file=/tmp/restore-test.cnf --protocol=TCP --host=127.0.0.1 --port=3306 "$MYSQL_DATABASE"'
+table_count="$(docker exec "$test_name" sh -c 'mysql --defaults-extra-file=/tmp/restore-test.cnf --protocol=TCP --host=127.0.0.1 --port=3306 --batch --skip-column-names "$MYSQL_DATABASE" -e "SHOW TABLES"' | wc -l)"
 if [ "$table_count" -lt 1 ]; then
     echo "Database restore test produced no tables." >&2
     exit 1
