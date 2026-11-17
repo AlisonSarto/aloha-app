@@ -114,23 +114,27 @@ class GestaoClickService
 
     public function getProducts(string $gestaoClickStoreId): array
     {
-        // Loja 63013433 pertence à operação Gelos RM; as demais usam Aloha.
-        $groupId = $gestaoClickStoreId === Store::GELOS_RM_GESTAO_CLICK_ID ? '3608887' : '2571246';
-
-        $response = $this->client()
-            ->get('/produtos', ['grupo_id' => $groupId])
-            ->throw()
-            ->json();
-
-        $data = $response['data'];
+        // A loja RM também pode comprar produtos da Fort Gelos.
+        $groupIds = $gestaoClickStoreId === Store::GELOS_RM_GESTAO_CLICK_ID
+            ? ['3608887', '6221256']
+            : ['2571246'];
 
         $products = [];
-        foreach ($data as $product) {
-            $products[] = [
-                'id' => $product['id'],
-                'nome' => $product['nome'],
-            ];
+        foreach ($groupIds as $groupId) {
+            $response = $this->client()
+                ->get('/produtos', ['grupo_id' => $groupId])
+                ->throw()
+                ->json();
+
+            foreach ($response['data'] as $product) {
+                $products[$product['id']] = [
+                    'id' => $product['id'],
+                    'nome' => $product['nome'],
+                ];
+            }
         }
+
+        $products = array_values($products);
 
         $ordem = [
             'COCO',
