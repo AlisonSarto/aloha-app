@@ -11,6 +11,9 @@
             <img src="{{ asset('favicon.ico') }}" alt="Aloha App logo" class="mx-auto h-16 w-auto mb-4" />
             <h2 class="text-center text-2xl font-bold tracking-tight text-gray-900">Entre na sua conta</h2>
             <p class="mt-2 text-center text-sm text-gray-600">Acesse sua conta para fazer seus pedidos.</p>
+            @if (session('error'))
+                <p class="mt-3 text-center text-sm text-red-600">{{ session('error') }}</p>
+            @endif
         </div>
 
         <div class="mx-auto w-full max-w-sm mt-8">

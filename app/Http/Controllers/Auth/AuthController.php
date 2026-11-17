@@ -17,7 +17,10 @@ class AuthController extends Controller
         if (auth()->check()) {
             return redirect()->route('home');
         }
-        return view('auth.index');
+        return response()
+            ->view('auth.index')
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0')
+            ->header('Pragma', 'no-cache');
     }
 
     public function login(Request $request) {
@@ -25,6 +28,8 @@ class AuthController extends Controller
         $remember = true;
 
         if (Auth::attempt($credentials, $remember)) {
+            $request->session()->regenerate();
+
             return redirect()->route('home');
         }
 
