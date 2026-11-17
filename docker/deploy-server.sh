@@ -112,7 +112,7 @@ docker run -d --rm --name "$test_name" \
 docker exec "$test_name" sh -c 'umask 077; printf "[client]\nuser=root\npassword=%s\n" "$MYSQL_ROOT_PASSWORD" > /tmp/restore-test.cnf'
 
 ready=0
-for attempt in $(seq 1 90); do
+for attempt in $(seq 1 300); do
     if docker exec "$test_name" sh -c 'mysql --defaults-extra-file=/tmp/restore-test.cnf --batch --skip-column-names "$MYSQL_DATABASE" -e "SELECT 1"' >/dev/null 2>&1; then
         ready=1
         break
@@ -121,6 +121,7 @@ for attempt in $(seq 1 90); do
 done
 if [ "$ready" -ne 1 ]; then
     echo "Temporary MySQL authentication did not become ready." >&2
+    docker logs "$test_name" >&2 || true
     exit 1
 fi
 
